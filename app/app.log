@@ -1,0 +1,507 @@
+2026-03-04 05:47:56,155 - WARNING - Database not ready. Retrying in 3 seconds... (5 left). Error: (psycopg2.OperationalError) connection to server at "db" (172.18.0.2), port 5432 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-03-04 05:47:59,243 - INFO - Successfully connected to the database and created tables.
+2026-03-04 05:47:59,251 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 05:47:59,251 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 05:48:10,670 - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/app/main.py", line 45, in dashboard
+    return render_template('dashboard.html', tasks=tasks)
+  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 151, in render_template
+    return _render(app, template, context)
+  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 132, in _render
+    rv = template.render(context)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/app/templates/dashboard.html", line 65, in top-level template code
+    data: [10, 5, 2], // Заглушка, позже заменим на {{ stats.in_progress }}, и т.д.
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 490, in getattr
+    return getattr(obj, attribute)
+jinja2.exceptions.UndefinedError: 'stats' is undefined
+2026-03-04 05:48:10,686 - INFO - 172.18.0.1 - - [04/Mar/2026 05:48:10] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-04 05:48:42,277 - INFO - Successfully connected to the database and created tables.
+2026-03-04 05:48:42,283 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 05:48:42,283 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 05:48:54,322 - INFO - Successfully connected to the database and created tables.
+2026-03-04 05:49:23,682 - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/app/main.py", line 45, in dashboard
+    return render_template('dashboard.html', tasks=tasks)
+  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 151, in render_template
+    return _render(app, template, context)
+  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 132, in _render
+    rv = template.render(context)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/app/templates/dashboard.html", line 65, in top-level template code
+    data: [10, 5, 2], // Заглушка, позже заменим на {{ stats.in_progress }}, и т.д.
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 490, in getattr
+    return getattr(obj, attribute)
+jinja2.exceptions.UndefinedError: 'stats' is undefined
+2026-03-04 05:49:23,703 - INFO - 172.18.0.1 - - [04/Mar/2026 05:49:23] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-04 05:53:26,878 - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/app/main.py", line 45, in dashboard
+    return render_template('dashboard.html', tasks=tasks)
+  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 151, in render_template
+    return _render(app, template, context)
+  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 132, in _render
+    rv = template.render(context)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/app/templates/dashboard.html", line 65, in top-level template code
+    data: [10, 5, 2], // Заглушка, позже заменим на {{ stats.in_progress }}, и т.д.
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 490, in getattr
+    return getattr(obj, attribute)
+jinja2.exceptions.UndefinedError: 'stats' is undefined
+2026-03-04 05:53:26,882 - INFO - 127.0.0.1 - - [04/Mar/2026 05:53:26] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-04 05:53:52,067 - INFO - Successfully connected to the database and created tables.
+2026-03-04 05:53:52,077 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 05:53:52,078 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 05:55:42,970 - INFO - 127.0.0.1 - - [04/Mar/2026 05:55:42] "GET / HTTP/1.1" 200 -
+2026-03-04 05:56:57,426 - INFO - Successfully connected to the database and created tables.
+2026-03-04 05:56:57,438 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 05:56:57,439 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 05:57:07,561 - INFO - 172.18.0.1 - - [04/Mar/2026 05:57:07] "GET / HTTP/1.1" 200 -
+2026-03-04 06:05:38,874 - WARNING - Database not ready. Retrying in 3 seconds... (5 left). Error: (psycopg2.OperationalError) connection to server at "db" (172.18.0.2), port 5432 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-03-04 06:05:41,957 - INFO - Successfully connected to the database and created tables.
+2026-03-04 06:05:41,967 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 06:05:41,968 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 06:05:54,434 - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/app/main.py", line 64, in dashboard
+    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
+  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
+    self.handle_exception(source=source_hint)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/app/templates/dashboard.html", line 263, in template
+    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
+jinja2.exceptions.TemplateSyntaxError: unexpected '}'
+2026-03-04 06:05:54,450 - INFO - 172.18.0.1 - - [04/Mar/2026 06:05:54] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-04 06:07:53,665 - INFO - Successfully connected to the database and created tables.
+2026-03-04 06:07:53,680 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 06:07:53,681 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 06:50:22,124 - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/app/main.py", line 64, in dashboard
+    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
+  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
+    self.handle_exception(source=source_hint)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/app/templates/dashboard.html", line 263, in template
+    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
+jinja2.exceptions.TemplateSyntaxError: unexpected '}'
+2026-03-04 06:50:22,140 - INFO - 127.0.0.1 - - [04/Mar/2026 06:50:22] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-04 06:51:06,203 - INFO - Successfully connected to the database and created tables.
+2026-03-04 06:51:06,212 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 06:51:06,212 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 07:12:51,030 - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/app/main.py", line 64, in dashboard
+    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
+  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
+    self.handle_exception(source=source_hint)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/app/templates/dashboard.html", line 263, in template
+    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
+jinja2.exceptions.TemplateSyntaxError: unexpected '}'
+2026-03-04 07:12:51,048 - INFO - 127.0.0.1 - - [04/Mar/2026 07:12:51] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-04 07:13:50,744 - INFO - Successfully connected to the database and created tables.
+2026-03-04 07:13:50,757 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 07:13:50,757 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 07:14:03,436 - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/app/main.py", line 64, in dashboard
+    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
+  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
+    self.handle_exception(source=source_hint)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/app/templates/dashboard.html", line 263, in template
+    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
+jinja2.exceptions.TemplateSyntaxError: unexpected '}'
+2026-03-04 07:14:03,450 - INFO - 127.0.0.1 - - [04/Mar/2026 07:14:03] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-04 07:15:33,128 - INFO - Successfully connected to the database and created tables.
+2026-03-04 07:15:33,137 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 07:15:33,137 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 07:15:53,926 - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/app/main.py", line 64, in dashboard
+    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
+  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
+    self.handle_exception(source=source_hint)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/app/templates/dashboard.html", line 263, in template
+    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
+jinja2.exceptions.TemplateSyntaxError: unexpected '}'
+2026-03-04 07:15:53,938 - INFO - 127.0.0.1 - - [04/Mar/2026 07:15:53] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-04 07:21:00,726 - INFO - Successfully connected to the database and created tables.
+2026-03-04 07:21:00,734 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 07:21:00,734 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 07:21:16,026 - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/app/main.py", line 64, in dashboard
+    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
+  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
+    self.handle_exception(source=source_hint)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/app/templates/dashboard.html", line 263, in template
+    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
+jinja2.exceptions.TemplateSyntaxError: unexpected '}'
+2026-03-04 07:21:16,040 - INFO - 127.0.0.1 - - [04/Mar/2026 07:21:16] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-04 07:24:01,253 - INFO - Successfully connected to the database and created tables.
+2026-03-04 07:24:01,263 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 07:24:01,263 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 07:25:14,736 - INFO - 172.18.0.1 - - [04/Mar/2026 07:25:14] "GET / HTTP/1.1" 200 -
+2026-03-04 07:34:01,505 - WARNING - Database not ready. Retrying in 3 seconds... (5 left). Error: (psycopg2.OperationalError) connection to server at "db" (172.18.0.2), port 5432 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-03-04 07:34:04,629 - INFO - Successfully connected to the database and created tables.
+2026-03-04 07:34:04,843 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 07:34:04,843 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 07:34:47,716 - INFO - 172.18.0.1 - - [04/Mar/2026 07:34:47] "GET / HTTP/1.1" 200 -
+2026-03-04 07:36:48,670 - INFO - Successfully connected to the database and created tables.
+2026-03-04 07:36:48,776 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 07:36:48,777 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 07:37:20,789 - ERROR - Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/app/main.py", line 114, in dashboard
+    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
+  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
+    self.handle_exception(source=source_hint)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/app/templates/dashboard.html", line 274, in template
+    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
+jinja2.exceptions.TemplateSyntaxError: unexpected '}'
+2026-03-04 07:37:20,802 - INFO - 172.18.0.1 - - [04/Mar/2026 07:37:20] "[35m[1mGET /dashboard HTTP/1.1[0m" 500 -
+2026-03-04 07:38:51,691 - INFO - Successfully connected to the database and created tables.
+2026-03-04 07:38:51,864 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 07:38:51,864 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 07:39:16,216 - ERROR - Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/app/main.py", line 114, in dashboard
+    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
+  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
+    self.handle_exception(source=source_hint)
+  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/app/templates/dashboard.html", line 274, in template
+    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
+jinja2.exceptions.TemplateSyntaxError: unexpected '}'
+2026-03-04 07:39:16,226 - INFO - 172.18.0.1 - - [04/Mar/2026 07:39:16] "[35m[1mGET /dashboard HTTP/1.1[0m" 500 -
+2026-03-04 07:50:15,681 - INFO - Successfully connected to the database and created tables.
+2026-03-04 07:50:15,818 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 07:50:15,818 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 07:50:20,935 - INFO - 172.18.0.1 - - [04/Mar/2026 07:50:20] "GET / HTTP/1.1" 200 -
+2026-03-04 07:50:22,735 - INFO - 172.18.0.1 - - [04/Mar/2026 07:50:22] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-03-04 07:50:25,730 - ERROR - Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1965, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 921, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column tasks.item_number does not exist
+LINE 1: SELECT tasks.id AS tasks_id, tasks.item_number AS tasks_item...
+                                     ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/app/main.py", line 89, in dashboard
+    tasks = Task.query.all()
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/orm/query.py", line 2692, in all
+    return self._iter().all()  # type: ignore
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/orm/query.py", line 2846, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2246, in execute
+    return self._execute_internal(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2141, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1412, in execute
+    return meth(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/elements.py", line 483, in _execute_on_connection
+    return connection._execute_clauseelement(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1635, in _execute_clauseelement
+    ret = self._execute_context(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1844, in _execute_context
+    return self._exec_single_context(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1984, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2339, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1965, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 921, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column tasks.item_number does not exist
+LINE 1: SELECT tasks.id AS tasks_id, tasks.item_number AS tasks_item...
+                                     ^
+
+[SQL: SELECT tasks.id AS tasks_id, tasks.item_number AS tasks_item_number, tasks.title AS tasks_title, tasks.text AS tasks_text, tasks.deadline AS tasks_deadline, tasks.status AS tasks_status, tasks.file_hash AS tasks_file_hash, tasks.executor_id AS tasks_executor_id, tasks.created_at AS tasks_created_at 
+FROM tasks]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-03-04 07:50:25,753 - INFO - 172.18.0.1 - - [04/Mar/2026 07:50:25] "[35m[1mGET /dashboard HTTP/1.1[0m" 500 -
+2026-03-04 07:56:28,322 - WARNING - Database not ready. Retrying in 3 seconds... (5 left). Error: (psycopg2.OperationalError) connection to server at "db" (172.18.0.2), port 5432 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-03-04 07:56:31,480 - INFO - Successfully connected to the database and created tables.
+2026-03-04 07:56:31,622 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.18.0.3:5000
+2026-03-04 07:56:31,622 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 07:59:38,418 - INFO - 172.18.0.1 - - [04/Mar/2026 07:59:38] "GET /dashboard HTTP/1.1" 200 -
+2026-03-04 07:59:40,729 - INFO - 172.18.0.1 - - [04/Mar/2026 07:59:40] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-03-04 08:00:42,515 - INFO - 172.18.0.1 - - [04/Mar/2026 08:00:42] "GET /api/report HTTP/1.1" 200 -
+2026-03-04 08:00:57,430 - INFO - 172.18.0.1 - - [04/Mar/2026 08:00:57] "GET / HTTP/1.1" 200 -
+2026-03-04 08:01:08,462 - INFO - Начат парсинг протокола: КЧС 4.pdf
+2026-03-04 08:01:08,485 - INFO - 172.18.0.1 - - [04/Mar/2026 08:01:08] "[32mPOST /upload HTTP/1.1[0m" 302 -
+2026-03-04 08:01:08,493 - INFO - 172.18.0.1 - - [04/Mar/2026 08:01:08] "GET /dashboard HTTP/1.1" 200 -
+2026-03-04 08:01:15,717 - INFO - 172.18.0.1 - - [04/Mar/2026 08:01:15] "GET /dashboard HTTP/1.1" 200 -
+2026-03-04 08:01:59,680 - INFO - 172.18.0.1 - - [04/Mar/2026 08:01:59] "GET /dashboard HTTP/1.1" 200 -
+2026-03-04 08:05:05,051 - INFO - 172.18.0.1 - - [04/Mar/2026 08:05:05] "GET /dashboard HTTP/1.1" 200 -
+2026-03-04 08:05:06,871 - INFO - 172.18.0.1 - - [04/Mar/2026 08:05:06] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-03-04 08:05:09,469 - INFO - 172.18.0.1 - - [04/Mar/2026 08:05:09] "GET / HTTP/1.1" 200 -

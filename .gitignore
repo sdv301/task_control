@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.eggs/
+.tox/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Environment
+.env
+.env.*
+
+# Flask
+instance/
+*.db
+*.sqlite3
+
+# Docker
+.dockerignore
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Uploads & Generated Reports
+Desktop/Input_Tasks/
+Desktop/Reports/
+*.pdf
+*.xlsx
+xlsx_unzip/
+xlsx_unzip2/
+sample.xlsx
+fix_db.py
+
+# Static generated files
+app/static/generated/

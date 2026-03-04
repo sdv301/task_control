@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Загрузка поручения — Smart Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { darkBg: '#0f172a', cardBg: '#1e293b' } } }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
+
+        /* Анимация появления карточки */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-enter {
+            animation: slideUp 0.5s cubic-bezier(.22, .68, 0, 1.2) forwards;
+        }
+
+        /* Прогресс-бар */
+        @keyframes progressFill {
+            from {
+                width: 0%;
+            }
+        }
+
+        .progress-bar {
+            height: 6px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s linear infinite;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Анимация успеха */
+        @keyframes successPop {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.15);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-icon {
+            animation: successPop 0.5s cubic-bezier(.22, .68, 0, 1.2) forwards;
+        }
+
+        /* Анимация ошибки (тряска) */
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-8px);
+            }
+
+            40% {
+                transform: translateX(8px);
+            }
+
+            60% {
+                transform: translateX(-5px);
+            }
+
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        .shake {
+            animation: shake 0.5s ease;
+        }
+
+        /* Пульс при перетаскивании */
+        .drop-active {
+            border-color: #6366f1 !important;
+            background-color: rgba(99, 102, 241, 0.1) !important;
+        }
+
+        .drop-active label {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Спиннер */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner {
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Кольцевой прогресс-счётчик */
+        .progress-ring {
+            transform-origin: center;
+            transform: rotate(-90deg);
+        }
+
+        @keyframes dashFill {
+            from {
+                stroke-dashoffset: 226;
+            }
+        }
+
+        input[type="file"]:focus+label,
+        label:focus-within {
+            outline: 2px solid #6366f1;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+
+<body class="bg-darkBg text-gray-100 min-h-screen antialiased flex items-center justify-center p-4">
+
+    <div class="w-full max-w-lg card-enter">
+        <!-- Главная карточка -->
+        <div id="mainCard"
+            class="bg-cardBg rounded-2xl p-10 border border-gray-700 shadow-2xl shadow-indigo-500/10 flex flex-col items-center">
+
+            <!-- Иконка -->
+            <div class="w-16 h-16 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center mb-6">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+            </div>
+
+            <h1 class="text-3xl font-bold text-white tracking-tight mb-2 text-center">Загрузка поручения</h1>
+            <p class="text-gray-400 text-center mb-8 text-sm leading-relaxed">
+                Загрузите PDF-файл с поручением для<br>автоматического распознавания и сохранения.
+            </p>
+
+            <!-- ФОРМА -->
+            <div id="formArea" class="w-full flex flex-col gap-5">
+
+                <!-- Зона перетаскивания -->
+                <div id="dropZone"
+                    class="flex items-center justify-center w-full border-2 border-gray-600 border-dashed rounded-xl cursor-pointer bg-gray-800/50 hover:bg-gray-800 hover:border-indigo-500 transition-all duration-200"
+                    style="min-height: 160px;" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)"
+                    ondrop="handleDrop(event)">
+                    <label for="pdfFile" class="flex flex-col items-center justify-center w-full py-8 cursor-pointer">
+                        <svg id="uploadIcon" class="w-10 h-10 mb-3 text-gray-400 transition-colors" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p id="dropText" class="text-sm text-gray-400 mb-1"><span
+                                class="font-semibold text-indigo-400">Нажмите для выбора</span> или перетащите файл</p>
+                        <p id="dropHint" class="text-xs text-gray-500">Только PDF (макс. 10 MB)</p>
+                    </label>
+                    <input id="pdfFile" type="file" class="hidden" accept=".pdf" />
+                </div>
+
+                <!-- Кнопки -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button id="uploadBtn" onclick="uploadFile()"
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl shadow-lg shadow-indigo-500/30 transition-all duration-200 flex items-center justify-center gap-2"
+                        disabled>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Распознать файл
+                    </button>
+                    <a href="/dashboard"
+                        class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-xl border border-gray-600 transition-all duration-200 text-center text-sm flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Дашборд
+                    </a>
+                </div>
+            </div>
+
+            <!-- СОСТОЯНИЕ: Загрузка -->
+            <div id="stateLoading" class="hidden w-full flex-col items-center gap-4 py-4">
+                <div class="relative">
+                    <!-- Кольцевой спиннер -->
+                    <svg class="w-20 h-20 spinner text-indigo-500" viewBox="0 0 80 80">
+                        <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="4" fill="none"
+                            stroke-dasharray="180 226" stroke-linecap="round" opacity="0.25" />
+                        <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="4" fill="none"
+                            stroke-dasharray="45 361" stroke-linecap="round" />
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <svg class="w-7 h-7 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <p class="text-white font-semibold text-lg" id="loadingTitle">Распознавание PDF...</p>
+                    <p class="text-gray-400 text-sm mt-1" id="loadingSubtitle">Это может занять несколько секунд</p>
+                </div>
+
+                <!-- Прогресс-бар -->
+                <div class="w-full bg-gray-700/50 rounded-full overflow-hidden">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+                <p id="progressPct" class="text-xs text-gray-500">0%</p>
+            </div>
+
+            <!-- СОСТОЯНИЕ: Успех -->
+            <div id="stateSuccess" class="hidden w-full flex-col items-center gap-4 py-4">
+                <div class="success-icon w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center">
+                    <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div class="text-center">
+                    <p class="text-emerald-400 font-bold text-xl">Готово!</p>
+                    <p id="successMessage" class="text-gray-300 text-sm mt-1">Поручения успешно распознаны.</p>
+                </div>
+                <div class="flex gap-3 w-full mt-2">
+                    <a href="/dashboard"
+                        class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-4 rounded-xl text-center text-sm transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Перейти на дашборд
+                    </a>
+                    <button onclick="resetForm()"
+                        class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-xl text-sm transition-colors">
+                        Загрузить ещё
+                    </button>
+                </div>
+            </div>
+
+            <!-- СОСТОЯНИЕ: Ошибка -->
+            <div id="stateError" class="hidden w-full flex-col items-center gap-4 py-4">
+                <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center">
+                    <svg class="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+                <div class="text-center">
+                    <p class="text-red-400 font-bold text-xl">Ошибка</p>
+                    <p id="errorMessage" class="text-gray-400 text-sm mt-1 max-w-xs mx-auto">Не удалось обработать файл.
+                    </p>
+                </div>
+                <button onclick="resetForm()"
+                    class="bg-red-600/80 hover:bg-red-500 text-white font-semibold py-3 px-8 rounded-xl transition-colors text-sm">
+                    Попробовать снова
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Подсказка под карточкой -->
+        <p class="text-center text-xs text-gray-600 mt-4">
+            Smart Control · Система контроля поручений
+        </p>
+    </div>
+
+    <script>
+        const pdfInput = document.getElementById('pdfFile');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const dropZone = document.getElementById('dropZone');
+        const dropText = document.getElementById('dropText');
+        const dropHint = document.getElementById('dropHint');
+        const uploadIcon = document.getElementById('uploadIcon');
+        const formArea = document.getElementById('formArea');
+
+        const stateLoading = document.getElementById('stateLoading');
+        const stateSuccess = document.getElementById('stateSuccess');
+        const stateError = document.getElementById('stateError');
+        const progressBar = document.getElementById('progressBar');
+        const progressPct = document.getElementById('progressPct');
+
+        let selectedFile = null;
+
+        // ── Выбор файла ──────────────────────────────────────────────────────
+        pdfInput.addEventListener('change', (e) => {
+            const f = e.target.files[0];
+            if (f) selectFile(f);
+        });
+
+        function selectFile(file) {
+            if (!file.name.endsWith('.pdf')) {
+                showError('Пожалуйста, выберите PDF-файл.');
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                showError('Файл слишком большой. Максимум 10 MB.');
+                return;
+            }
+            selectedFile = file;
+            dropText.innerHTML = `<span class="font-semibold text-indigo-400">Файл выбран:</span> ${file.name}`;
+            dropHint.textContent = `${(file.size / 1024).toFixed(0)} KB — готов к отправке`;
+            dropHint.className = 'text-xs text-emerald-400';
+            uploadIcon.classList.add('text-indigo-400');
+            uploadBtn.disabled = false;
+        }
+
+        // ── Drag & Drop ───────────────────────────────────────────────────────
+        function handleDragOver(e) {
+            e.preventDefault();
+            dropZone.classList.add('drop-active');
+        }
+        function handleDragLeave(e) {
+            dropZone.classList.remove('drop-active');
+        }
+        function handleDrop(e) {
+            e.preventDefault();
+            dropZone.classList.remove('drop-active');
+            const file = e.dataTransfer.files[0];
+            if (file) selectFile(file);
+        }
+
+        // ── Показать/скрыть блоки ─────────────────────────────────────────────
+        function showState(name) {
+            [formArea, stateLoading, stateSuccess, stateError].forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('flex');
+            });
+            const target = name === 'form' ? formArea
+                : name === 'loading' ? stateLoading
+                    : name === 'success' ? stateSuccess
+                        : stateError;
+            target.classList.remove('hidden');
+            target.classList.add('flex');
+        }
+
+        // ── Прогресс-бар (симуляция) ─────────────────────────────────────────
+        let progressInterval = null;
+        function startProgress() {
+            let pct = 0;
+            progressBar.style.width = '0%';
+            progressPct.textContent = '0%';
+            progressInterval = setInterval(() => {
+                // Медленно идёт до ~85%, потом ждёт ответа сервера
+                const step = pct < 30 ? 4 : pct < 60 ? 2 : pct < 85 ? 0.8 : 0;
+                pct = Math.min(pct + step, 85);
+                progressBar.style.width = pct + '%';
+                progressPct.textContent = Math.round(pct) + '%';
+            }, 150);
+        }
+        function completeProgress(success) {
+            clearInterval(progressInterval);
+            progressBar.style.width = '100%';
+            progressPct.textContent = '100%';
+        }
+
+        // ── Загрузка файла ─────────────────────────────────────────────────
+        async function uploadFile() {
+            if (!selectedFile) return;
+
+            showState('loading');
+            startProgress();
+
+            const formData = new FormData();
+            formData.append('document', selectedFile);
+
+            try {
+                const res = await fetch('/upload', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                completeProgress(res.ok);
+                await new Promise(r => setTimeout(r, 400)); // небольшая пауза
+
+                if (res.ok) {
+                    showState('success');
+                    document.getElementById('successMessage').textContent =
+                        data.message || `Добавлено ${data.count} поручений.`;
+                } else {
+                    showState('error');
+                    document.getElementById('errorMessage').textContent =
+                        data.error || 'Ошибка на сервере. Проверьте формат файла.';
+                    document.getElementById('stateError').classList.add('shake');
+                    setTimeout(() => document.getElementById('stateError').classList.remove('shake'), 600);
+                }
+            } catch (err) {
+                completeProgress(false);
+                showState('error');
+                document.getElementById('errorMessage').textContent =
+                    'Нет связи с сервером. Проверьте, запущен ли Docker.';
+                document.getElementById('stateError').classList.add('shake');
+            }
+        }
+
+        // ── Сброс формы ───────────────────────────────────────────────────────
+        function resetForm() {
+            selectedFile = null;
+            pdfInput.value = '';
+            dropText.innerHTML = '<span class="font-semibold text-indigo-400">Нажмите для выбора</span> или перетащите файл';
+            dropHint.textContent = 'Только PDF (макс. 10 MB)';
+            dropHint.className = 'text-xs text-gray-500';
+            uploadBtn.disabled = true;
+            progressBar.style.width = '0%';
+            progressPct.textContent = '0%';
+            showState('form');
+        }
+
+        function showError(msg) {
+            resetForm();
+            showState('error');
+            document.getElementById('errorMessage').textContent = msg;
+        }
+
+        // Изначально показываем форму
+        showState('form');
+    </script>
+</body>
+
+</html>

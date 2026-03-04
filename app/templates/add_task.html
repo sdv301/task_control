@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить поручение — Smart Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { darkBg: '#0f172a', cardBg: '#1e293b' } } }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-enter {
+            animation: slideUp 0.4s cubic-bezier(.22, .68, 0, 1.2) forwards;
+        }
+
+        input,
+        textarea {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #f1f5f9;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #475569;
+        }
+
+        label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            font-weight: 500;
+            margin-bottom: 0.35rem;
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="bg-darkBg text-gray-100 min-h-screen antialiased flex items-start justify-center p-6 pt-16">
+
+    <div class="w-full max-w-xl card-enter">
+        <!-- Заголовок -->
+        <div class="flex items-center gap-3 mb-6">
+            <a href="/dashboard"
+                class="w-9 h-9 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center transition-colors text-gray-400 hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold text-white">Новое поручение</h1>
+                <p class="text-gray-500 text-sm">Заполните форму для ручного добавления</p>
+            </div>
+        </div>
+
+        <!-- Ошибка -->
+        {% if error %}
+        <div class="bg-red-900/30 border border-red-500/40 rounded-xl p-4 mb-5 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-red-400 text-sm">{{ error }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Форма -->
+        <div class="bg-cardBg rounded-2xl border border-gray-700 shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-gray-700 bg-gray-800/30">
+                <h2 class="text-base font-semibold text-gray-200">Данные поручения</h2>
+            </div>
+
+            <form method="POST" action="/task/add" class="p-6 flex flex-col gap-5">
+
+                <div>
+                    <label for="title">Заголовок поручения <span class="text-red-400">*</span></label>
+                    <input type="text" id="title" name="title" placeholder="Например: Провести инструктаж по ОТ"
+                        required value="{{ request.form.get('title', '') }}">
+                </div>
+
+                <div>
+                    <label for="executor">Исполнитель (ФИО) <span class="text-red-400">*</span></label>
+                    <input type="text" id="executor" name="executor" placeholder="Например: Иванов И.О." required
+                        value="{{ request.form.get('executor', '') }}">
+                </div>
+
+                <div>
+                    <label for="deadline">Срок исполнения <span class="text-red-400">*</span></label>
+                    <input type="date" id="deadline" name="deadline" required
+                        value="{{ request.form.get('deadline', '') }}">
+                </div>
+
+                <div>
+                    <label for="text">Текст поручения</label>
+                    <textarea id="text" name="text" rows="4"
+                        placeholder="Подробное описание задачи (необязательно)">{{ request.form.get('text', '') }}</textarea>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="submit"
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Добавить поручение
+                    </button>
+                    <a href="/dashboard"
+                        class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 rounded-xl text-center transition-colors text-sm flex items-center justify-center">
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <p class="text-center text-xs text-gray-600 mt-4">Smart Control · Система контроля поручений</p>
+    </div>
+
+</body>
+
+</html>
