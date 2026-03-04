@@ -1,0 +1,81 @@
+2026-03-04 14:26:41,949 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://100.72.236.5:5000
+2026-03-04 14:26:41,949 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-04 14:26:42,718 - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\app\main.py", line 34, in dashboard
+    return render_template('dashboard.html', tasks=tasks)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\flask\templating.py", line 132, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\pc24\Downloads\Code\task_control\app\templates\dashboard.html", line 65, in top-level template code
+    data: [10, 5, 2], // Заглушка, позже заменим на {{ stats.in_progress }}, и т.д.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\jinja2\environment.py", line 490, in getattr
+    return getattr(obj, attribute)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'stats' is undefined
+2026-03-04 14:26:42,726 - INFO - 127.0.0.1 - - [04/Mar/2026 14:26:42] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-04 14:26:42,795 - INFO - 127.0.0.1 - - [04/Mar/2026 14:26:42] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-03-04 14:26:51,957 - ERROR - Exception on / [GET]
+Traceback (most recent call last):
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\app\main.py", line 34, in dashboard
+    return render_template('dashboard.html', tasks=tasks)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\flask\templating.py", line 132, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\pc24\Downloads\Code\task_control\app\templates\dashboard.html", line 65, in top-level template code
+    data: [10, 5, 2], // Заглушка, позже заменим на {{ stats.in_progress }}, и т.д.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pc24\Downloads\Code\task_control\venv\Lib\site-packages\jinja2\environment.py", line 490, in getattr
+    return getattr(obj, attribute)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'stats' is undefined
+2026-03-04 14:26:51,959 - INFO - 127.0.0.1 - - [04/Mar/2026 14:26:51] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2026-03-04 14:29:06,478 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://100.72.236.5:5000
+2026-03-04 14:29:06,478 - INFO - [33mPress CTRL+C to quit[0m
