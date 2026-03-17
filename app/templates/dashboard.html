@@ -5,9 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Control — Панель управления</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
@@ -30,7 +28,6 @@
             box-sizing: border-box;
         }
 
-        /* Плавное появление */
         @keyframes fadeSlideUp {
             from {
                 opacity: 0;
@@ -57,7 +54,6 @@
             opacity: 0;
         }
 
-        /* Тост уведомление для Excel */
         @keyframes toastIn {
             from {
                 opacity: 0;
@@ -70,27 +66,10 @@
             }
         }
 
-        @keyframes toastOut {
-            from {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-
-            to {
-                opacity: 0;
-                transform: translateY(10px) scale(0.95);
-            }
-        }
-
         .toast {
             animation: toastIn 0.3s ease forwards;
         }
 
-        .toast-exit {
-            animation: toastOut 0.3s ease forwards;
-        }
-
-        /* Загрузка Excel кнопки */
         @keyframes spin {
             to {
                 transform: rotate(360deg);
@@ -101,7 +80,6 @@
             animation: spin 0.8s linear infinite;
         }
 
-        /* Строки таблицы */
         tbody tr {
             transition: background-color 0.15s ease;
         }
@@ -110,7 +88,6 @@
             transition: all 0.2s ease;
         }
 
-        /* Скроллбар таблицы */
         .table-scroll::-webkit-scrollbar {
             height: 4px;
         }
@@ -123,21 +100,86 @@
             background: #334155;
             border-radius: 2px;
         }
+
+        .doc-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease;
+        }
+
+        .doc-content.open {
+            max-height: 5000px;
+        }
+
+        .doc-chevron {
+            transition: transform 0.3s ease;
+        }
+
+        .doc-chevron.open {
+            transform: rotate(180deg);
+        }
+
+        .search-input:focus {
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Раскрытие текста пункта */
+        .task-detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .task-detail.open {
+            max-height: 500px;
+        }
+
+        /* Алерт блоки */
+        .report-alert {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            border: 1px solid;
+        }
+
+        .report-alert.submitted {
+            background: rgba(16, 185, 129, .1);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, .25);
+        }
+
+        .report-alert.not-submitted {
+            background: rgba(239, 68, 68, .1);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, .25);
+        }
+
+        .report-alert:hover {
+            filter: brightness(1.2);
+        }
     </style>
 </head>
 
 <body class="bg-darkBg text-gray-100 min-h-screen antialiased p-4 md:p-6">
     <div class="max-w-7xl mx-auto">
 
-        <!-- ── Заголовок ─────────────────────────────────────────────────── -->
+        <!-- Заголовок -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 fade-in-up">
-            <div>
-                <h1 class="text-3xl font-bold text-white tracking-tight">Панель управления</h1>
-                <p class="text-gray-500 text-sm mt-1">Система контроля исполнения поручений</p>
-            </div>
-
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+                <div>
+                    <h1 class="text-4xl font-extrabold text-white tracking-tight italic">SMART<span
+                            class="text-accentIndigo">CONTROL</span></h1>
+                    <p class="text-gray-400 mt-1">Система мониторинга исполнительской дисциплины</p>
+                </div>
+            </header>
             <div class="flex flex-wrap gap-2">
-                <!-- Назад (Загрузка PDF) -->
                 <a href="/"
                     class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,8 +188,6 @@
                     </svg>
                     Загрузить PDF
                 </a>
-
-                <!-- Добавить поручение вручную -->
                 <a href="/task/add"
                     class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm border border-gray-600">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,8 +195,6 @@
                     </svg>
                     Новое поручение
                 </a>
-
-                <!-- Экспорт Excel -->
                 <button id="excelBtn" onclick="exportExcel()"
                     class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded-lg shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 text-sm">
                     <svg id="excelIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,31 +206,27 @@
             </div>
         </div>
 
-        <!-- ── Карточки метрик ────────────────────────────────────────────── -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 fade-in-up-delay-1">
-
-            <!-- Всего -->
+        <!-- Карточки метрик -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 fade-in-up-delay-1">
+            <!-- Всего задач -->
             <div class="bg-cardBg rounded-xl p-5 border border-gray-700 shadow-md">
                 <p class="text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Всего задач</p>
                 <h3 class="text-3xl font-bold text-white">{{ stats.total }}</h3>
                 <div class="mt-2 w-6 h-1 bg-blue-500 rounded-full"></div>
             </div>
-
             <!-- Просрочено -->
             <div class="bg-cardBg rounded-xl p-5 border border-red-900/40 shadow-md shadow-red-900/5">
                 <p class="text-xs font-medium text-red-400 mb-1 uppercase tracking-wider">Просрочено</p>
                 <h3 class="text-3xl font-bold text-red-400">{{ stats.overdue }}</h3>
                 <div class="mt-2 w-6 h-1 bg-red-500 rounded-full"></div>
             </div>
-
             <!-- В работе -->
             <div class="bg-cardBg rounded-xl p-5 border border-blue-900/40 shadow-md">
                 <p class="text-xs font-medium text-blue-400 mb-1 uppercase tracking-wider">В работе</p>
                 <h3 class="text-3xl font-bold text-blue-400">{{ stats.in_progress }}</h3>
                 <div class="mt-2 w-6 h-1 bg-blue-500 rounded-full"></div>
             </div>
-
-            <!-- % выполнения -->
+            <!-- Выполнено % -->
             <div class="bg-cardBg rounded-xl p-5 border border-emerald-900/40 shadow-md shadow-emerald-900/5">
                 <p class="text-xs font-medium text-emerald-400 mb-1 uppercase tracking-wider">Выполнено</p>
                 <h3 class="text-3xl font-bold text-emerald-400">{{ stats.percentage }}%</h3>
@@ -201,21 +235,28 @@
                         style="width: {{ stats.percentage }}%"></div>
                 </div>
             </div>
-
+            <!-- За год -->
+            <div class="bg-cardBg rounded-xl p-5 border border-purple-900/40 shadow-md shadow-purple-900/5">
+                <p class="text-xs font-medium text-purple-400 mb-1 uppercase tracking-wider">За {{ stats.current_year }}
+                </p>
+                <h3 class="text-2xl font-bold text-purple-400">{{ stats.year_docs }} <span
+                        class="text-base font-normal text-gray-500">док.</span></h3>
+                <p class="text-sm text-gray-400 mt-1">{{ stats.year_tasks }} задач</p>
+            </div>
         </div>
 
-        <!-- ── Основной контент ───────────────────────────────────────────── -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 fade-in-up-delay-2">
+        <!-- Основной контент -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 fade-in-up-delay-2">
 
-            <!-- График -->
-            <div class="lg:col-span-1 bg-cardBg rounded-xl p-6 border border-gray-700 shadow-md flex flex-col">
+            <!-- График (боковая панель) -->
+            <div
+                class="lg:col-span-1 bg-cardBg rounded-xl p-6 border border-gray-700 shadow-md flex flex-col h-fit lg:sticky lg:top-6">
                 <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-5">Статусы</h3>
-                <div class="flex-1 flex items-center justify-center">
-                    <div class="relative w-full max-w-[200px] aspect-square">
+                <div class="flex items-center justify-center">
+                    <div class="relative w-full max-w-[180px] aspect-square">
                         <canvas id="statusChart"></canvas>
                     </div>
                 </div>
-                <!-- Легенда -->
                 <div class="mt-4 flex flex-col gap-2">
                     <div class="flex items-center justify-between text-xs">
                         <span class="flex items-center gap-2"><span
@@ -235,98 +276,369 @@
                 </div>
             </div>
 
-            <!-- Таблица поручений -->
-            <div
-                class="lg:col-span-3 bg-cardBg rounded-xl border border-gray-700 shadow-md overflow-hidden flex flex-col">
-                <div class="p-5 border-b border-gray-700 flex justify-between items-center">
-                    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider">Список поручений</h3>
-                    <span class="text-xs text-gray-500 bg-gray-800 px-2.5 py-1 rounded-full">{{ tasks|length }}
-                        записей</span>
+            <!-- Документы и задачи -->
+            <div class="lg:col-span-4 flex flex-col gap-4">
+
+                <!-- Поиск -->
+                <div class="bg-cardBg rounded-xl p-4 border border-gray-700 shadow-md">
+                    <form method="get" action="/dashboard" class="flex gap-3">
+                        <div class="relative flex-1">
+                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input type="text" name="q" value="{{ search_q }}"
+                                placeholder="Поиск по документам, исполнителям, задачам..."
+                                class="search-input w-full bg-gray-800 border border-gray-600 rounded-lg pl-10 pr-4 py-2.5 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all">
+                        </div>
+                        <button type="submit"
+                            class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-all">Найти</button>
+                        {% if search_q %}
+                        <a href="/dashboard"
+                            class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center">Сбросить</a>
+                        {% endif %}
+                    </form>
                 </div>
 
-                <div class="overflow-x-auto table-scroll">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wider">
-                                <th class="px-4 py-3 font-medium w-12">№</th>
-                                <th class="px-4 py-3 font-medium">Поручение</th>
-                                <th class="px-4 py-3 font-medium">Исполнитель</th>
-                                <th class="px-4 py-3 font-medium w-28">Срок</th>
-                                <th class="px-4 py-3 font-medium w-28">Статус</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-700/50 text-sm">
-                            {% for task in tasks %}
-                            {% set is_overdue = task.status == 'Просрочено' %}
-                            {% set is_completed = task.status == 'Выполнено' %}
-                            {% set is_tomorrow = task.deadline.date() == tomorrow %}
-                            <tr class="
-                                {% if is_overdue %}bg-red-900/10 hover:bg-red-900/20
-                                {% elif is_completed %}bg-emerald-900/10 hover:bg-emerald-900/20
-                                {% elif is_tomorrow %}bg-yellow-900/10 hover:bg-yellow-900/20
-                                {% else %}hover:bg-gray-800/40
-                                {% endif %}
-                                transition-colors border-l-2
-                                {% if is_overdue %}border-red-500
-                                {% elif is_completed %}border-emerald-500
-                                {% elif is_tomorrow %}border-yellow-500
-                                {% else %}border-transparent
-                                {% endif %}">
-
-                                <td class="px-4 py-3.5 text-gray-500 font-mono text-xs">#{{ task.id }}</td>
-                                <td class="px-4 py-3.5">
-                                    <p class="font-medium text-gray-200 leading-tight">{{ task.title }}</p>
-                                    {% if task.text %}
-                                    <p class="text-xs text-gray-500 mt-0.5 truncate max-w-xs">{{ task.text }}</p>
+                <!-- Список документов -->
+                {% for doc in documents %}
+                <div
+                    class="bg-cardBg rounded-xl border shadow-md overflow-hidden relative {% if doc.overdue > 0 %}border-red-800/50{% else %}border-gray-700{% endif %}">
+                    <button onclick="toggleDoc('doc-{{ doc.id }}')"
+                        class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-800/40 transition-colors group">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-indigo-900/50 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="font-semibold text-gray-200 truncate">{{ doc.filename }}</p>
+                                <p class="text-xs text-gray-500 mt-0.5">
+                                    {% if doc.doc_number or doc.doc_date %}
+                                    <span class="text-indigo-400 font-medium">{{ doc.doc_number or '' }}{% if
+                                        doc.doc_number and doc.doc_date %} от {% endif %}{{ doc.doc_date or '' }}</span>
+                                    &middot;
                                     {% endif %}
-                                </td>
-                                <td class="px-4 py-3.5 text-gray-400">
-                                    <div class="flex items-center gap-2">
-                                        <div
-                                            class="w-7 h-7 rounded-full bg-indigo-900/60 flex items-center justify-center text-xs text-indigo-300 font-semibold flex-shrink-0">
-                                            {{ task.executor.name[0].upper() if task.executor else '?' }}
-                                        </div>
-                                        <span class="text-sm">{{ task.executor.name if task.executor else 'Не назначен'
-                                            }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-4 py-3.5 text-gray-400 text-xs font-mono">
-                                    {{ task.deadline.strftime('%d.%m.%Y') }}
-                                </td>
-                                <td class="px-4 py-3.5">
-                                    <span class="status-badge inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border
-                                        {% if is_overdue %}bg-red-500/10 text-red-400 border-red-500/25
-                                        {% elif is_completed %}bg-emerald-500/10 text-emerald-400 border-emerald-500/25
-                                        {% else %}bg-blue-500/10 text-blue-400 border-blue-500/25
-                                        {% endif %}">
-                                        {{ task.status }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="5" class="px-6 py-16 text-center">
-                                    <div class="flex flex-col items-center gap-3 text-gray-600">
-                                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                        </svg>
-                                        <p class="text-sm">Нет поручений.</p>
-                                        <a href="/"
-                                            class="text-indigo-400 hover:text-indigo-300 text-xs underline">Загрузите
-                                            PDF или добавьте вручную</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                    {{ doc.uploaded_at.strftime('%d.%m.%Y %H:%M') if doc.uploaded_at else '' }}
+                                    &middot; {{ doc.total }} пунктов
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            {% if doc.overdue > 0 %}
+                            <span
+                                class="text-xs bg-red-500/10 text-red-400 border border-red-500/25 px-2 py-0.5 rounded-full">{{
+                                doc.overdue }} просроч.</span>
+                            {% endif %}
+                            {% if doc.completed > 0 %}
+                            <span
+                                class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-full">{{
+                                doc.completed }} выполн.</span>
+                            {% endif %}
+                            <svg id="chevron-doc-{{ doc.id }}"
+                                class="doc-chevron w-5 h-5 text-gray-500 group-hover:text-gray-300" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </button>
+
+                    <div id="doc-{{ doc.id }}" class="doc-content border-t border-gray-700/50">
+                        <div class="overflow-x-auto table-scroll">
+                            <table class="w-full text-left border-collapse" style="table-layout:fixed;min-width:750px;">
+                                <colgroup>
+                                    <col style="width:50px">
+                                    <col style="width:auto">
+                                    <col style="width:90px">
+                                    <col style="width:100px">
+                                    <col style="width:150px">
+                                </colgroup>
+                                <thead>
+                                    <tr class="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wider">
+                                        <th class="px-3 py-3 font-medium">№</th>
+                                        <th class="px-3 py-3 font-medium">Поручение</th>
+                                        <th class="px-3 py-3 font-medium">Срок</th>
+                                        <th class="px-3 py-3 font-medium">Статус</th>
+                                        <th class="px-3 py-3 font-medium">Исполнение</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-700/50 text-sm">
+                                    {% for group in doc.tasks|groupby('executor.name') %}
+                                    <tr class="bg-gray-800/80 border-t border-b border-gray-700">
+                                        <td colspan="5" class="px-4 py-2.5 text-sm font-semibold text-indigo-300">
+                                            <div class="flex items-center gap-2">
+                                                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                                {{ group.grouper if group.grouper else 'Не назначен' }}
+                                                <span class="text-xs text-gray-500 font-normal ml-2">({{
+                                                    group.list|length }} поруч.)</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% for task in group.list %}
+                                    {% set is_overdue = task.status == 'Просрочено' %}
+                                    {% set is_completed = task.status == 'Выполнено' %}
+                                    {% set is_tomorrow = task.deadline.date() == tomorrow %}
+                                    <tr
+                                        class="{% if is_overdue %}bg-red-900/10 hover:bg-red-900/20{% elif is_completed %}bg-emerald-900/10 hover:bg-emerald-900/20{% elif is_tomorrow %}bg-yellow-900/10 hover:bg-yellow-900/20{% else %}hover:bg-gray-800/40{% endif %} transition-colors border-l-2 {% if is_overdue %}border-red-500{% elif is_completed %}border-emerald-500{% elif is_tomorrow %}border-yellow-500{% else %}border-transparent{% endif %}">
+                                        <td class="px-4 py-3.5 text-gray-500 font-mono text-xs align-top">#{{ task.id }}
+                                        </td>
+                                        <td class="px-4 py-3.5 align-top">
+                                            <div class="cursor-pointer"
+                                                onclick="toggleDetail('task-detail-{{ task.id }}')">
+                                                <p
+                                                    class="font-medium text-gray-200 leading-tight hover:text-indigo-400 transition-colors">
+                                                    {{ task.title }}
+                                                    <svg class="w-3 h-3 inline-block ml-1 text-gray-500" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </p>
+                                                {% if task.text %}
+                                                <p class="text-xs text-gray-500 mt-0.5 truncate max-w-sm">{{
+                                                    task.text[:80] }}{% if task.text|length > 80 %}...{% endif %}</p>
+                                                {% endif %}
+                                            </div>
+                                            <div id="task-detail-{{ task.id }}" class="task-detail">
+                                                <div
+                                                    class="mt-2 p-3 bg-gray-800/60 rounded-lg border border-gray-700/50">
+                                                    <p
+                                                        class="text-xs text-gray-300 leading-relaxed whitespace-pre-line">
+                                                        {{ task.text or 'Нет подробного описания' }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td
+                                            class="px-3 py-3.5 text-gray-400 text-xs font-mono align-top whitespace-nowrap">
+                                            {{ task.deadline.strftime('%d.%m.%Y') }}</td>
+                                        <td class="px-3 py-3.5 align-top whitespace-nowrap">
+                                            <span
+                                                class="status-badge inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border {% if is_overdue %}bg-red-500/10 text-red-400 border-red-500/25{% elif is_completed %}bg-emerald-500/10 text-emerald-400 border-emerald-500/25{% else %}bg-blue-500/10 text-blue-400 border-blue-500/25{% endif %}">{{
+                                                task.status }}</span>
+                                        </td>
+                                        <td class="px-3 py-3.5 align-top">
+                                            <div class="flex flex-col gap-1.5">
+                                                <!-- Отчёт -->
+                                                <span id="report-btn-{{ task.id }}"
+                                                    class="report-alert {% if task.report_submitted %}submitted{% else %}not-submitted{% endif %}"
+                                                    onclick="toggleReport({{ task.id }})">
+                                                    {% if task.report_submitted %}
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    Отчёт внесён
+                                                    {% else %}
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                                    </svg>
+                                                    Отчёт не внесён
+                                                    {% endif %}
+                                                </span>
+                                                <!-- Переключатель исполнения -->
+                                                {% if not is_completed %}
+                                                <button onclick="markDone({{ task.id }})"
+                                                    class="text-xs text-gray-500 hover:text-emerald-400 transition-colors text-left"
+                                                    id="done-btn-{{ task.id }}">
+                                                    &#x2192; Отметить выполненным
+                                                </button>
+                                                {% else %}
+                                                <button onclick="markUndone({{ task.id }})"
+                                                    class="text-xs text-gray-500 hover:text-blue-400 transition-colors text-left"
+                                                    id="done-btn-{{ task.id }}">
+                                                    &#x2190; Вернуть в работу
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                            <!-- Кнопка удаления документа (внизу) -->
+                            <div class="px-4 py-3 bg-gray-800/30 border-t border-gray-700/50 flex justify-end">
+                                <button onclick="deleteDocument({{ doc.id }}, '{{ doc.filename }}')"
+                                    class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors border border-red-500/20"
+                                    title="Удалить этот документ и все его поручения">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Удалить документ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                {% endfor %}
+
+                <!-- Задачи без документа -->
+                {% if orphan_tasks %}
+                <div class="bg-cardBg rounded-xl border border-gray-700 shadow-md overflow-hidden">
+                    <button onclick="toggleDoc('doc-orphan')"
+                        class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-800/40 transition-colors group">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-gray-700/50 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-200">Ручной ввод</p>
+                                <p class="text-xs text-gray-500 mt-0.5">{{ orphan_tasks|length }} поручений</p>
+                            </div>
+                        </div>
+                        <svg id="chevron-doc-orphan" class="doc-chevron w-5 h-5 text-gray-500 group-hover:text-gray-300"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div id="doc-orphan" class="doc-content border-t border-gray-700/50">
+                        <div class="overflow-x-auto table-scroll">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wider">
+                                        <th class="px-4 py-3 font-medium w-12">№</th>
+                                        <th class="px-4 py-3 font-medium">Поручение</th>
+                                        <th class="px-4 py-3 font-medium w-40">Исполнитель</th>
+                                        <th class="px-4 py-3 font-medium w-24">Срок</th>
+                                        <th class="px-4 py-3 font-medium w-24">Статус</th>
+                                        <th class="px-4 py-3 font-medium w-32">Исполнение</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-700/50 text-sm">
+                                    {% for task in orphan_tasks %}
+                                    {% set is_overdue = task.status == 'Просрочено' %}
+                                    {% set is_completed = task.status == 'Выполнено' %}
+                                    <tr
+                                        class="{% if is_overdue %}bg-red-900/10 hover:bg-red-900/20{% elif is_completed %}bg-emerald-900/10 hover:bg-emerald-900/20{% else %}hover:bg-gray-800/40{% endif %} transition-colors">
+                                        <td class="px-4 py-3.5 text-gray-500 font-mono text-xs align-top">#{{ task.id }}
+                                        </td>
+                                        <td class="px-4 py-3.5 align-top">
+                                            <div class="cursor-pointer"
+                                                onclick="toggleDetail('task-detail-{{ task.id }}')">
+                                                <p
+                                                    class="font-medium text-gray-200 leading-tight hover:text-indigo-400 transition-colors">
+                                                    {{ task.title }}
+                                                    <svg class="w-3 h-3 inline-block ml-1 text-gray-500" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </p>
+                                            </div>
+                                            <div id="task-detail-{{ task.id }}" class="task-detail">
+                                                <div
+                                                    class="mt-2 p-3 bg-gray-800/60 rounded-lg border border-gray-700/50">
+                                                    <p
+                                                        class="text-xs text-gray-300 leading-relaxed whitespace-pre-line">
+                                                        {{ task.text or 'Нет описания' }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3.5 text-gray-400 align-top">
+                                            <div class="flex items-center gap-2">
+                                                <div
+                                                    class="w-7 h-7 rounded-full bg-indigo-900/60 flex items-center justify-center text-xs text-indigo-300 font-semibold flex-shrink-0">
+                                                    {{ task.executor.name[0].upper() if task.executor else '?' }}</div>
+                                                <span class="text-sm">{{ task.executor.name if task.executor else 'Не
+                                                    назначен' }}</span>
+                                            </div>
+                                        </td>
+                                        <td
+                                            class="px-4 py-3.5 text-gray-400 text-xs font-mono align-top whitespace-nowrap">
+                                            {{ task.deadline.strftime('%d.%m.%Y') }}</td>
+                                        <td class="px-4 py-3.5 align-top whitespace-nowrap">
+                                            <span
+                                                class="status-badge inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border {% if is_overdue %}bg-red-500/10 text-red-400 border-red-500/25{% elif is_completed %}bg-emerald-500/10 text-emerald-400 border-emerald-500/25{% else %}bg-blue-500/10 text-blue-400 border-blue-500/25{% endif %}">{{
+                                                task.status }}</span>
+                                        </td>
+                                        <td class="px-4 py-3.5 align-top whitespace-nowrap">
+                                            <div class="flex flex-col gap-1.5">
+                                                <span id="report-btn-{{ task.id }}"
+                                                    class="report-alert {% if task.report_submitted %}submitted{% else %}not-submitted{% endif %}"
+                                                    onclick="toggleReport({{ task.id }})">
+                                                    {% if task.report_submitted %}
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>Отчёт внесён
+                                                    {% else %}
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                                    </svg>Отчёт не внесён
+                                                    {% endif %}
+                                                </span>
+                                                {% if not is_completed %}
+                                                <button onclick="markDone({{ task.id }})"
+                                                    class="text-xs text-gray-500 hover:text-emerald-400 transition-colors text-left"
+                                                    id="done-btn-{{ task.id }}">&#x2192; Отметить выполненным</button>
+                                                {% else %}
+                                                <button onclick="markUndone({{ task.id }})"
+                                                    class="text-xs text-gray-500 hover:text-blue-400 transition-colors text-left"
+                                                    id="done-btn-{{ task.id }}">&#x2190; Вернуть в работу</button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Пустое состояние -->
+                {% if not documents and not orphan_tasks %}
+                <div class="bg-cardBg rounded-xl border border-gray-700 shadow-md p-16 text-center">
+                    <div class="flex flex-col items-center gap-3 text-gray-600">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        {% if search_q %}
+                        <p class="text-sm">Ничего не найдено по запросу &laquo;{{ search_q }}&raquo;</p>
+                        <a href="/dashboard" class="text-indigo-400 hover:text-indigo-300 text-xs underline">Сбросить
+                            поиск</a>
+                        {% else %}
+                        <p class="text-sm">Нет поручений.</p>
+                        <a href="/" class="text-indigo-400 hover:text-indigo-300 text-xs underline">Загрузите PDF или
+                            добавьте вручную</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
             </div>
         </div>
     </div>
 
-    <!-- Тост-уведомление -->
+    <!-- Тост -->
     <div id="toast" class="fixed bottom-6 right-6 z-50 hidden">
         <div class="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-xl px-5 py-3.5 shadow-2xl toast">
             <svg id="toastIcon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor"
@@ -336,120 +648,184 @@
     </div>
 
     <script>
-        // ── Chart.js ──────────────────────────────────────────────────────────
+        /* ── Аккордеон документов ─────────────────────────────── */
+        function toggleDoc(docId) {
+            var el = document.getElementById(docId);
+            var ch = document.getElementById('chevron-' + docId);
+            if (el.classList.contains('open')) { el.classList.remove('open'); if (ch) ch.classList.remove('open'); }
+            else { el.classList.add('open'); if (ch) ch.classList.add('open'); }
+        }
+
+        /* ── Раскрытие текста задачи ──────────────────────────── */
+        function toggleDetail(id) {
+            var el = document.getElementById(id);
+            if (el.classList.contains('open')) { el.classList.remove('open'); }
+            else { el.classList.add('open'); }
+        }
+
+        /* ── Переключение отчёта ──────────────────────────────── */
+        function toggleReport(taskId) {
+            fetch('/task/' + taskId + '/report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.ok) {
+                        var btn = document.getElementById('report-btn-' + taskId);
+                        if (data.report_submitted) {
+                            btn.className = 'report-alert submitted';
+                            btn.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Отчёт внесён';
+                            showToast('success', 'Отчёт отмечен как внесённый');
+                        } else {
+                            btn.className = 'report-alert not-submitted';
+                            btn.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>Отчёт не внесён';
+                            showToast('error', 'Отчёт снят');
+                        }
+                    }
+                });
+        }
+
+        /* ── Отметить выполненным ─────────────────────────────── */
+        function markDone(taskId) {
+            fetch('/task/' + taskId + '/status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'Выполнено' })
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.ok) {
+                        showToast('success', 'Задача отмечена как выполненная');
+                        setTimeout(function () { location.reload(); }, 800);
+                    } else if (data.need_report) {
+                        showToast('error', 'Сначала внесите отчёт!');
+                    } else {
+                        showToast('error', data.error || 'Ошибка');
+                    }
+                });
+        }
+
+        /* ── Вернуть в работу ─────────────────────────────────── */
+        function markUndone(taskId) {
+            fetch('/task/' + taskId + '/status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'В работе' })
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.ok) {
+                        showToast('success', 'Задача возвращена в работу');
+                        setTimeout(function () { location.reload(); }, 800);
+                    }
+                });
+        }
+
+        /* ── Удаление документа ───────────────────────────────────── */
+        function deleteDocument(docId, filename) {
+            if (!confirm('Удалить документ "' + filename + '" и все его поручения?')) return;
+            fetch('/document/' + docId + '/delete', { method: 'POST' })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.ok) {
+                        showToast('success', 'Документ удалён');
+                        setTimeout(function () { location.reload(); }, 600);
+                    } else {
+                        showToast('error', data.error || 'Ошибка удаления');
+                    }
+                })
+                .catch(function () { showToast('error', 'Ошибка сети'); });
+        }
+
+        /* ── Chart.js ───────────────────────────────────────────────────── */
         document.addEventListener('DOMContentLoaded', function () {
-            const ctx = document.getElementById('statusChart').getContext('2d');
+            var ctx = document.getElementById('statusChart').getContext('2d');
             Chart.defaults.color = '#64748b';
             Chart.defaults.font.family = 'Inter, sans-serif';
-
-            const total = {{ stats.total }
-        };
-        const isEmpty = total === 0;
-
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['В работе', 'Просрочено', 'Выполнено'],
-                datasets: [{
-                    data: isEmpty
-                        ? [1]
-                        : [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }}],
-            backgroundColor: isEmpty
-            ? ['#1e293b']
-            : ['#3b82f6', '#ef4444', '#10b981'],
-            borderWidth: 0,
-            hoverOffset: isEmpty ? 0 : 6,
+            var inProg = parseInt('{{ stats.in_progress }}') || 0;
+            var ovrd = parseInt('{{ stats.overdue }}') || 0;
+            var compl = parseInt('{{ stats.completed }}') || 0;
+            var totalTasks = inProg + ovrd + compl;
+            var isEmpty = (totalTasks === 0);
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['В работе', 'Просрочено', 'Выполнено'],
+                    datasets: [{
+                        data: isEmpty ? [1] : [inProg, ovrd, compl],
+                        backgroundColor: isEmpty ? ['#1e293b'] : ['#3b82f6', '#ef4444', '#10b981'],
+                        borderWidth: 0,
+                        hoverOffset: isEmpty ? 0 : 6
                     }]
                 },
-            options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            cutout: '72%',
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    enabled: !isEmpty,
-                    backgroundColor: '#1e293b',
-                    titleColor: '#f1f5f9',
-                    bodyColor: '#94a3b8',
-                    borderColor: '#334155',
-                    borderWidth: 1,
-                    padding: 12,
-                    boxPadding: 6,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    cutout: '72%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: !isEmpty,
+                            backgroundColor: '#1e293b',
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#94a3b8',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6
+                        }
+                    }
                 }
-            }
-        }
             });
         });
 
-        // ── Экспорт Excel ────────────────────────────────────────────────────
+        /* ── Экспорт Excel ────────────────────────────────────── */
         async function exportExcel() {
-            const btn = document.getElementById('excelBtn');
-            const icon = document.getElementById('excelIcon');
-            const btnText = document.getElementById('excelBtnText');
-
-            // Состояние загрузки
+            var btn = document.getElementById('excelBtn');
+            var btnText = document.getElementById('excelBtnText');
             btn.disabled = true;
             btnText.textContent = 'Формируем...';
-            icon.outerHTML = `<svg id="excelIcon" class="w-4 h-4 spinner" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-            </svg>`;
-
+            document.getElementById('excelIcon').outerHTML = '<svg id="excelIcon" class="w-4 h-4 spinner" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>';
             try {
-                const res = await fetch('/export/excel');
+                var res = await fetch('/export/excel');
                 if (!res.ok) {
-                    const data = await res.json().catch(() => ({}));
-                    throw new Error(data.error || 'Ошибка сервера');
+                    var errData = {};
+                    try { errData = await res.json(); } catch (e) { }
+                    throw new Error(errData.error || 'Ошибка сервера');
                 }
-
-                // Скачиваем файл
-                const blob = await res.blob();
-                const filename = res.headers.get('Content-Disposition')
-                    ?.match(/filename\*?=(?:UTF-8'')?(.+)/i)?.[1]?.trim()
-                    || 'Поручения.xlsx';
-
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
+                var blob = await res.blob();
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
                 a.href = url;
-                a.download = decodeURIComponent(filename);
+                a.download = 'Porycheniya.xlsx';
                 a.click();
                 URL.revokeObjectURL(url);
-
-                showToast('success', 'Excel-файл успешно скачан!');
+                showToast('success', 'Excel-файл скачан!');
             } catch (err) {
-                showToast('error', err.message || 'Не удалось сформировать файл.');
+                showToast('error', err.message || 'Ошибка');
             } finally {
                 btn.disabled = false;
-                document.getElementById('excelIcon').outerHTML = `<svg id="excelIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>`;
-                document.getElementById('excelBtnText').textContent = 'Скачать Excel';
+                document.getElementById('excelIcon').outerHTML = '<svg id="excelIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>';
+                btnText.textContent = 'Скачать Excel';
             }
         }
 
-        // ── Тост ─────────────────────────────────────────────────────────────
-        let toastTimer = null;
+        /* ── Тост ─────────────────────────────────────────────── */
+        var toastTimer = null;
         function showToast(type, message) {
-            const toast = document.getElementById('toast');
-            const toastIcon = document.getElementById('toastIcon');
-            const toastText = document.getElementById('toastText');
-
-            const isSuccess = type === 'success';
-            toastIcon.className = `w-5 h-5 flex-shrink-0 ${isSuccess ? 'text-emerald-400' : 'text-red-400'}`;
+            var toast = document.getElementById('toast');
+            var toastIcon = document.getElementById('toastIcon');
+            var toastText = document.getElementById('toastText');
+            var isSuccess = (type === 'success');
+            toastIcon.className = 'w-5 h-5 flex-shrink-0 ' + (isSuccess ? 'text-emerald-400' : 'text-red-400');
             toastIcon.innerHTML = isSuccess
-                ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>`
-                : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>`;
-
+                ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>'
+                : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
             toastText.textContent = message;
             toast.classList.remove('hidden');
-            toast.querySelector('div').className = toast.querySelector('div').className
-                .replace('toast-exit', '') + ' toast';
-
             if (toastTimer) clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => {
-                toast.querySelector('div').classList.add('toast-exit');
-                setTimeout(() => toast.classList.add('hidden'), 300);
-            }, 3500);
+            toastTimer = setTimeout(function () { toast.classList.add('hidden'); }, 3500);
         }
     </script>
 </body>

@@ -152,12 +152,120 @@
             outline: 2px solid #6366f1;
             outline-offset: 2px;
         }
+
+        /* Плавающие фоновые элементы */
+        .floating-shapes {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-shapes .shape {
+            position: absolute;
+            opacity: 0;
+            animation: floatUp linear infinite;
+            box-shadow: 0 0 20px currentColor;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh) translateX(0) rotate(0deg) scale(0.6);
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateY(40vh) translateX(40px) rotate(180deg) scale(1);
+            }
+
+            90% {
+                opacity: 0.8;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-15vh) translateX(-20px) rotate(360deg) scale(0.8);
+            }
+        }
+
+        @keyframes floatSide {
+            0% {
+                opacity: 0;
+                transform: translateX(-100px) translateY(0) rotate(0deg);
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateX(50vw) translateY(-60px) rotate(180deg);
+            }
+
+            90% {
+                opacity: 0.6;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateX(100vw) translateY(-120px) rotate(360deg);
+            }
+        }
+
+        .shape-circle {
+            border-radius: 50%;
+        }
+
+        .shape-square {
+            border-radius: 20%;
+        }
+
+        .shape-diamond {
+            border-radius: 20%;
+        }
+
+        .shape-ring {
+            border-radius: 50%;
+            background: transparent !important;
+            border: 2px solid currentColor !important;
+        }
+
+        /* Градиентные светящиеся пятна */
+        .glow-spot {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+        }
     </style>
 </head>
 
 <body class="bg-darkBg text-gray-100 min-h-screen antialiased flex items-center justify-center p-4">
 
-    <div class="w-full max-w-lg card-enter">
+    <!-- Градиентные светящиеся пятна -->
+    <div class="glow-spot"
+        style="width:500px;height:500px;background:radial-gradient(circle,#6366f1,transparent);top:-120px;left:-120px;opacity:0.22;">
+    </div>
+    <div class="glow-spot"
+        style="width:450px;height:450px;background:radial-gradient(circle,#8b5cf6,transparent);bottom:-100px;right:-100px;opacity:0.2;">
+    </div>
+    <div class="glow-spot"
+        style="width:350px;height:350px;background:radial-gradient(circle,#06b6d4,transparent);top:25%;right:5%;opacity:0.18;">
+    </div>
+    <div class="glow-spot"
+        style="width:300px;height:300px;background:radial-gradient(circle,#a855f7,transparent);bottom:15%;left:8%;opacity:0.14;">
+    </div>
+
+    <!-- Плавающие геометрические фигуры -->
+    <div class="floating-shapes" id="floatingShapes"></div>
+
+    <div class="w-full max-w-lg card-enter" style="position:relative;z-index:1;">
         <!-- Главная карточка -->
         <div id="mainCard"
             class="bg-cardBg rounded-2xl p-10 border border-gray-700 shadow-2xl shadow-indigo-500/10 flex flex-col items-center">
@@ -451,6 +559,77 @@
 
         // Изначально показываем форму
         showState('form');
+
+        // ── Плавающие фоновые фигуры ───────────────────────────────────────
+        (function () {
+            var container = document.getElementById('floatingShapes');
+            var colors = [
+                'rgba(99,102,241,0.25)',    // indigo
+                'rgba(139,92,246,0.22)',     // violet
+                'rgba(6,182,212,0.20)',      // cyan
+                'rgba(168,85,247,0.18)',     // purple
+                'rgba(34,211,238,0.16)',     // teal
+                'rgba(99,102,241,0.30)',     // indigo bright
+            ];
+            var shapes = ['shape-circle', 'shape-square', 'shape-diamond', 'shape-ring'];
+
+            function spawnShape(fromSide, isInitial) {
+                var el = document.createElement('div');
+                el.classList.add('shape');
+
+                var shapeType = shapes[Math.floor(Math.random() * shapes.length)];
+                el.classList.add(shapeType);
+
+                var size = 30 + Math.random() * 60;
+                var color = colors[Math.floor(Math.random() * colors.length)];
+                var dur = 10 + Math.random() * 15;
+                var delay = Math.random() * 3;
+
+                el.style.width = size + 'px';
+                el.style.height = size + 'px';
+                el.style.color = color;
+
+                if (fromSide) {
+                    el.style.top = (10 + Math.random() * 80) + '%';
+                    el.style.left = '-80px';
+                    el.style.animationName = 'floatSide';
+                } else {
+                    el.style.left = Math.random() * 100 + '%';
+                    el.style.bottom = '-80px';
+                    el.style.animationName = 'floatUp';
+                }
+
+                if (isInitial) {
+                    dur = 5 + Math.random() * 5;
+                    delay = 0;
+                    el.style.bottom = (Math.random() * 80) + '%';
+                }
+
+                el.style.background = color;
+                el.style.border = '1px solid ' + color.replace(/[\d.]+\)$/, '0.4)');
+                el.style.animationDuration = dur + 's';
+                el.style.animationDelay = delay + 's';
+                el.style.backdropFilter = 'blur(3px)';
+
+                container.appendChild(el);
+
+                setTimeout(function () {
+                    if (el.parentNode) el.parentNode.removeChild(el);
+                }, (dur + delay) * 1000);
+            }
+
+            // Начальная быстрая порция
+            for (var i = 0; i < 24; i++) {
+                (function (idx) {
+                    setTimeout(function () {
+                        spawnShape(Math.random() > 0.6, true);
+                    }, idx * 120);
+                })(i);
+            }
+
+            // Постоянная генерация
+            setInterval(function () { spawnShape(Math.random() > 0.7, false); }, 1200);
+        })();
     </script>
 </body>
 
