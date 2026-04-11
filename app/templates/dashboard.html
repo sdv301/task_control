@@ -195,6 +195,14 @@
                     </svg>
                     Новое поручение
                 </a>
+                <a href="/leaderboard"
+                    class="bg-amber-600 hover:bg-amber-500 text-white font-medium py-2 px-4 rounded-lg shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Лидерборд
+                </a>
                 <button id="excelBtn" onclick="exportExcel()"
                     class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded-lg shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 text-sm">
                     <svg id="excelIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -292,6 +300,11 @@
                                 placeholder="Поиск по документам, исполнителям, задачам..."
                                 class="search-input w-full bg-gray-800 border border-gray-600 rounded-lg pl-10 pr-4 py-2.5 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all">
                         </div>
+                        <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer select-none">
+                            <input type="checkbox" name="kchs" value="1" {% if request.args.get('kchs') %}checked{% endif %}
+                                class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-red-500 focus:ring-red-500 focus:ring-offset-0">
+                            КЧС
+                        </label>
                         <button type="submit"
                             class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-all">Найти</button>
                         {% if search_q %}

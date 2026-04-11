@@ -80,6 +80,7 @@ task_control/
 | `POST` | `/task/<id>/status` | Обновить статус задачи |
 | `GET` | `/export/excel` | Скачать Excel-отчёт |
 | `GET` | `/api/stats` | JSON-статистика |
+| `GET` | `/health` | Проверка состояния системы (зависимости, OCR) |
 
 ---
 
@@ -143,6 +144,14 @@ set DATABASE_URL=sqlite:///tasks.db
 cd app
 flask run --host=0.0.0.0 --port=5000
 ```
+
+> ⚠️ **При локальном запуске** для работы OCR (сканированные PDF) необходимо установить:
+> - **Tesseract OCR** — https://github.com/UB-Mannheim/tesseract/wiki (выберите русскую языковую упаковку)
+> - **Poppler** — https://github.com/oschwartz10612/poppler-windows/releases/
+>
+> После установки добавьте пути к ним в переменную `PATH`.
+>
+> **В Docker всё уже включено** — никаких дополнительных установок не требуется.
 
 ---
 

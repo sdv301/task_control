@@ -8,7 +8,19 @@ class Executor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False, unique=True)
     email = db.Column(db.String(255))
+    district = db.Column(db.String(255))
     tasks = db.relationship('Task', backref='executor', lazy=True)
+
+class District(db.Model):
+    __tablename__ = 'districts'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False, unique=True)
+    yandex_url = db.Column(db.String(500))
+    total_tasks = db.Column(db.Integer, default=0)
+    completed_tasks = db.Column(db.Integer, default=0)
+    overdue_tasks = db.Column(db.Integer, default=0)
+    timely_tasks = db.Column(db.Integer, default=0)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Task(db.Model):
     __tablename__ = 'tasks'

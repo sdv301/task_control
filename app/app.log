@@ -3604,3 +3604,12 @@
 2026-04-08 06:53:30,733 - INFO - 172.19.0.1 - - [08/Apr/2026 06:53:30] "GET / HTTP/1.1" 200 -
 2026-04-08 06:53:45,713 - INFO - 172.19.0.1 - - [08/Apr/2026 06:53:45] "GET / HTTP/1.1" 200 -
 2026-04-08 06:54:00,717 - INFO - 172.19.0.1 - - [08/Apr/2026 06:54:00] "GET / HTTP/1.1" 200 -
+2026-04-11 12:08:48,145 - INFO - БД инициализирована успешно.
+2026-04-11 12:08:48,155 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.36:5000
+2026-04-11 12:08:48,155 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-11 14:48:48,427 - INFO - 127.0.0.1 - - [11/Apr/2026 14:48:48] "GET / HTTP/1.1" 200 -
+2026-04-11 15:27:06,730 - INFO - 127.0.0.1 - - [11/Apr/2026 15:27:06] "GET / HTTP/1.1" 200 -
+2026-04-11 15:39:07,141 - INFO - 127.0.0.1 - - [11/Apr/2026 15:39:07] "[31m[1mPOST /upload HTTP/1.1[0m" 400 -

@@ -532,8 +532,13 @@
             } catch (err) {
                 completeProgress(false);
                 showState('error');
-                document.getElementById('errorMessage').textContent =
-                    'Нет связи с сервером. Проверьте, запущен ли Docker.';
+                document.getElementById('errorMessage').innerHTML =
+                    'Нет связи с сервером.<br><br>' +
+                    'Убедитесь, что приложение запущено:<br>' +
+                    '• <b>Docker:</b> откройте http://localhost:5200<br>' +
+                    '• Запустите: <code>docker-compose up -d</code><br><br>' +
+                    'Если вы открыли страницу напрямую (порт 5000), ' +
+                    'убедитесь, что установлены Tesseract OCR и Poppler.';
                 document.getElementById('stateError').classList.add('shake');
             }
         }

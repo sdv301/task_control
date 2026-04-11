@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 # Системные зависимости для OCR (Tesseract) и рендеринга PDF (poppler)
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -9,13 +9,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /
+WORKDIR /app
 
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/ /app/
+COPY data/ /app/data/
 
-# Запускаем Flask из папки /app
-WORKDIR /app
-CMD ["flask", "run", "--host=0.0.0.0"]
+# Создаём директорию для данных
+RUN mkdir -p /data
+
+ENV FLASK_APP=main.py
+ENV FLASK_RUN_HOST=0.0.0.0
+ENV FLASK_RUN_PORT=5000
+
+EXPOSE 5000
+
+CMD ["flask", "run"]

@@ -1,4 +1,5 @@
 import os
+import json
 import logging
 import time
 import hashlib
@@ -7,27 +8,57 @@ from datetime import datetime, timedelta
 from collections import OrderedDict
 
 from flask import Flask, render_template, jsonify, request, redirect, url_for, send_file
-from models import db, Task, Executor, FileDocument
-from parser.pdf_engine import parse_pdf
+from models import db, Task, Executor, FileDocument, District
+from parser.pdf_engine import parse_pdf, USE_PDFPLUMBER, USE_OCR, TESSERACT_AVAILABLE, POPPLER_AVAILABLE
+from services.yandex_folder_parser import parse_yandex_folder, parse_all_districts
 
 # ─── Логирование ─────────────────────────────────────────────────────────────
-logging.basicConfig(
-    filename='app.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+import sys
+IS_DOCKER = os.path.exists('/.dockerenv')
+
+if IS_DOCKER:
+    # Docker — stdout
+    logging.basicConfig(
+        stream=sys.stdout,
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    # Включаем логирование запросов Werkzeug
+    from werkzeug.serving import WSGIRequestHandler
+    logging.getLogger('werkzeug').setLevel(logging.INFO)
+else:
+    # Локальный запуск — файл
+    logging.basicConfig(
+        filename='app.log',
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
 
 # ─── Flask app ────────────────────────────────────────────────────────────────
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:////data/tasks.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///tasks.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-prod')
 db.init_app(app)
 
-# ─── Инициализация БД ────────────────────────────────────────────────────────
+# Определяем базовый путь для файлов данных
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+
+# ─── Инициализация БД и районов ──────────────────────────────────────────────
 with app.app_context():
-    os.makedirs('/data', exist_ok=True)
+    os.makedirs(DATA_DIR, exist_ok=True)
     db.create_all()
+    # Загрузка районов из JSON файла
+    districts_file = os.path.join(DATA_DIR, 'districts.json')
+    if os.path.exists(districts_file):
+        with open(districts_file, 'r', encoding='utf-8') as f:
+            districts_data = json.load(f)
+        for d in districts_data:
+            existing = District.query.filter_by(name=d['name']).first()
+            if not existing:
+                db.session.add(District(name=d['name'], yandex_url=d['url']))
+        db.session.commit()
     logging.info("БД инициализирована успешно.")
 
 
@@ -45,6 +76,18 @@ def _refresh_statuses(tasks, now):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+# ─── Проверка состояния системы ───────────────────────────────────────────────
+@app.route('/health')
+def health():
+    return jsonify({
+        'status': 'ok',
+        'pdfplumber': USE_PDFPLUMBER,
+        'ocr': USE_OCR,
+        'tesseract': TESSERACT_AVAILABLE,
+        'poppler': POPPLER_AVAILABLE,
+    })
 
 
 # ─── Загрузка PDF ─────────────────────────────────────────────────────────────
@@ -77,6 +120,18 @@ def upload_file():
     new_doc.doc_date = result.get('doc_date')
 
     new_count = 0
+    # Ключевые фразы для задач, которые нужно распределить по всем районам
+    MSU_PHRASES = [
+        'рекомендовать органам местного самоуправления',
+        'рекомендовать органам мсу',
+        'органам местного самоуправления',
+        'органам мсу',
+    ]
+
+    def is_msu_task(text: str) -> bool:
+        text_lower = text.lower()
+        return any(phrase in text_lower for phrase in MSU_PHRASES)
+
     for t_data in parsed_tasks:
         executor = Executor.query.filter_by(name=t_data['executor']).first()
         if not executor:
@@ -101,6 +156,43 @@ def upload_file():
             )
             db.session.add(new_task)
             new_count += 1
+
+        # Если задача содержит "Рекомендовать органам МСУ" — распределяем по всем районам
+        task_text = t_data.get('text', '') + ' ' + t_data.get('title', '')
+        if is_msu_task(task_text):
+            districts = District.query.all()
+            for district in districts:
+                # Создаём виртуального исполнителя для района
+                district_executor = Executor.query.filter_by(
+                    name=f"МСУ — {district.name}"
+                ).first()
+                if not district_executor:
+                    district_executor = Executor(
+                        name=f"МСУ — {district.name}",
+                        district=district.name
+                    )
+                    db.session.add(district_executor)
+                    db.session.flush()
+
+                # Проверяем дубликат
+                exists_district = Task.query.filter_by(
+                    file_hash=t_data['file_hash'],
+                    item_number=t_data['title'],
+                    executor_id=district_executor.id
+                ).first()
+
+                if not exists_district:
+                    district_task = Task(
+                        item_number=t_data['title'],
+                        title=t_data['title'],
+                        text=t_data.get('text', ''),
+                        deadline=t_data['deadline'],
+                        file_hash=t_data['file_hash'],
+                        executor_id=district_executor.id,
+                        document_id=new_doc.id
+                    )
+                    db.session.add(district_task)
+                    new_count += 1
 
     db.session.commit()
     logging.info(f"Загружен файл '{file.filename}': добавлено {new_count} новых задач.")
@@ -127,6 +219,12 @@ def dashboard():
             or q_lower in (t.executor.name or '').lower()
             or (t.document and q_lower in (t.document.filename or '').lower())
         ]
+        # Фильтр КЧС
+        if request.args.get('kchs', '').strip():
+            filtered_tasks = [
+                t for t in filtered_tasks
+                if t.document and 'кчс' in (t.document.filename or '').lower()
+            ]
     else:
         filtered_tasks = all_tasks
 
@@ -424,6 +522,147 @@ def api_stats():
         "overdue": overdue,
         "in_progress": total - completed - overdue
     })
+
+
+# ─── Лидерборд по районам ────────────────────────────────────────────────────
+@app.route('/leaderboard')
+def leaderboard():
+    districts = District.query.order_by(District.total_tasks.desc()).all()
+    return render_template('leaderboard.html', districts=districts)
+
+
+@app.route('/api/leaderboard')
+def api_leaderboard():
+    """API для лидерборда: возвращает районы с баллами.
+    
+    Формула расчёта баллов:
+    - +10 баллов за каждое выполненное поручение
+    - +5 бонусных баллов, если выполнено ДО срока (timeliness_bonus)
+    - -5 баллов за каждое просроченное поручение
+    - Итого: score = completed*10 + timely_bonus*5 - overdue*5
+    """
+    districts = District.query.all()
+    all_tasks = Task.query.all()
+    now = datetime.utcnow()
+    _refresh_statuses(all_tasks, now)
+
+    # Обновляем статистику районов
+    for district in districts:
+        district_name_lower = district.name.lower()
+        district_tasks = [
+            t for t in all_tasks
+            if t.executor and t.executor.district and district_name_lower in t.executor.district.lower()
+        ]
+        district.total_tasks = len(district_tasks)
+        district.completed_tasks = sum(1 for t in district_tasks if t.status == 'Выполнено')
+        district.overdue_tasks = sum(1 for t in district_tasks if t.status == 'Просрочено')
+        
+        # Считаем бонус за своевременность: выполнено ДО дедлайна
+        timely_count = 0
+        for t in district_tasks:
+            if t.status == 'Выполнено' and t.report_submitted:
+                # Если отчёт сдан и статус "Выполнено" — считаем своевременным
+                timely_count += 1
+        district.timely_tasks = timely_count
+        district.updated_at = now
+    db.session.commit()
+
+    # Сортируем по баллам (по убыванию)
+    def calc_score(d):
+        completed = d.completed_tasks or 0
+        timely = d.timely_tasks or 0
+        overdue = d.overdue_tasks or 0
+        return completed * 10 + timely * 5 - overdue * 5
+
+    districts_sorted = sorted(districts, key=calc_score, reverse=True)
+
+    result = []
+    for i, d in enumerate(districts_sorted, 1):
+        score = calc_score(d)
+        pct = int((d.completed_tasks / d.total_tasks * 100)) if d.total_tasks > 0 else 0
+        result.append({
+            'rank': i,
+            'id': d.id,
+            'name': d.name,
+            'yandex_url': d.yandex_url,
+            'total_tasks': d.total_tasks,
+            'completed_tasks': d.completed_tasks,
+            'overdue_tasks': d.overdue_tasks,
+            'timely_tasks': d.timely_tasks,
+            'percentage': pct,
+            'score': score,
+        })
+
+    return jsonify(result)
+
+
+@app.route('/api/district/<int:district_id>/tasks')
+def district_tasks(district_id):
+    """Возвращает все задачи конкретного района."""
+    district = District.query.get_or_404(district_id)
+    all_tasks = Task.query.all()
+    now = datetime.utcnow()
+    _refresh_statuses(all_tasks, now)
+
+    district_name_lower = district.name.lower()
+    district_tasks = [
+        t for t in all_tasks
+        if t.executor and t.executor.district and district_name_lower in t.executor.district.lower()
+    ]
+
+    tasks_data = []
+    for t in district_tasks:
+        tasks_data.append({
+            'id': t.id,
+            'title': t.title,
+            'text': t.text,
+            'executor': t.executor.name if t.executor else '-',
+            'deadline': t.deadline.strftime('%d.%m.%Y') if t.deadline else '-',
+            'status': t.status,
+            'document': t.document.filename if t.document else '-',
+        })
+
+    return jsonify({
+        'district': district.name,
+        'yandex_url': district.yandex_url,
+        'tasks': tasks_data,
+    })
+
+
+@app.route('/api/district/<int:district_id>/assign-executor', methods=['POST'])
+def assign_executor_to_district(district_id):
+    """Привязать исполнителя к району (для корректного подсчёта лидерборда)."""
+    district = District.query.get_or_404(district_id)
+    executor_name = request.json.get('executor_name', '').strip()
+    if not executor_name:
+        return jsonify({"error": "Имя исполнителя обязательно"}), 400
+
+    executor = Executor.query.filter_by(name=executor_name).first()
+    if not executor:
+        return jsonify({"error": "Исполнитель не найден"}), 404
+
+    executor.district = district.name
+    db.session.commit()
+    return jsonify({"ok": True, "executor": executor.name, "district": district.name})
+
+
+# ─── Яндекс.Диск парсинг ──────────────────────────────────────────────────────
+@app.route('/api/yandex/refresh')
+def yandex_refresh():
+    """Обновить данные всех Яндекс.Диск папок районов."""
+    districts = District.query.all()
+    districts_data = [{'id': d.id, 'name': d.name, 'yandex_url': d.yandex_url} for d in districts]
+    results = parse_all_districts(districts_data)
+    return jsonify({'updated': len(results), 'results': results})
+
+
+@app.route('/api/yandex/district/<int:district_id>')
+def yandex_district(district_id):
+    """Получить содержимое Яндекс.Диск папки конкретного района."""
+    district = District.query.get_or_404(district_id)
+    result = parse_yandex_folder(district.yandex_url)
+    result['district_name'] = district.name
+    return jsonify(result)
 
 
 if __name__ == '__main__':
