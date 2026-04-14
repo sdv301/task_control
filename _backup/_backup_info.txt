@@ -1,0 +1,4 @@
+Backup created: 2026-04-14 16:39:12
+Files backed up: 24
+Errors: 0
+Base dir: c:\Users\pc24\Downloads\Code\task_control

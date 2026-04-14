@@ -1,507 +1,407 @@
-2026-03-04 05:47:56,155 - WARNING - Database not ready. Retrying in 3 seconds... (5 left). Error: (psycopg2.OperationalError) connection to server at "db" (172.18.0.2), port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-
-(Background on this error at: https://sqlalche.me/e/20/e3q8)
-2026-03-04 05:47:59,243 - INFO - Successfully connected to the database and created tables.
-2026-03-04 05:47:59,251 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2026-03-05 03:38:24,280 - INFO - БД инициализирована успешно.
+2026-03-05 03:38:24,290 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 05:47:59,251 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 05:48:10,670 - ERROR - Exception on / [GET]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-  File "/app/main.py", line 45, in dashboard
-    return render_template('dashboard.html', tasks=tasks)
-  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 151, in render_template
-    return _render(app, template, context)
-  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 132, in _render
-    rv = template.render(context)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/app/templates/dashboard.html", line 65, in top-level template code
-    data: [10, 5, 2], // Заглушка, позже заменим на {{ stats.in_progress }}, и т.д.
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 490, in getattr
-    return getattr(obj, attribute)
-jinja2.exceptions.UndefinedError: 'stats' is undefined
-2026-03-04 05:48:10,686 - INFO - 172.18.0.1 - - [04/Mar/2026 05:48:10] "[35m[1mGET / HTTP/1.1[0m" 500 -
-2026-03-04 05:48:42,277 - INFO - Successfully connected to the database and created tables.
-2026-03-04 05:48:42,283 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://172.18.0.2:5000
+2026-03-05 03:38:24,290 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-05 03:38:28,592 - INFO - 172.18.0.1 - - [05/Mar/2026 03:38:28] "GET / HTTP/1.1" 200 -
+2026-03-05 03:38:31,687 - INFO - 172.18.0.1 - - [05/Mar/2026 03:38:31] "GET /dashboard HTTP/1.1" 200 -
+2026-03-05 03:38:53,260 - INFO - БД инициализирована успешно.
+2026-03-05 03:38:53,268 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 05:48:42,283 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 05:48:54,322 - INFO - Successfully connected to the database and created tables.
-2026-03-04 05:49:23,682 - ERROR - Exception on / [GET]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-  File "/app/main.py", line 45, in dashboard
-    return render_template('dashboard.html', tasks=tasks)
-  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 151, in render_template
-    return _render(app, template, context)
-  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 132, in _render
-    rv = template.render(context)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/app/templates/dashboard.html", line 65, in top-level template code
-    data: [10, 5, 2], // Заглушка, позже заменим на {{ stats.in_progress }}, и т.д.
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 490, in getattr
-    return getattr(obj, attribute)
-jinja2.exceptions.UndefinedError: 'stats' is undefined
-2026-03-04 05:49:23,703 - INFO - 172.18.0.1 - - [04/Mar/2026 05:49:23] "[35m[1mGET / HTTP/1.1[0m" 500 -
-2026-03-04 05:53:26,878 - ERROR - Exception on / [GET]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-  File "/app/main.py", line 45, in dashboard
-    return render_template('dashboard.html', tasks=tasks)
-  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 151, in render_template
-    return _render(app, template, context)
-  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 132, in _render
-    rv = template.render(context)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/app/templates/dashboard.html", line 65, in top-level template code
-    data: [10, 5, 2], // Заглушка, позже заменим на {{ stats.in_progress }}, и т.д.
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 490, in getattr
-    return getattr(obj, attribute)
-jinja2.exceptions.UndefinedError: 'stats' is undefined
-2026-03-04 05:53:26,882 - INFO - 127.0.0.1 - - [04/Mar/2026 05:53:26] "[35m[1mGET / HTTP/1.1[0m" 500 -
-2026-03-04 05:53:52,067 - INFO - Successfully connected to the database and created tables.
-2026-03-04 05:53:52,077 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://172.18.0.2:5000
+2026-03-05 03:38:53,269 - INFO - [33mPress CTRL+C to quit[0m
+2026-03-05 03:38:53,601 - INFO - 172.18.0.1 - - [05/Mar/2026 03:38:53] "GET / HTTP/1.1" 200 -
+2026-03-05 03:39:00,733 - INFO - [PDF-PARSER] Начат парсинг: КЧС 4.pdf (pdfplumber=True, ocr=True)
+2026-03-05 03:39:00,867 - INFO - [PDF-PARSER] Запуск OCR (сканированный PDF)...
+2026-03-05 03:39:05,144 - INFO - [PDF-PARSER] OCR страница 1/4: 1871 символов
+2026-03-05 03:39:08,199 - INFO - [PDF-PARSER] OCR страница 2/4: 2748 символов
+2026-03-05 03:39:11,222 - INFO - [PDF-PARSER] OCR страница 3/4: 2594 символов
+2026-03-05 03:39:14,128 - INFO - [PDF-PARSER] OCR страница 4/4: 2002 символов
+2026-03-05 03:39:14,135 - INFO - [PDF-PARSER] OCR: извлечено 9217 символов
+2026-03-05 03:39:14,136 - INFO - [PDF-PARSER] Дата документа: 28.01.2026
+2026-03-05 03:39:14,138 - INFO - [PDF-PARSER] П.2: исп=Бычков К.Е., срок=2026-05-01 00:00:00
+2026-03-05 03:39:14,139 - INFO - [PDF-PARSER] П.3: исп=Ответственное лицо, срок=2026-03-06 00:00:00
+2026-03-05 03:39:14,140 - INFO - [PDF-PARSER] П.4: исп=Ответственное лицо, срок=None
+2026-03-05 03:39:14,141 - INFO - [PDF-PARSER] П.5: исп=Лепчиков Д.Н., срок=None
+2026-03-05 03:39:14,141 - INFO - [PDF-PARSER] П.5.1: исп=Лепчиков Д.Н., срок=2026-01-28 00:00:00
+2026-03-05 03:39:14,142 - INFO - [PDF-PARSER] П.5.2: исп=Гарин П.С., срок=None
+2026-03-05 03:39:14,142 - INFO - [PDF-PARSER] П.5.2.1: исп=Гарин П.С., срок=2026-02-13 00:00:00
+2026-03-05 03:39:14,142 - INFO - [PDF-PARSER] П.5.2.2: исп=Гарин П.С., срок=2026-12-31 00:00:00
+2026-03-05 03:39:14,143 - INFO - [PDF-PARSER] П.5.2.3: исп=Гарин П.С., срок=None
+2026-03-05 03:39:14,143 - INFO - [PDF-PARSER] П.5.2.4: исп=Гарин П.С., срок=None
+2026-03-05 03:39:14,143 - INFO - [PDF-PARSER] П.5.2.5: исп=Гарин П.С., срок=2026-02-28 00:00:00
+2026-03-05 03:39:14,144 - INFO - [PDF-PARSER] П.5.3: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=None
+2026-03-05 03:39:14,144 - INFO - [PDF-PARSER] П.5.3.1: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-02-27 00:00:00
+2026-03-05 03:39:14,145 - INFO - [PDF-PARSER] П.5.3.2: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-03-01 00:00:00
+2026-03-05 03:39:14,146 - INFO - [PDF-PARSER] П.5.3.3: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-02-28 00:00:00
+2026-03-05 03:39:14,146 - INFO - [PDF-PARSER] П.6: исп=Соколова Н.А., срок=None
+2026-03-05 03:39:14,147 - INFO - [PDF-PARSER] П.8: исп=Романов В.Д., срок=2026-02-20 00:00:00
+2026-03-05 03:39:14,148 - INFO - [PDF-PARSER] П.9: исп=Перфильев Е.А, срок=2026-02-15 00:00:00
+2026-03-05 03:39:14,148 - INFO - [PDF-PARSER] П.10: исп=Органам местного самоуправления республики
+саха (якутия), срок=None
+2026-03-05 03:39:14,149 - INFO - [PDF-PARSER] П.10.1: исп=Органам местного самоуправления республики
+саха (якутия), срок=None
+2026-03-05 03:39:14,149 - INFO - [PDF-PARSER] П.10.2: исп=Органам местного самоуправления республики
+саха (якутия), срок=None
+2026-03-05 03:39:14,149 - INFO - [PDF-PARSER] П.10.5: исп=Органам местного самоуправления республики
+саха (якутия), срок=None
+2026-03-05 03:39:14,149 - INFO - [PDF-PARSER] П.10.4: исп=Андреев Г.П., срок=None
+2026-03-05 03:39:14,150 - INFO - [PDF-PARSER] П.10.4.1: исп=Андреев Г.П., срок=None
+2026-03-05 03:39:14,150 - INFO - [PDF-PARSER] П.10.4.2: исп=Андреев Г.П., срок=2026-03-31 00:00:00
+2026-03-05 03:39:14,150 - INFO - [PDF-PARSER] Итого найдено пунктов: 25
+2026-03-05 03:39:14,927 - INFO - Загружен файл 'КЧС 4.pdf': добавлено 25 новых задач.
+2026-03-05 03:39:14,930 - INFO - 172.18.0.1 - - [05/Mar/2026 03:39:14] "[35m[1mPOST /upload HTTP/1.1[0m" 201 -
+2026-03-05 03:39:18,995 - INFO - 172.18.0.1 - - [05/Mar/2026 03:39:18] "GET /dashboard HTTP/1.1" 200 -
+2026-03-05 03:41:04,443 - INFO - 172.18.0.1 - - [05/Mar/2026 03:41:04] "GET / HTTP/1.1" 200 -
+2026-03-05 03:41:06,689 - INFO - 172.18.0.1 - - [05/Mar/2026 03:41:06] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-03-05 03:41:13,345 - INFO - 172.18.0.1 - - [05/Mar/2026 03:41:13] "GET /dashboard HTTP/1.1" 200 -
+2026-03-05 03:42:02,559 - INFO - 172.18.0.1 - - [05/Mar/2026 03:42:02] "POST /task/23/report HTTP/1.1" 200 -
+2026-03-05 03:42:04,465 - INFO - 172.18.0.1 - - [05/Mar/2026 03:42:04] "POST /task/23/status HTTP/1.1" 200 -
+2026-03-05 03:42:05,656 - INFO - 172.18.0.1 - - [05/Mar/2026 03:42:05] "GET /dashboard HTTP/1.1" 200 -
+2026-03-05 03:42:10,524 - INFO - 172.18.0.1 - - [05/Mar/2026 03:42:10] "POST /task/23/report HTTP/1.1" 200 -
+2026-03-05 03:42:11,863 - INFO - 172.18.0.1 - - [05/Mar/2026 03:42:11] "POST /task/23/status HTTP/1.1" 200 -
+2026-03-05 03:42:13,167 - INFO - 172.18.0.1 - - [05/Mar/2026 03:42:13] "GET /dashboard HTTP/1.1" 200 -
+2026-03-05 03:42:20,356 - INFO - 172.18.0.1 - - [05/Mar/2026 03:42:20] "POST /task/23/report HTTP/1.1" 200 -
+2026-03-05 03:42:21,856 - INFO - 172.18.0.1 - - [05/Mar/2026 03:42:21] "POST /task/23/status HTTP/1.1" 200 -
+2026-03-05 03:42:23,103 - INFO - 172.18.0.1 - - [05/Mar/2026 03:42:23] "GET /dashboard HTTP/1.1" 200 -
+2026-03-05 03:42:28,891 - INFO - 172.18.0.1 - - [05/Mar/2026 03:42:28] "POST /task/23/report HTTP/1.1" 200 -
+2026-03-05 03:42:29,800 - INFO - 172.18.0.1 - - [05/Mar/2026 03:42:29] "POST /task/23/status HTTP/1.1" 200 -
+2026-03-05 03:42:30,982 - INFO - 172.18.0.1 - - [05/Mar/2026 03:42:30] "GET /dashboard HTTP/1.1" 200 -
+2026-03-05 03:43:04,605 - INFO - 172.18.0.1 - - [05/Mar/2026 03:43:04] "GET /export/excel HTTP/1.1" 200 -
+2026-03-05 03:46:32,656 - INFO - 172.18.0.1 - - [05/Mar/2026 03:46:32] "GET /task/add HTTP/1.1" 200 -
+2026-03-05 03:46:38,061 - INFO - 172.18.0.1 - - [05/Mar/2026 03:46:38] "GET /dashboard HTTP/1.1" 200 -
+2026-03-05 03:47:37,040 - INFO - Удалён документ 'КЧС 4.pdf' (id=1) и все его задачи.
+2026-03-05 03:47:37,041 - INFO - 172.18.0.1 - - [05/Mar/2026 03:47:37] "POST /document/1/delete HTTP/1.1" 200 -
+2026-03-05 03:47:37,661 - INFO - 172.18.0.1 - - [05/Mar/2026 03:47:37] "GET /dashboard HTTP/1.1" 200 -
+2026-03-05 03:47:40,196 - INFO - 172.18.0.1 - - [05/Mar/2026 03:47:40] "GET / HTTP/1.1" 200 -
+2026-04-10 00:40:49,637 - INFO - БД инициализирована успешно.
+2026-04-10 00:40:49,656 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 05:53:52,078 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 05:55:42,970 - INFO - 127.0.0.1 - - [04/Mar/2026 05:55:42] "GET / HTTP/1.1" 200 -
-2026-03-04 05:56:57,426 - INFO - Successfully connected to the database and created tables.
-2026-03-04 05:56:57,438 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://172.18.0.2:5000
+2026-04-10 00:40:49,656 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-10 00:41:31,924 - INFO - 172.18.0.1 - - [10/Apr/2026 00:41:31] "GET / HTTP/1.1" 200 -
+2026-04-10 00:41:33,220 - INFO - 172.18.0.1 - - [10/Apr/2026 00:41:33] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-10 00:41:41,614 - INFO - [PDF-PARSER] Начат парсинг: КЧС 4.pdf (pdfplumber=True, ocr=True)
+2026-04-10 00:41:41,835 - INFO - [PDF-PARSER] Запуск OCR (сканированный PDF)...
+2026-04-10 00:41:50,852 - INFO - [PDF-PARSER] OCR страница 1/4: 1871 символов
+2026-04-10 00:41:58,187 - INFO - [PDF-PARSER] OCR страница 2/4: 2748 символов
+2026-04-10 00:42:05,757 - INFO - [PDF-PARSER] OCR страница 3/4: 2594 символов
+2026-04-10 00:42:11,220 - INFO - [PDF-PARSER] OCR страница 4/4: 2002 символов
+2026-04-10 00:42:11,232 - INFO - [PDF-PARSER] OCR: извлечено 9217 символов
+2026-04-10 00:42:11,233 - INFO - [PDF-PARSER] Дата документа: 28.01.2026
+2026-04-10 00:42:11,235 - INFO - [PDF-PARSER] П.1: исп=Ответственное лицо, срок=None
+2026-04-10 00:42:11,239 - INFO - [PDF-PARSER] П.2: исп=Бычков К.Е., срок=2026-05-01 00:00:00
+2026-04-10 00:42:11,240 - INFO - [PDF-PARSER] П.3: исп=Ответственное лицо, срок=2026-03-06 00:00:00
+2026-04-10 00:42:11,242 - INFO - [PDF-PARSER] П.4: исп=Ответственное лицо, срок=None
+2026-04-10 00:42:11,244 - INFO - [PDF-PARSER] П.5: исп=Лепчиков Д.Н., срок=None
+2026-04-10 00:42:11,245 - INFO - [PDF-PARSER] П.5.1: исп=Лепчиков Д.Н., срок=2026-01-28 00:00:00
+2026-04-10 00:42:11,246 - INFO - [PDF-PARSER] П.5.2: исп=Гарин П.С., срок=None
+2026-04-10 00:42:11,246 - INFO - [PDF-PARSER] П.5.2.1: исп=Гарин П.С., срок=2026-02-13 00:00:00
+2026-04-10 00:42:11,247 - INFO - [PDF-PARSER] П.5.2.2: исп=Гарин П.С., срок=2026-12-31 00:00:00
+2026-04-10 00:42:11,247 - INFO - [PDF-PARSER] П.5.2.3: исп=Гарин П.С., срок=None
+2026-04-10 00:42:11,248 - INFO - [PDF-PARSER] П.5.2.4: исп=Гарин П.С., срок=None
+2026-04-10 00:42:11,248 - INFO - [PDF-PARSER] П.5.2.5: исп=Гарин П.С., срок=2026-02-28 00:00:00
+2026-04-10 00:42:11,249 - INFO - [PDF-PARSER] П.5.3: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=None
+2026-04-10 00:42:11,249 - INFO - [PDF-PARSER] П.5.3.1: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-02-27 00:00:00
+2026-04-10 00:42:11,250 - INFO - [PDF-PARSER] П.5.3.2: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-03-01 00:00:00
+2026-04-10 00:42:11,251 - INFO - [PDF-PARSER] П.5.3.3: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-02-28 00:00:00
+2026-04-10 00:42:11,255 - INFO - [PDF-PARSER] П.6: исп=Соколова Н.А., срок=None
+2026-04-10 00:42:11,257 - INFO - [PDF-PARSER] П.8: исп=Романов В.Д., срок=2026-02-20 00:00:00
+2026-04-10 00:42:11,258 - INFO - [PDF-PARSER] П.9: исп=Перфильев Е.А, срок=2026-02-15 00:00:00
+2026-04-10 00:42:11,260 - INFO - [PDF-PARSER] П.10: развёрнут на все 36 районов
+2026-04-10 00:42:11,261 - INFO - [PDF-PARSER] П.10.1: развёрнут на все 36 районов
+2026-04-10 00:42:11,262 - INFO - [PDF-PARSER] П.10.2: развёрнут на все 36 районов
+2026-04-10 00:42:11,262 - INFO - [PDF-PARSER] П.10.5: развёрнут на все 36 районов
+2026-04-10 00:42:11,263 - INFO - [PDF-PARSER] П.10.4: исп=Андреев Г.П., срок=None
+2026-04-10 00:42:11,263 - INFO - [PDF-PARSER] П.10.4.1: исп=Андреев Г.П., срок=None
+2026-04-10 00:42:11,264 - INFO - [PDF-PARSER] П.10.4.2: исп=Андреев Г.П., срок=2026-03-31 00:00:00
+2026-04-10 00:42:11,264 - INFO - [PDF-PARSER] Итого найдено пунктов: 166
+2026-04-10 00:42:13,071 - INFO - Загружен файл 'КЧС 4.pdf': добавлено 26 новых задач.
+2026-04-10 00:42:13,075 - INFO - 172.18.0.1 - - [10/Apr/2026 00:42:13] "[35m[1mPOST /upload HTTP/1.1[0m" 201 -
+2026-04-10 00:42:27,315 - INFO - 172.18.0.1 - - [10/Apr/2026 00:42:27] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 00:42:38,572 - INFO - 172.18.0.1 - - [10/Apr/2026 00:42:38] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 00:45:43,498 - INFO - Синхронизация Я.Диска: 0 новых, 0 пропущено.
+2026-04-10 00:45:43,499 - INFO - 172.18.0.1 - - [10/Apr/2026 00:45:43] "POST /yandex/sync HTTP/1.1" 200 -
+2026-04-10 00:45:46,285 - INFO - 172.18.0.1 - - [10/Apr/2026 00:45:46] "[35m[1mPOST /yandex/test HTTP/1.1[0m" 500 -
+2026-04-10 00:46:30,884 - INFO - 172.18.0.1 - - [10/Apr/2026 00:46:30] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 00:50:52,686 - INFO - БД инициализирована успешно.
+2026-04-10 00:50:52,710 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 05:56:57,439 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 05:57:07,561 - INFO - 172.18.0.1 - - [04/Mar/2026 05:57:07] "GET / HTTP/1.1" 200 -
-2026-03-04 06:05:38,874 - WARNING - Database not ready. Retrying in 3 seconds... (5 left). Error: (psycopg2.OperationalError) connection to server at "db" (172.18.0.2), port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-
-(Background on this error at: https://sqlalche.me/e/20/e3q8)
-2026-03-04 06:05:41,957 - INFO - Successfully connected to the database and created tables.
-2026-03-04 06:05:41,967 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://172.18.0.2:5000
+2026-04-10 00:50:52,710 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-10 00:50:53,514 - INFO - 172.18.0.1 - - [10/Apr/2026 00:50:53] "GET / HTTP/1.1" 200 -
+2026-04-10 00:51:01,352 - INFO - 172.18.0.1 - - [10/Apr/2026 00:51:01] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 00:51:16,560 - INFO - 172.18.0.1 - - [10/Apr/2026 00:51:16] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 00:51:29,537 - INFO - 172.18.0.1 - - [10/Apr/2026 00:51:29] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 00:52:44,453 - INFO - 172.18.0.1 - - [10/Apr/2026 00:52:44] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 00:56:04,605 - INFO - БД инициализирована успешно.
+2026-04-10 00:56:04,629 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 06:05:41,968 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 06:05:54,434 - ERROR - Exception on / [GET]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-  File "/app/main.py", line 64, in dashboard
-    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
-  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
-    return self._load_template(name, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
-    code = environment.compile(source, name, filename)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
-    self.handle_exception(source=source_hint)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/app/templates/dashboard.html", line 263, in template
-    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
-jinja2.exceptions.TemplateSyntaxError: unexpected '}'
-2026-03-04 06:05:54,450 - INFO - 172.18.0.1 - - [04/Mar/2026 06:05:54] "[35m[1mGET / HTTP/1.1[0m" 500 -
-2026-03-04 06:07:53,665 - INFO - Successfully connected to the database and created tables.
-2026-03-04 06:07:53,680 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://172.18.0.2:5000
+2026-04-10 00:56:04,629 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-10 00:57:01,058 - INFO - 172.18.0.1 - - [10/Apr/2026 00:57:01] "GET / HTTP/1.1" 200 -
+2026-04-10 00:57:04,351 - INFO - 172.18.0.1 - - [10/Apr/2026 00:57:04] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 00:57:10,726 - INFO - Удалён документ 'КЧС 4.pdf' (id=1) и все его задачи.
+2026-04-10 00:57:10,726 - INFO - 172.18.0.1 - - [10/Apr/2026 00:57:10] "POST /document/1/delete HTTP/1.1" 200 -
+2026-04-10 00:57:11,362 - INFO - 172.18.0.1 - - [10/Apr/2026 00:57:11] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 00:57:13,395 - INFO - 172.18.0.1 - - [10/Apr/2026 00:57:13] "GET / HTTP/1.1" 200 -
+2026-04-10 00:57:19,047 - INFO - [PDF-PARSER] Начат парсинг: КЧС 4.pdf (pdfplumber=True, ocr=True)
+2026-04-10 00:57:19,278 - INFO - [PDF-PARSER] Запуск OCR (сканированный PDF)...
+2026-04-10 00:57:26,545 - INFO - [PDF-PARSER] OCR страница 1/4: 1871 символов
+2026-04-10 00:57:31,857 - INFO - [PDF-PARSER] OCR страница 2/4: 2748 символов
+2026-04-10 00:57:37,660 - INFO - [PDF-PARSER] OCR страница 3/4: 2594 символов
+2026-04-10 00:57:42,049 - INFO - [PDF-PARSER] OCR страница 4/4: 2002 символов
+2026-04-10 00:57:42,063 - INFO - [PDF-PARSER] OCR: извлечено 9217 символов
+2026-04-10 00:57:42,064 - INFO - [PDF-PARSER] Дата документа: 28.01.2026
+2026-04-10 00:57:42,066 - INFO - [PDF-PARSER] П.1: исп=Ответственное лицо, срок=None
+2026-04-10 00:57:42,068 - INFO - [PDF-PARSER] П.2: исп=Бычков К.Е., срок=2026-05-01 00:00:00
+2026-04-10 00:57:42,069 - INFO - [PDF-PARSER] П.3: исп=Ответственное лицо, срок=2026-03-06 00:00:00
+2026-04-10 00:57:42,070 - INFO - [PDF-PARSER] П.4: исп=Ответственное лицо, срок=None
+2026-04-10 00:57:42,071 - INFO - [PDF-PARSER] П.5: исп=Лепчиков Д.Н., срок=None
+2026-04-10 00:57:42,072 - INFO - [PDF-PARSER] П.5.1: исп=Лепчиков Д.Н., срок=2026-01-28 00:00:00
+2026-04-10 00:57:42,073 - INFO - [PDF-PARSER] П.5.2: исп=Гарин П.С., срок=None
+2026-04-10 00:57:42,074 - INFO - [PDF-PARSER] П.5.2.1: исп=Гарин П.С., срок=2026-02-13 00:00:00
+2026-04-10 00:57:42,075 - INFO - [PDF-PARSER] П.5.2.2: исп=Гарин П.С., срок=2026-12-31 00:00:00
+2026-04-10 00:57:42,076 - INFO - [PDF-PARSER] П.5.2.3: исп=Гарин П.С., срок=None
+2026-04-10 00:57:42,077 - INFO - [PDF-PARSER] П.5.2.4: исп=Гарин П.С., срок=None
+2026-04-10 00:57:42,077 - INFO - [PDF-PARSER] П.5.2.5: исп=Гарин П.С., срок=2026-02-28 00:00:00
+2026-04-10 00:57:42,078 - INFO - [PDF-PARSER] П.5.3: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=None
+2026-04-10 00:57:42,079 - INFO - [PDF-PARSER] П.5.3.1: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-02-27 00:00:00
+2026-04-10 00:57:42,080 - INFO - [PDF-PARSER] П.5.3.2: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-03-01 00:00:00
+2026-04-10 00:57:42,080 - INFO - [PDF-PARSER] П.5.3.3: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-02-28 00:00:00
+2026-04-10 00:57:42,081 - INFO - [PDF-PARSER] П.6: исп=Соколова Н.А., срок=None
+2026-04-10 00:57:42,082 - INFO - [PDF-PARSER] П.8: исп=Романов В.Д., срок=2026-02-20 00:00:00
+2026-04-10 00:57:42,083 - INFO - [PDF-PARSER] П.9: исп=Перфильев Е.А, срок=2026-02-15 00:00:00
+2026-04-10 00:57:42,083 - INFO - [PDF-PARSER] П.10: развёрнут на все 36 районов
+2026-04-10 00:57:42,085 - INFO - [PDF-PARSER] П.10.1: развёрнут на все 36 районов
+2026-04-10 00:57:42,087 - INFO - [PDF-PARSER] П.10.2: развёрнут на все 36 районов
+2026-04-10 00:57:42,088 - INFO - [PDF-PARSER] П.10.5: развёрнут на все 36 районов
+2026-04-10 00:57:42,089 - INFO - [PDF-PARSER] П.10.4: исп=Андреев Г.П., срок=None
+2026-04-10 00:57:42,090 - INFO - [PDF-PARSER] П.10.4.1: исп=Андреев Г.П., срок=None
+2026-04-10 00:57:42,091 - INFO - [PDF-PARSER] П.10.4.2: исп=Андреев Г.П., срок=2026-03-31 00:00:00
+2026-04-10 00:57:42,091 - INFO - [PDF-PARSER] Итого найдено пунктов: 166
+2026-04-10 00:57:43,917 - INFO - Загружен файл 'КЧС 4.pdf': добавлено 26 новых задач.
+2026-04-10 00:57:43,920 - INFO - 172.18.0.1 - - [10/Apr/2026 00:57:43] "[35m[1mPOST /upload HTTP/1.1[0m" 201 -
+2026-04-10 00:57:48,300 - INFO - 172.18.0.1 - - [10/Apr/2026 00:57:48] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 00:58:01,769 - INFO - 172.18.0.1 - - [10/Apr/2026 00:58:01] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 00:58:17,606 - INFO - 172.18.0.1 - - [10/Apr/2026 00:58:17] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 00:58:23,043 - INFO - 172.18.0.1 - - [10/Apr/2026 00:58:23] "POST /yandex/test HTTP/1.1" 200 -
+2026-04-10 00:58:33,501 - INFO - 172.18.0.1 - - [10/Apr/2026 00:58:33] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 00:58:48,514 - INFO - 172.18.0.1 - - [10/Apr/2026 00:58:48] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 00:59:03,496 - INFO - 172.18.0.1 - - [10/Apr/2026 00:59:03] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 00:59:18,556 - INFO - 172.18.0.1 - - [10/Apr/2026 00:59:18] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 00:59:32,636 - INFO - 172.18.0.1 - - [10/Apr/2026 00:59:32] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 00:59:33,971 - INFO - 172.18.0.1 - - [10/Apr/2026 00:59:33] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 00:59:41,604 - ERROR - Ошибка загрузки публичных ссылок: HTTPSConnectionPool(host='cloud-api.yandex.net', port=443): Max retries exceeded with url: /v1/disk/public/resources?public_key=https%3A%2F%2Fdisk.yandex.ru%2Fd%2F_ncZ6nkYkZhgMQ&limit=100&fields=_embedded.items.name%2C_embedded.items.path%2C_embedded.items.type%2C_embedded.items.size%2C_embedded.items.created%2C_embedded.items.modified%2C_embedded.items.md5 (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1017)')))
+2026-04-10 00:59:41,604 - WARNING - Токен не задан. Сканирование приватных папок отключено, публичные папки пусты.
+2026-04-10 00:59:41,608 - INFO - Синхронизация Я.Диска: 0 новых, 0 пропущено.
+2026-04-10 00:59:41,609 - INFO - 172.18.0.1 - - [10/Apr/2026 00:59:41] "POST /yandex/sync HTTP/1.1" 200 -
+2026-04-10 01:15:14,071 - INFO - БД инициализирована успешно.
+2026-04-10 01:15:14,085 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 06:07:53,681 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 06:50:22,124 - ERROR - Exception on / [GET]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-  File "/app/main.py", line 64, in dashboard
-    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
-  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
-    return self._load_template(name, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
-    code = environment.compile(source, name, filename)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
-    self.handle_exception(source=source_hint)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/app/templates/dashboard.html", line 263, in template
-    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
-jinja2.exceptions.TemplateSyntaxError: unexpected '}'
-2026-03-04 06:50:22,140 - INFO - 127.0.0.1 - - [04/Mar/2026 06:50:22] "[35m[1mGET / HTTP/1.1[0m" 500 -
-2026-03-04 06:51:06,203 - INFO - Successfully connected to the database and created tables.
-2026-03-04 06:51:06,212 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://172.18.0.2:5000
+2026-04-10 01:15:14,085 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-10 01:16:40,274 - INFO - 172.18.0.1 - - [10/Apr/2026 01:16:40] "GET / HTTP/1.1" 200 -
+2026-04-10 01:16:45,274 - INFO - 172.18.0.1 - - [10/Apr/2026 01:16:45] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 01:17:16,735 - INFO - 172.18.0.1 - - [10/Apr/2026 01:17:16] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 01:17:22,377 - INFO - 172.18.0.1 - - [10/Apr/2026 01:17:22] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 01:17:29,870 - INFO - Удалён документ 'КЧС 4.pdf' (id=1) и все его задачи.
+2026-04-10 01:17:29,871 - INFO - 172.18.0.1 - - [10/Apr/2026 01:17:29] "POST /document/1/delete HTTP/1.1" 200 -
+2026-04-10 01:17:30,499 - INFO - 172.18.0.1 - - [10/Apr/2026 01:17:30] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 01:17:33,977 - INFO - 172.18.0.1 - - [10/Apr/2026 01:17:33] "GET / HTTP/1.1" 200 -
+2026-04-10 01:17:56,704 - INFO - 172.18.0.1 - - [10/Apr/2026 01:17:56] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 01:18:24,456 - INFO - 172.18.0.1 - - [10/Apr/2026 01:18:24] "GET / HTTP/1.1" 200 -
+2026-04-10 01:18:30,521 - INFO - [PDF-PARSER] Начат парсинг: КЧС 4.pdf (pdfplumber=True, ocr=True)
+2026-04-10 01:18:30,781 - INFO - [PDF-PARSER] Запуск OCR (сканированный PDF)...
+2026-04-10 01:18:39,218 - INFO - [PDF-PARSER] OCR страница 1/4: 1871 символов
+2026-04-10 01:18:45,014 - INFO - [PDF-PARSER] OCR страница 2/4: 2748 символов
+2026-04-10 01:18:50,365 - INFO - [PDF-PARSER] OCR страница 3/4: 2594 символов
+2026-04-10 01:18:54,070 - INFO - [PDF-PARSER] OCR страница 4/4: 2002 символов
+2026-04-10 01:18:54,077 - INFO - [PDF-PARSER] OCR: извлечено 9217 символов
+2026-04-10 01:18:54,078 - INFO - [PDF-PARSER] Дата документа: 28.01.2026
+2026-04-10 01:18:54,080 - INFO - [PDF-PARSER] П.1: исп=Ответственное лицо, срок=None
+2026-04-10 01:18:54,081 - INFO - [PDF-PARSER] П.2: исп=Бычков К.Е., срок=2026-05-01 00:00:00
+2026-04-10 01:18:54,082 - INFO - [PDF-PARSER] П.3: исп=Ответственное лицо, срок=2026-03-06 00:00:00
+2026-04-10 01:18:54,082 - INFO - [PDF-PARSER] П.4: исп=Ответственное лицо, срок=None
+2026-04-10 01:18:54,083 - INFO - [PDF-PARSER] П.5: исп=Лепчиков Д.Н., срок=None
+2026-04-10 01:18:54,083 - INFO - [PDF-PARSER] П.5.1: исп=Лепчиков Д.Н., срок=2026-01-28 00:00:00
+2026-04-10 01:18:54,084 - INFO - [PDF-PARSER] П.5.2: исп=Гарин П.С., срок=None
+2026-04-10 01:18:54,085 - INFO - [PDF-PARSER] П.5.2.1: исп=Гарин П.С., срок=2026-02-13 00:00:00
+2026-04-10 01:18:54,085 - INFO - [PDF-PARSER] П.5.2.2: исп=Гарин П.С., срок=2026-12-31 00:00:00
+2026-04-10 01:18:54,086 - INFO - [PDF-PARSER] П.5.2.3: исп=Гарин П.С., срок=None
+2026-04-10 01:18:54,086 - INFO - [PDF-PARSER] П.5.2.4: исп=Гарин П.С., срок=None
+2026-04-10 01:18:54,086 - INFO - [PDF-PARSER] П.5.2.5: исп=Гарин П.С., срок=2026-02-28 00:00:00
+2026-04-10 01:18:54,087 - INFO - [PDF-PARSER] П.5.3: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=None
+2026-04-10 01:18:54,088 - INFO - [PDF-PARSER] П.5.3.1: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-02-27 00:00:00
+2026-04-10 01:18:54,088 - INFO - [PDF-PARSER] П.5.3.2: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-03-01 00:00:00
+2026-04-10 01:18:54,088 - INFO - [PDF-PARSER] П.5.3.3: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-02-28 00:00:00
+2026-04-10 01:18:54,089 - INFO - [PDF-PARSER] П.6: исп=Соколова Н.А., срок=None
+2026-04-10 01:18:54,089 - INFO - [PDF-PARSER] П.8: исп=Романов В.Д., срок=2026-02-20 00:00:00
+2026-04-10 01:18:54,090 - INFO - [PDF-PARSER] П.9: исп=Перфильев Е.А, срок=2026-02-15 00:00:00
+2026-04-10 01:18:54,090 - INFO - [PDF-PARSER] П.10: развёрнут на все 36 районов
+2026-04-10 01:18:54,090 - INFO - [PDF-PARSER] П.10.1: развёрнут на все 36 районов
+2026-04-10 01:18:54,091 - INFO - [PDF-PARSER] П.10.2: развёрнут на все 36 районов
+2026-04-10 01:18:54,091 - INFO - [PDF-PARSER] П.10.5: развёрнут на все 36 районов
+2026-04-10 01:18:54,092 - INFO - [PDF-PARSER] П.10.4: исп=Андреев Г.П., срок=None
+2026-04-10 01:18:54,092 - INFO - [PDF-PARSER] П.10.4.1: исп=Андреев Г.П., срок=None
+2026-04-10 01:18:54,093 - INFO - [PDF-PARSER] П.10.4.2: исп=Андреев Г.П., срок=2026-03-31 00:00:00
+2026-04-10 01:18:54,093 - INFO - [PDF-PARSER] Итого найдено пунктов: 166
+2026-04-10 01:18:55,220 - INFO - Загружен файл 'КЧС 4.pdf': добавлено 26 новых задач.
+2026-04-10 01:18:55,224 - INFO - 172.18.0.1 - - [10/Apr/2026 01:18:55] "[35m[1mPOST /upload HTTP/1.1[0m" 201 -
+2026-04-10 01:20:10,734 - INFO - 172.18.0.1 - - [10/Apr/2026 01:20:10] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 01:21:40,249 - INFO - 172.18.0.1 - - [10/Apr/2026 01:21:40] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 01:21:57,491 - INFO - 172.18.0.1 - - [10/Apr/2026 01:21:57] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 01:22:12,510 - INFO - 172.18.0.1 - - [10/Apr/2026 01:22:12] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 01:22:27,524 - INFO - 172.18.0.1 - - [10/Apr/2026 01:22:27] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 01:22:33,571 - INFO - 172.18.0.1 - - [10/Apr/2026 01:22:33] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 01:22:40,505 - INFO - Удалён документ 'КЧС 4.pdf' (id=1) и все его задачи.
+2026-04-10 01:22:40,506 - INFO - 172.18.0.1 - - [10/Apr/2026 01:22:40] "POST /document/1/delete HTTP/1.1" 200 -
+2026-04-10 01:22:41,145 - INFO - 172.18.0.1 - - [10/Apr/2026 01:22:41] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 01:26:30,201 - INFO - БД инициализирована успешно.
+2026-04-10 01:26:30,222 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 06:51:06,212 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 07:12:51,030 - ERROR - Exception on / [GET]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-  File "/app/main.py", line 64, in dashboard
-    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
-  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
-    return self._load_template(name, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
-    code = environment.compile(source, name, filename)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
-    self.handle_exception(source=source_hint)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/app/templates/dashboard.html", line 263, in template
-    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
-jinja2.exceptions.TemplateSyntaxError: unexpected '}'
-2026-03-04 07:12:51,048 - INFO - 127.0.0.1 - - [04/Mar/2026 07:12:51] "[35m[1mGET / HTTP/1.1[0m" 500 -
-2026-03-04 07:13:50,744 - INFO - Successfully connected to the database and created tables.
-2026-03-04 07:13:50,757 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://172.18.0.2:5000
+2026-04-10 01:26:30,223 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-10 01:26:33,406 - INFO - 172.18.0.1 - - [10/Apr/2026 01:26:33] "GET / HTTP/1.1" 200 -
+2026-04-10 01:26:36,634 - INFO - 172.18.0.1 - - [10/Apr/2026 01:26:36] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 01:26:38,207 - INFO - 172.18.0.1 - - [10/Apr/2026 01:26:38] "GET / HTTP/1.1" 200 -
+2026-04-10 01:26:51,604 - INFO - [PDF-PARSER] Начат парсинг: КЧС 4.pdf (pdfplumber=True, ocr=True)
+2026-04-10 01:26:51,742 - INFO - [PDF-PARSER] Запуск OCR (сканированный PDF)...
+2026-04-10 01:26:57,879 - INFO - [PDF-PARSER] OCR страница 1/4: 1871 символов
+2026-04-10 01:27:03,416 - INFO - [PDF-PARSER] OCR страница 2/4: 2748 символов
+2026-04-10 01:27:09,426 - INFO - [PDF-PARSER] OCR страница 3/4: 2594 символов
+2026-04-10 01:27:14,455 - INFO - [PDF-PARSER] OCR страница 4/4: 2002 символов
+2026-04-10 01:27:14,462 - INFO - [PDF-PARSER] OCR: извлечено 9217 символов
+2026-04-10 01:27:14,463 - INFO - [PDF-PARSER] Дата документа: 28.01.2026
+2026-04-10 01:27:14,464 - INFO - [PDF-PARSER] П.1: исп=Ответственное лицо, срок=None
+2026-04-10 01:27:14,464 - INFO - [PDF-PARSER] П.2: исп=Бычков К.Е., срок=2026-05-01 00:00:00
+2026-04-10 01:27:14,465 - INFO - [PDF-PARSER] П.3: исп=Ответственное лицо, срок=2026-03-06 00:00:00
+2026-04-10 01:27:14,465 - INFO - [PDF-PARSER] П.4: исп=Ответственное лицо, срок=None
+2026-04-10 01:27:14,466 - INFO - [PDF-PARSER] П.5: исп=Лепчиков Д.Н., срок=None
+2026-04-10 01:27:14,467 - INFO - [PDF-PARSER] П.5.1: исп=Лепчиков Д.Н., срок=2026-01-28 00:00:00
+2026-04-10 01:27:14,468 - INFO - [PDF-PARSER] П.5.2: исп=Гарин П.С., срок=None
+2026-04-10 01:27:14,469 - INFO - [PDF-PARSER] П.5.2.1: исп=Гарин П.С., срок=2026-02-13 00:00:00
+2026-04-10 01:27:14,470 - INFO - [PDF-PARSER] П.5.2.2: исп=Гарин П.С., срок=2026-12-31 00:00:00
+2026-04-10 01:27:14,471 - INFO - [PDF-PARSER] П.5.2.3: исп=Гарин П.С., срок=None
+2026-04-10 01:27:14,471 - INFO - [PDF-PARSER] П.5.2.4: исп=Гарин П.С., срок=None
+2026-04-10 01:27:14,472 - INFO - [PDF-PARSER] П.5.2.5: исп=Гарин П.С., срок=2026-02-28 00:00:00
+2026-04-10 01:27:14,473 - INFO - [PDF-PARSER] П.5.3: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=None
+2026-04-10 01:27:14,473 - INFO - [PDF-PARSER] П.5.3.1: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-02-27 00:00:00
+2026-04-10 01:27:14,473 - INFO - [PDF-PARSER] П.5.3.2: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-03-01 00:00:00
+2026-04-10 01:27:14,474 - INFO - [PDF-PARSER] П.5.3.3: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-02-28 00:00:00
+2026-04-10 01:27:14,475 - INFO - [PDF-PARSER] П.6: исп=Соколова Н.А., срок=None
+2026-04-10 01:27:14,476 - INFO - [PDF-PARSER] П.8: исп=Романов В.Д., срок=2026-02-20 00:00:00
+2026-04-10 01:27:14,476 - INFO - [PDF-PARSER] П.9: исп=Перфильев Е.А, срок=2026-02-15 00:00:00
+2026-04-10 01:27:14,476 - INFO - [PDF-PARSER] П.10: развёрнут на все 36 районов
+2026-04-10 01:27:14,477 - INFO - [PDF-PARSER] П.10.1: развёрнут на все 36 районов
+2026-04-10 01:27:14,478 - INFO - [PDF-PARSER] П.10.2: развёрнут на все 36 районов
+2026-04-10 01:27:14,478 - INFO - [PDF-PARSER] П.10.5: развёрнут на все 36 районов
+2026-04-10 01:27:14,478 - INFO - [PDF-PARSER] П.10.4: исп=Андреев Г.П., срок=None
+2026-04-10 01:27:14,479 - INFO - [PDF-PARSER] П.10.4.1: развёрнут на все 36 районов
+2026-04-10 01:27:14,479 - INFO - [PDF-PARSER] П.10.4.2: развёрнут на все 36 районов
+2026-04-10 01:27:14,480 - INFO - [PDF-PARSER] Итого найдено пунктов: 236
+2026-04-10 01:27:15,886 - INFO - Загружен файл 'КЧС 4.pdf': добавлено 26 новых задач.
+2026-04-10 01:27:15,889 - INFO - 172.18.0.1 - - [10/Apr/2026 01:27:15] "[35m[1mPOST /upload HTTP/1.1[0m" 201 -
+2026-04-10 01:27:19,605 - INFO - 172.18.0.1 - - [10/Apr/2026 01:27:19] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 01:28:20,279 - INFO - 172.18.0.1 - - [10/Apr/2026 01:28:20] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 01:28:25,045 - INFO - 172.18.0.1 - - [10/Apr/2026 01:28:25] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 01:30:54,016 - INFO - Удалён документ 'КЧС 4.pdf' (id=1) и все его задачи.
+2026-04-10 01:30:54,018 - INFO - 172.18.0.1 - - [10/Apr/2026 01:30:54] "POST /document/1/delete HTTP/1.1" 200 -
+2026-04-10 01:30:55,221 - INFO - 172.18.0.1 - - [10/Apr/2026 01:30:55] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 01:59:52,582 - INFO - БД инициализирована успешно.
+2026-04-10 01:59:52,614 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 07:13:50,757 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 07:14:03,436 - ERROR - Exception on / [GET]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-  File "/app/main.py", line 64, in dashboard
-    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
-  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
-    return self._load_template(name, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
-    code = environment.compile(source, name, filename)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
-    self.handle_exception(source=source_hint)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/app/templates/dashboard.html", line 263, in template
-    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
-jinja2.exceptions.TemplateSyntaxError: unexpected '}'
-2026-03-04 07:14:03,450 - INFO - 127.0.0.1 - - [04/Mar/2026 07:14:03] "[35m[1mGET / HTTP/1.1[0m" 500 -
-2026-03-04 07:15:33,128 - INFO - Successfully connected to the database and created tables.
-2026-03-04 07:15:33,137 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 07:15:33,137 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 07:15:53,926 - ERROR - Exception on / [GET]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-  File "/app/main.py", line 64, in dashboard
-    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
-  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
-    return self._load_template(name, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
-    code = environment.compile(source, name, filename)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
-    self.handle_exception(source=source_hint)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/app/templates/dashboard.html", line 263, in template
-    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
-jinja2.exceptions.TemplateSyntaxError: unexpected '}'
-2026-03-04 07:15:53,938 - INFO - 127.0.0.1 - - [04/Mar/2026 07:15:53] "[35m[1mGET / HTTP/1.1[0m" 500 -
-2026-03-04 07:21:00,726 - INFO - Successfully connected to the database and created tables.
-2026-03-04 07:21:00,734 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 07:21:00,734 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 07:21:16,026 - ERROR - Exception on / [GET]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-  File "/app/main.py", line 64, in dashboard
-    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
-  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
-    return self._load_template(name, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
-    code = environment.compile(source, name, filename)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
-    self.handle_exception(source=source_hint)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/app/templates/dashboard.html", line 263, in template
-    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
-jinja2.exceptions.TemplateSyntaxError: unexpected '}'
-2026-03-04 07:21:16,040 - INFO - 127.0.0.1 - - [04/Mar/2026 07:21:16] "[35m[1mGET / HTTP/1.1[0m" 500 -
-2026-03-04 07:24:01,253 - INFO - Successfully connected to the database and created tables.
-2026-03-04 07:24:01,263 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 07:24:01,263 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 07:25:14,736 - INFO - 172.18.0.1 - - [04/Mar/2026 07:25:14] "GET / HTTP/1.1" 200 -
-2026-03-04 07:34:01,505 - WARNING - Database not ready. Retrying in 3 seconds... (5 left). Error: (psycopg2.OperationalError) connection to server at "db" (172.18.0.2), port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-
-(Background on this error at: https://sqlalche.me/e/20/e3q8)
-2026-03-04 07:34:04,629 - INFO - Successfully connected to the database and created tables.
-2026-03-04 07:34:04,843 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 07:34:04,843 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 07:34:47,716 - INFO - 172.18.0.1 - - [04/Mar/2026 07:34:47] "GET / HTTP/1.1" 200 -
-2026-03-04 07:36:48,670 - INFO - Successfully connected to the database and created tables.
-2026-03-04 07:36:48,776 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 07:36:48,777 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 07:37:20,789 - ERROR - Exception on /dashboard [GET]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-  File "/app/main.py", line 114, in dashboard
-    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
-  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
-    return self._load_template(name, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
-    code = environment.compile(source, name, filename)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
-    self.handle_exception(source=source_hint)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/app/templates/dashboard.html", line 274, in template
-    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
-jinja2.exceptions.TemplateSyntaxError: unexpected '}'
-2026-03-04 07:37:20,802 - INFO - 172.18.0.1 - - [04/Mar/2026 07:37:20] "[35m[1mGET /dashboard HTTP/1.1[0m" 500 -
-2026-03-04 07:38:51,691 - INFO - Successfully connected to the database and created tables.
-2026-03-04 07:38:51,864 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 07:38:51,864 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 07:39:16,216 - ERROR - Exception on /dashboard [GET]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-  File "/app/main.py", line 114, in dashboard
-    return render_template('dashboard.html', tasks=tasks, stats=stats, tomorrow=tomorrow_utc.date(), today=now_utc.date())
-  File "/usr/local/lib/python3.10/site-packages/flask/templating.py", line 150, in render_template
-    template = app.jinja_env.get_or_select_template(template_name_or_list)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
-    return self.get_template(template_name_or_list, parent, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 1016, in get_template
-    return self._load_template(name, globals)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 975, in _load_template
-    template = self.loader.load(self, name, self.make_globals(globals))
-  File "/usr/local/lib/python3.10/site-packages/jinja2/loaders.py", line 138, in load
-    code = environment.compile(source, name, filename)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 771, in compile
-    self.handle_exception(source=source_hint)
-  File "/usr/local/lib/python3.10/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/app/templates/dashboard.html", line 274, in template
-    data: [{{ stats.in_progress }}, {{ stats.overdue }}, {{ stats.completed }
-jinja2.exceptions.TemplateSyntaxError: unexpected '}'
-2026-03-04 07:39:16,226 - INFO - 172.18.0.1 - - [04/Mar/2026 07:39:16] "[35m[1mGET /dashboard HTTP/1.1[0m" 500 -
-2026-03-04 07:50:15,681 - INFO - Successfully connected to the database and created tables.
-2026-03-04 07:50:15,818 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 07:50:15,818 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 07:50:20,935 - INFO - 172.18.0.1 - - [04/Mar/2026 07:50:20] "GET / HTTP/1.1" 200 -
-2026-03-04 07:50:22,735 - INFO - 172.18.0.1 - - [04/Mar/2026 07:50:22] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2026-03-04 07:50:25,730 - ERROR - Exception on /dashboard [GET]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1965, in _exec_single_context
-    self.dialect.do_execute(
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 921, in do_execute
-    cursor.execute(statement, parameters)
-psycopg2.errors.UndefinedColumn: column tasks.item_number does not exist
-LINE 1: SELECT tasks.id AS tasks_id, tasks.item_number AS tasks_item...
-                                     ^
-
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-  File "/app/main.py", line 89, in dashboard
-    tasks = Task.query.all()
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/orm/query.py", line 2692, in all
-    return self._iter().all()  # type: ignore
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/orm/query.py", line 2846, in _iter
-    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2246, in execute
-    return self._execute_internal(
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2141, in _execute_internal
-    result: Result[Any] = compile_state_cls.orm_execute_statement(
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
-    result = conn.execute(
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1412, in execute
-    return meth(
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/elements.py", line 483, in _execute_on_connection
-    return connection._execute_clauseelement(
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1635, in _execute_clauseelement
-    ret = self._execute_context(
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1844, in _execute_context
-    return self._exec_single_context(
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1984, in _exec_single_context
-    self._handle_dbapi_exception(
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2339, in _handle_dbapi_exception
-    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1965, in _exec_single_context
-    self.dialect.do_execute(
-  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 921, in do_execute
-    cursor.execute(statement, parameters)
-sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column tasks.item_number does not exist
-LINE 1: SELECT tasks.id AS tasks_id, tasks.item_number AS tasks_item...
-                                     ^
-
-[SQL: SELECT tasks.id AS tasks_id, tasks.item_number AS tasks_item_number, tasks.title AS tasks_title, tasks.text AS tasks_text, tasks.deadline AS tasks_deadline, tasks.status AS tasks_status, tasks.file_hash AS tasks_file_hash, tasks.executor_id AS tasks_executor_id, tasks.created_at AS tasks_created_at 
-FROM tasks]
-(Background on this error at: https://sqlalche.me/e/20/f405)
-2026-03-04 07:50:25,753 - INFO - 172.18.0.1 - - [04/Mar/2026 07:50:25] "[35m[1mGET /dashboard HTTP/1.1[0m" 500 -
-2026-03-04 07:56:28,322 - WARNING - Database not ready. Retrying in 3 seconds... (5 left). Error: (psycopg2.OperationalError) connection to server at "db" (172.18.0.2), port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-
-(Background on this error at: https://sqlalche.me/e/20/e3q8)
-2026-03-04 07:56:31,480 - INFO - Successfully connected to the database and created tables.
-2026-03-04 07:56:31,622 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://172.18.0.3:5000
-2026-03-04 07:56:31,622 - INFO - [33mPress CTRL+C to quit[0m
-2026-03-04 07:59:38,418 - INFO - 172.18.0.1 - - [04/Mar/2026 07:59:38] "GET /dashboard HTTP/1.1" 200 -
-2026-03-04 07:59:40,729 - INFO - 172.18.0.1 - - [04/Mar/2026 07:59:40] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2026-03-04 08:00:42,515 - INFO - 172.18.0.1 - - [04/Mar/2026 08:00:42] "GET /api/report HTTP/1.1" 200 -
-2026-03-04 08:00:57,430 - INFO - 172.18.0.1 - - [04/Mar/2026 08:00:57] "GET / HTTP/1.1" 200 -
-2026-03-04 08:01:08,462 - INFO - Начат парсинг протокола: КЧС 4.pdf
-2026-03-04 08:01:08,485 - INFO - 172.18.0.1 - - [04/Mar/2026 08:01:08] "[32mPOST /upload HTTP/1.1[0m" 302 -
-2026-03-04 08:01:08,493 - INFO - 172.18.0.1 - - [04/Mar/2026 08:01:08] "GET /dashboard HTTP/1.1" 200 -
-2026-03-04 08:01:15,717 - INFO - 172.18.0.1 - - [04/Mar/2026 08:01:15] "GET /dashboard HTTP/1.1" 200 -
-2026-03-04 08:01:59,680 - INFO - 172.18.0.1 - - [04/Mar/2026 08:01:59] "GET /dashboard HTTP/1.1" 200 -
-2026-03-04 08:05:05,051 - INFO - 172.18.0.1 - - [04/Mar/2026 08:05:05] "GET /dashboard HTTP/1.1" 200 -
-2026-03-04 08:05:06,871 - INFO - 172.18.0.1 - - [04/Mar/2026 08:05:06] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2026-03-04 08:05:09,469 - INFO - 172.18.0.1 - - [04/Mar/2026 08:05:09] "GET / HTTP/1.1" 200 -
+ * Running on http://172.18.0.2:5000
+2026-04-10 01:59:52,615 - INFO - [33mPress CTRL+C to quit[0m
+2026-04-10 02:00:06,318 - INFO - 172.18.0.1 - - [10/Apr/2026 02:00:06] "GET / HTTP/1.1" 200 -
+2026-04-10 02:00:14,482 - INFO - [PDF-PARSER] Начат парсинг: КЧС 4.pdf (pdfplumber=True, ocr=True)
+2026-04-10 02:00:14,714 - INFO - [PDF-PARSER] Запуск OCR (сканированный PDF)...
+2026-04-10 02:00:22,176 - INFO - [PDF-PARSER] OCR страница 1/4: 1871 символов
+2026-04-10 02:00:27,728 - INFO - [PDF-PARSER] OCR страница 2/4: 2748 символов
+2026-04-10 02:00:33,886 - INFO - [PDF-PARSER] OCR страница 3/4: 2594 символов
+2026-04-10 02:00:38,156 - INFO - [PDF-PARSER] OCR страница 4/4: 2002 символов
+2026-04-10 02:00:38,167 - INFO - [PDF-PARSER] OCR: извлечено 9217 символов
+2026-04-10 02:00:38,169 - INFO - [PDF-PARSER] Дата документа: 28.01.2026
+2026-04-10 02:00:38,171 - INFO - [PDF-PARSER] П.1: исп=Ответственное лицо, срок=None
+2026-04-10 02:00:38,172 - INFO - [PDF-PARSER] П.2: исп=Бычков К.Е., срок=2026-05-01 00:00:00
+2026-04-10 02:00:38,173 - INFO - [PDF-PARSER] П.3: исп=Ответственное лицо, срок=2026-03-06 00:00:00
+2026-04-10 02:00:38,173 - INFO - [PDF-PARSER] П.4: исп=Ответственное лицо, срок=None
+2026-04-10 02:00:38,174 - INFO - [PDF-PARSER] П.5: исп=Лепчиков Д.Н., срок=None
+2026-04-10 02:00:38,174 - INFO - [PDF-PARSER] П.5.1: исп=Лепчиков Д.Н., срок=2026-01-28 00:00:00
+2026-04-10 02:00:38,174 - INFO - [PDF-PARSER] П.5.2: исп=Гарин П.С., срок=None
+2026-04-10 02:00:38,175 - INFO - [PDF-PARSER] П.5.2.1: исп=Гарин П.С., срок=2026-02-13 00:00:00
+2026-04-10 02:00:38,175 - INFO - [PDF-PARSER] П.5.2.2: исп=Гарин П.С., срок=2026-12-31 00:00:00
+2026-04-10 02:00:38,176 - INFO - [PDF-PARSER] П.5.2.3: исп=Гарин П.С., срок=None
+2026-04-10 02:00:38,176 - INFO - [PDF-PARSER] П.5.2.4: исп=Гарин П.С., срок=None
+2026-04-10 02:00:38,177 - INFO - [PDF-PARSER] П.5.2.5: исп=Гарин П.С., срок=2026-02-28 00:00:00
+2026-04-10 02:00:38,177 - INFO - [PDF-PARSER] П.5.3: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=None
+2026-04-10 02:00:38,178 - INFO - [PDF-PARSER] П.5.3.1: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-02-27 00:00:00
+2026-04-10 02:00:38,178 - INFO - [PDF-PARSER] П.5.3.2: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-03-01 00:00:00
+2026-04-10 02:00:38,179 - INFO - [PDF-PARSER] П.5.3.3: исп=Совместно с гбу рс (я) «государственная противопожарная
+служба pc (я)» (босиков p.3.), срок=2026-02-28 00:00:00
+2026-04-10 02:00:38,179 - INFO - [PDF-PARSER] П.6: исп=Соколова Н.А., срок=None
+2026-04-10 02:00:38,179 - INFO - [PDF-PARSER] П.8: исп=Романов В.Д., срок=2026-02-20 00:00:00
+2026-04-10 02:00:38,180 - INFO - [PDF-PARSER] П.9: исп=Перфильев Е.А, срок=2026-02-15 00:00:00
+2026-04-10 02:00:38,180 - INFO - [PDF-PARSER] П.10: развёрнут на все 36 районов
+2026-04-10 02:00:38,181 - INFO - [PDF-PARSER] П.10.1: развёрнут на все 36 районов
+2026-04-10 02:00:38,182 - INFO - [PDF-PARSER] П.10.2: развёрнут на все 36 районов
+2026-04-10 02:00:38,183 - INFO - [PDF-PARSER] П.10.5: развёрнут на все 36 районов
+2026-04-10 02:00:38,184 - INFO - [PDF-PARSER] П.10.4: исп=Андреев Г.П., срок=None
+2026-04-10 02:00:38,184 - INFO - [PDF-PARSER] П.10.4.1: развёрнут на все 36 районов
+2026-04-10 02:00:38,185 - INFO - [PDF-PARSER] П.10.4.2: развёрнут на все 36 районов
+2026-04-10 02:00:38,186 - INFO - [PDF-PARSER] Итого найдено пунктов: 236
+2026-04-10 02:00:39,775 - INFO - Загружен файл 'КЧС 4.pdf': добавлено 26 новых задач.
+2026-04-10 02:00:39,778 - INFO - 172.18.0.1 - - [10/Apr/2026 02:00:39] "[35m[1mPOST /upload HTTP/1.1[0m" 201 -
+2026-04-10 02:00:44,237 - INFO - 172.18.0.1 - - [10/Apr/2026 02:00:44] "GET /dashboard HTTP/1.1" 200 -
+2026-04-10 02:00:55,989 - INFO - 172.18.0.1 - - [10/Apr/2026 02:00:55] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:01:12,640 - INFO - 172.18.0.1 - - [10/Apr/2026 02:01:12] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:01:27,540 - INFO - 172.18.0.1 - - [10/Apr/2026 02:01:27] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:01:42,625 - INFO - 172.18.0.1 - - [10/Apr/2026 02:01:42] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:01:57,586 - INFO - 172.18.0.1 - - [10/Apr/2026 02:01:57] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:02:12,542 - INFO - 172.18.0.1 - - [10/Apr/2026 02:02:12] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:02:27,612 - INFO - 172.18.0.1 - - [10/Apr/2026 02:02:27] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:02:42,563 - INFO - 172.18.0.1 - - [10/Apr/2026 02:02:42] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:02:57,659 - INFO - 172.18.0.1 - - [10/Apr/2026 02:02:57] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:03:12,587 - INFO - 172.18.0.1 - - [10/Apr/2026 02:03:12] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:03:27,566 - INFO - 172.18.0.1 - - [10/Apr/2026 02:03:27] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:03:42,600 - INFO - 172.18.0.1 - - [10/Apr/2026 02:03:42] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:03:57,576 - INFO - 172.18.0.1 - - [10/Apr/2026 02:03:57] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:04:12,545 - INFO - 172.18.0.1 - - [10/Apr/2026 02:04:12] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:04:27,606 - INFO - 172.18.0.1 - - [10/Apr/2026 02:04:27] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:04:42,556 - INFO - 172.18.0.1 - - [10/Apr/2026 02:04:42] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:04:57,585 - INFO - 172.18.0.1 - - [10/Apr/2026 02:04:57] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:05:12,581 - INFO - 172.18.0.1 - - [10/Apr/2026 02:05:12] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:05:27,554 - INFO - 172.18.0.1 - - [10/Apr/2026 02:05:27] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:05:42,591 - INFO - 172.18.0.1 - - [10/Apr/2026 02:05:42] "GET /leaderboard HTTP/1.1" 200 -
+2026-04-10 02:05:56,092 - INFO - 172.18.0.1 - - [10/Apr/2026 02:05:56] "GET /dashboard HTTP/1.1" 200 -
