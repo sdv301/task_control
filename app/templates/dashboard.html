@@ -203,10 +203,15 @@
                     </svg>
                     <span id="excelBtnText">Скачать Excel</span>
                 </button>
+                <a href="/kchz-traffic-light"
+                    class="bg-red-600 hover:bg-red-500 text-white font-medium py-2 px-4 rounded-lg shadow-lg shadow-red-500/20 transition-all flex items-center gap-2 text-sm">
+                    🚦
+                    <span>Светофор КЧС</span>
+                </a>
                 <a href="/leaderboard"
                     class="bg-amber-600 hover:bg-amber-500 text-white font-medium py-2 px-4 rounded-lg shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2 text-sm">
-                    🚦
-                    <span>Светофор</span>
+                    🏆
+                    <span>Рейтинг</span>
                 </a>
             </div>
         </div>
@@ -250,32 +255,51 @@
             </div>
         </div>
 
-        <!-- Основной контент -->
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 fade-in-up-delay-2">
+        <!-- Вкладки -->
+        <div class="flex gap-2 mb-6 fade-in-up-delay-2">
+            <button onclick="switchTab('documents')" id="tab-documents"
+                class="tab-btn active px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-indigo-600 text-white transition-all">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Документы
+            </button>
+            <button onclick="switchTab('analytics')" id="tab-analytics"
+                class="tab-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Аналитика
+            </button>
+        </div>
+
+        <!-- Вкладка: Документы -->
+        <div id="content-documents">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
             <!-- График (боковая панель) -->
             <div
-                class="lg:col-span-1 bg-cardBg rounded-xl p-6 border border-gray-700 shadow-md flex flex-col h-fit lg:sticky lg:top-6">
-                <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-5">Статусы</h3>
+                class="lg:col-span-1 bg-cardBg rounded-xl p-5 border border-gray-700 flex flex-col h-fit lg:sticky lg:top-6">
+                <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Статусы</h3>
                 <div class="flex items-center justify-center">
-                    <div class="relative w-full max-w-[180px] aspect-square">
+                    <div class="relative w-full max-w-[160px] aspect-square">
                         <canvas id="statusChart"></canvas>
                     </div>
                 </div>
-                <div class="mt-4 flex flex-col gap-2">
+                <div class="mt-3 flex flex-col gap-1.5">
                     <div class="flex items-center justify-between text-xs">
-                        <span class="flex items-center gap-2"><span
-                                class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> В работе</span>
+                        <span class="flex items-center gap-1.5"><span
+                                class="w-2 h-2 rounded-full bg-blue-500 inline-block"></span> В работе</span>
                         <span class="text-gray-400 font-medium">{{ stats.in_progress }}</span>
                     </div>
                     <div class="flex items-center justify-between text-xs">
-                        <span class="flex items-center gap-2"><span
-                                class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span> Просрочено</span>
+                        <span class="flex items-center gap-1.5"><span
+                                class="w-2 h-2 rounded-full bg-red-500 inline-block"></span> Просрочено</span>
                         <span class="text-gray-400 font-medium">{{ stats.overdue }}</span>
                     </div>
                     <div class="flex items-center justify-between text-xs">
-                        <span class="flex items-center gap-2"><span
-                                class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Выполнено</span>
+                        <span class="flex items-center gap-1.5"><span
+                                class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Выполнено</span>
                         <span class="text-gray-400 font-medium">{{ stats.completed }}</span>
                     </div>
                 </div>
@@ -285,7 +309,7 @@
             <div class="lg:col-span-4 flex flex-col gap-4">
 
                 <!-- Поиск -->
-                <div class="bg-cardBg rounded-xl p-4 border border-gray-700 shadow-md">
+                <div class="bg-cardBg rounded-xl p-4 border border-gray-700">
                     <form method="get" action="/dashboard" class="flex gap-3">
                         <div class="relative flex-1">
                             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none"
@@ -624,6 +648,108 @@
 
             </div>
         </div>
+        </div><!-- /content-documents -->
+
+        <!-- Вкладка: Аналитика -->
+        <div id="content-analytics" class="hidden">
+            <!-- Фильтр периода -->
+            <div class="bg-cardBg rounded-xl p-4 border border-gray-700 mb-6">
+                <div class="flex flex-wrap gap-3 items-center">
+                    <span class="text-sm text-gray-400">Период:</span>
+                    <button onclick="setPeriod('month')" id="period-month" class="period-btn px-3 py-1.5 rounded-md text-xs font-medium border border-gray-600 bg-indigo-600 text-white transition-all">Месяц</button>
+                    <button onclick="setPeriod('quarter')" id="period-quarter" class="period-btn px-3 py-1.5 rounded-md text-xs font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all">Квартал</button>
+                    <button onclick="setPeriod('year')" id="period-year" class="period-btn px-3 py-1.5 rounded-md text-xs font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all">Год</button>
+                    <select id="periodValue" onchange="updateAnalytics()" class="bg-gray-800 border border-gray-600 rounded-md px-3 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
+                    </select>
+                </div>
+            </div>
+
+            <!-- Метрики аналитики -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-cardBg rounded-lg p-4 border border-gray-700">
+                    <p class="text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Задач создано</p>
+                    <h3 class="text-2xl font-bold text-white" id="analyticsCreated">—</h3>
+                </div>
+                <div class="bg-cardBg rounded-lg p-4 border border-emerald-900/30">
+                    <p class="text-xs font-medium text-emerald-400 mb-1 uppercase tracking-wider">Выполнено</p>
+                    <h3 class="text-2xl font-bold text-emerald-400" id="analyticsCompleted">—</h3>
+                </div>
+                <div class="bg-cardBg rounded-lg p-4 border border-red-900/30">
+                    <p class="text-xs font-medium text-red-400 mb-1 uppercase tracking-wider">Просрочено</p>
+                    <h3 class="text-2xl font-bold text-red-400" id="analyticsOverdue">—</h3>
+                </div>
+                <div class="bg-cardBg rounded-lg p-4 border border-blue-900/30">
+                    <p class="text-xs font-medium text-blue-400 mb-1 uppercase tracking-wider">% выполнения</p>
+                    <h3 class="text-2xl font-bold text-blue-400" id="analyticsPercent">—</h3>
+                </div>
+            </div>
+
+            <!-- Графики -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-cardBg rounded-xl p-5 border border-gray-700">
+                    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Динамика задач</h3>
+                    <div class="relative w-full" style="height:250px;">
+                        <canvas id="tasksOverTimeChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-cardBg rounded-xl p-5 border border-gray-700">
+                    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Статусы за период</h3>
+                    <div class="relative w-full" style="height:250px;">
+                        <canvas id="periodStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Топ исполнителей -->
+            <div class="bg-cardBg rounded-xl p-5 border border-gray-700">
+                <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Топ исполнителей</h3>
+                <div id="topExecutors" class="flex flex-col gap-2">
+                    <!-- Заполняется JS -->
+                </div>
+            </div>
+
+            <!-- КЧС Аналитика -->
+            <div class="bg-cardBg rounded-xl p-5 border border-gray-700 mt-6">
+                <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">🚦 КЧС — Светофор</h3>
+                <!-- Метрики КЧС -->
+                <div class="grid grid-cols-4 gap-3 mb-4">
+                    <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                        <p class="text-xs text-gray-400">Всего</p>
+                        <p class="text-xl font-bold text-white" id="kchzTotal">—</p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                        <p class="text-xs text-emerald-400">🟢 В срок</p>
+                        <p class="text-xl font-bold text-emerald-400" id="kchzGreen">—</p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                        <p class="text-xs text-yellow-400">🟡 Частично</p>
+                        <p class="text-xl font-bold text-yellow-400" id="kchzYellow">—</p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                        <p class="text-xs text-red-400">🔴 Не выполн.</p>
+                        <p class="text-xl font-bold text-red-400" id="kchzRed">—</p>
+                    </div>
+                </div>
+                <!-- Таблица КЧС -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase">
+                                <th class="px-3 py-2 text-left w-8"></th>
+                                <th class="px-3 py-2 text-left">Район</th>
+                                <th class="px-3 py-2 text-center">Всего</th>
+                                <th class="px-3 py-2 text-center">Выполн.</th>
+                                <th class="px-3 py-2 text-center">Не выполн.</th>
+                                <th class="px-3 py-2 text-center">%</th>
+                            </tr>
+                        </thead>
+                        <tbody id="kchzTableBody">
+                            <tr><td colspan="6" class="text-center text-gray-500 py-4">Загрузка...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Тост -->
@@ -814,6 +940,219 @@
             toast.classList.remove('hidden');
             if (toastTimer) clearTimeout(toastTimer);
             toastTimer = setTimeout(function () { toast.classList.add('hidden'); }, 3500);
+        }
+
+        /* ── Переключение вкладок ─────────────────────────────── */
+        function switchTab(tab) {
+            var docContent = document.getElementById('content-documents');
+            var analyticsContent = document.getElementById('content-analytics');
+            var tabDocs = document.getElementById('tab-documents');
+            var tabAnalytics = document.getElementById('tab-analytics');
+
+            if (tab === 'documents') {
+                docContent.classList.remove('hidden');
+                analyticsContent.classList.add('hidden');
+                tabDocs.className = 'tab-btn active px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-indigo-600 text-white transition-all';
+                tabAnalytics.className = 'tab-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all';
+            } else {
+                docContent.classList.add('hidden');
+                analyticsContent.classList.remove('hidden');
+                tabDocs.className = 'tab-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all';
+                tabAnalytics.className = 'tab-btn active px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-indigo-600 text-white transition-all';
+                initAnalytics();
+            }
+        }
+
+        /* ── Аналитика ────────────────────────────────────────── */
+        var currentPeriod = 'month';
+        var tasksOverTimeChart = null;
+        var periodStatusChart = null;
+
+        function setPeriod(period) {
+            currentPeriod = period;
+            document.querySelectorAll('.period-btn').forEach(function(btn) {
+                btn.className = 'period-btn px-3 py-1.5 rounded-md text-xs font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all';
+            });
+            document.getElementById('period-' + period).className = 'period-btn px-3 py-1.5 rounded-md text-xs font-medium border border-gray-600 bg-indigo-600 text-white transition-all';
+            populatePeriodSelector();
+            updateAnalytics();
+        }
+
+        function populatePeriodSelector() {
+            var sel = document.getElementById('periodValue');
+            sel.innerHTML = '';
+            var now = new Date();
+            var months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+
+            if (currentPeriod === 'month') {
+                for (var i = 0; i < 6; i++) {
+                    var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    var opt = document.createElement('option');
+                    opt.value = d.getFullYear() + '-' + d.getMonth();
+                    opt.textContent = months[d.getMonth()] + ' ' + d.getFullYear();
+                    sel.appendChild(opt);
+                }
+            } else if (currentPeriod === 'quarter') {
+                var curQ = Math.floor(now.getMonth() / 3);
+                for (var i = 0; i < 4; i++) {
+                    var q = curQ - i;
+                    var y = now.getFullYear();
+                    if (q < 0) { q += 4; y--; }
+                    var opt = document.createElement('option');
+                    opt.value = y + '-Q' + (q + 1);
+                    opt.textContent = q + 1 + ' кв. ' + y;
+                    sel.appendChild(opt);
+                }
+            } else {
+                for (var i = 0; i < 5; i++) {
+                    var y = now.getFullYear() - i;
+                    var opt = document.createElement('option');
+                    opt.value = y;
+                    opt.textContent = y;
+                    sel.appendChild(opt);
+                }
+            }
+        }
+
+        function initAnalytics() {
+            populatePeriodSelector();
+            updateAnalytics();
+        }
+
+        function updateAnalytics() {
+            var pv = document.getElementById('periodValue').value;
+            var url = '/api/analytics?period=' + currentPeriod + '&period_value=' + encodeURIComponent(pv);
+            fetch(url)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var s = data.summary || {};
+                    document.getElementById('analyticsCreated').textContent = s.total || 0;
+                    document.getElementById('analyticsCompleted').textContent = s.completed || 0;
+                    document.getElementById('analyticsOverdue').textContent = s.overdue || 0;
+                    document.getElementById('analyticsPercent').textContent = (s.percentage || 0) + '%';
+
+                    renderPeriodStatusChart(s);
+                    renderTasksOverTimeChart(data.monthly || []);
+                    renderTopExecutors(data.top_executors || []);
+                    renderKchzAnalytics(data.kchz || {});
+                });
+        }
+
+        function renderPeriodStatusChart(data) {
+            var ctx = document.getElementById('periodStatusChart');
+            if (!ctx) return;
+            if (periodStatusChart) periodStatusChart.destroy();
+
+            periodStatusChart = new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['В работе', 'Просрочено', 'Выполнено'],
+                    datasets: [{
+                        data: [data.in_progress || 0, data.overdue || 0, data.completed || 0],
+                        backgroundColor: ['#3b82f6', '#ef4444', '#10b981'],
+                        borderRadius: 6,
+                        barThickness: 40
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+                        y: { beginAtZero: true, grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        function renderTasksOverTimeChart(monthly) {
+            var ctx = document.getElementById('tasksOverTimeChart');
+            if (!ctx) return;
+            if (tasksOverTimeChart) tasksOverTimeChart.destroy();
+
+            var labels = monthly.map(function(m) { return m.label; });
+            var dataCreated = monthly.map(function(m) { return m.created; });
+            var dataCompleted = monthly.map(function(m) { return m.completed; });
+
+            tasksOverTimeChart = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Создано', data: dataCreated, borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', tension: 0.4, fill: true },
+                        { label: 'Выполнено', data: dataCompleted, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', tension: 0.4, fill: true }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#94a3b8' } } },
+                    scales: {
+                        x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                        y: { beginAtZero: true, grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        function renderTopExecutors(executors) {
+            var container = document.getElementById('topExecutors');
+            if (!executors.length) {
+                container.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">Нет данных</p>';
+                return;
+            }
+
+            container.innerHTML = executors.map(function(ex, i) {
+                var color = ex.percentage >= 90 ? 'bg-emerald-500' : ex.percentage >= 70 ? 'bg-yellow-500' : 'bg-red-500';
+                var textColor = ex.percentage >= 90 ? 'text-emerald-400' : ex.percentage >= 70 ? 'text-yellow-400' : 'text-red-400';
+                return '<div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 transition-colors">' +
+                    '<span class="text-xs text-gray-500 font-mono w-5">' + (i+1) + '</span>' +
+                    '<div class="flex-1 min-w-0">' +
+                        '<p class="text-sm text-gray-200 truncate">' + ex.name + '</p>' +
+                        '<div class="w-full bg-gray-700 rounded-full h-1.5 mt-1">' +
+                            '<div class="h-1.5 rounded-full ' + color + '" style="width:' + ex.percentage + '%"></div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<span class="text-sm font-bold ' + textColor + '">' + ex.percentage + '%</span>' +
+                '</div>';
+            }).join('');
+        }
+
+        function renderKchzAnalytics(kchz) {
+            var districts = kchz.districts || [];
+            var stats = kchz.stats || {};
+
+            var el = document.getElementById('kchzTotal');
+            if (el) el.textContent = stats.total || 0;
+            el = document.getElementById('kchzGreen');
+            if (el) el.textContent = stats.green || 0;
+            el = document.getElementById('kchzYellow');
+            if (el) el.textContent = stats.yellow || 0;
+            el = document.getElementById('kchzRed');
+            if (el) el.textContent = stats.red || 0;
+
+            var tableBody = document.getElementById('kchzTableBody');
+            if (!tableBody) return;
+
+            if (!districts.length) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 py-4">Нет данных</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = districts.map(function(d) {
+                var color = d.percentage >= 90 ? 'text-emerald-400' : d.percentage >= 70 ? 'text-yellow-400' : 'text-red-400';
+                var dotColor = d.percentage >= 90 ? 'bg-emerald-500' : d.percentage >= 70 ? 'bg-yellow-500' : 'bg-red-500';
+                var notCompleted = d.total - d.completed;
+                return '<tr class="border-b border-gray-700/50 hover:bg-gray-800/30">' +
+                    '<td class="px-3 py-2.5"><span class="w-2.5 h-2.5 rounded-full ' + dotColor + ' inline-block"></span></td>' +
+                    '<td class="px-3 py-2.5 text-sm text-gray-200">' + d.name + '</td>' +
+                    '<td class="px-3 py-2.5 text-sm text-gray-400 text-center">' + d.total + '</td>' +
+                    '<td class="px-3 py-2.5 text-sm text-emerald-400 text-center">' + d.completed + '</td>' +
+                    '<td class="px-3 py-2.5 text-sm text-red-400 text-center">' + notCompleted + '</td>' +
+                    '<td class="px-3 py-2.5 text-sm font-bold ' + color + ' text-center">' + d.percentage + '%</td>' +
+                '</tr>';
+            }).join('');
         }
     </script>
 </body>

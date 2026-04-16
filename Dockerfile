@@ -9,13 +9,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /
+WORKDIR /app
 
-COPY requirements.txt requirements.txt
+COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Копируем всё приложение
 COPY app/ /app/
 
-# Запускаем Flask из папки /app
-WORKDIR /app
-CMD ["flask", "run", "--host=0.0.0.0"]
+# Копируем файл светофоры.xlsx в корень рабочей директории
+COPY светофоры.xlsx /app/светофоры.xlsx
+
+# Создаём директории для данных и логов
+RUN mkdir -p /data /app/logs
+
+# Запускаем Flask приложение
+CMD ["python", "main.py"]

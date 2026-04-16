@@ -1,4 +1,19 @@
 services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=taskdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d taskdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   web:
     build: .
     ports:
@@ -8,9 +23,18 @@ services:
       - ./data:/data
       - ./Desktop/Input_Tasks:/Desktop/Input_Tasks
       - ./Desktop/Reports:/Desktop/Reports
+      - ./светофоры.xlsx:/app/светофоры.xlsx
     environment:
       - FLASK_APP=main.py
       - FLASK_ENV=development
+      - DATABASE_URL=postgresql://user:password@db:5432/taskdb
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-prod}
       - YANDEX_DISK_TOKEN=${YANDEX_DISK_TOKEN:-}
       - YANDEX_DISK_FOLDER=${YANDEX_DISK_FOLDER:-/SmartControl/Отчёты}
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  pgdata:

@@ -1,32 +1,54 @@
 import os
+import sys
 import logging
 import time
 import hashlib
 import io
+import platform
 from datetime import datetime, timedelta
 from collections import OrderedDict
 
 from flask import Flask, render_template, jsonify, request, redirect, url_for, send_file
 from models import db, Task, Executor, FileDocument, YandexReport
-from parser.pdf_engine import parse_pdf
+from pdf_parser.pdf_engine import parse_pdf
+from routes import main as main_blueprint
+
+# ─── Кроссплатформенные пути ──────────────────────────────────────────────────
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, '..', 'data')
+DATA_DIR = os.path.abspath(DATA_DIR)
 
 # ─── Логирование ─────────────────────────────────────────────────────────────
+LOG_DIR = os.path.join(DATA_DIR, 'logs')
+os.makedirs(LOG_DIR, exist_ok=True)
 logging.basicConfig(
-    filename='app.log',
+    filename=os.path.join(LOG_DIR, 'app.log'),
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-# ─── Flask app ────────────────────────────────────────────────────────────────
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:////data/tasks.db')
+
+# Определяем DATABASE_URL с учётом платформы
+_default_db = os.environ.get('DATABASE_URL')
+if not _default_db:
+    if platform.system() == 'Windows':
+        db_path = os.path.join(DATA_DIR, 'tasks.db').replace('\\', '/')
+        _default_db = f'sqlite:///{db_path}'
+    else:
+        _default_db = 'sqlite:////data/tasks.db'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = _default_db
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-prod')
 db.init_app(app)
 
+# ─── Регистрация Blueprint ─────────────────────────────────────────────────────
+app.register_blueprint(main_blueprint)
+
 # ─── Инициализация БД ────────────────────────────────────────────────────────
 with app.app_context():
-    os.makedirs('/data', exist_ok=True)
+    os.makedirs(DATA_DIR, exist_ok=True)
     db.create_all()
     logging.info("БД инициализирована успешно.")
 
@@ -61,9 +83,11 @@ def upload_file():
     file_hash = hashlib.md5(file_bytes).hexdigest()
 
     # Сохранение документа
-    new_doc = FileDocument(filename=file.filename, file_data=file_bytes, file_hash=file_hash)
-    db.session.add(new_doc)
-    db.session.flush()
+    new_doc = FileDocument.query.filter_by(file_hash=file_hash).first()
+    if not new_doc:
+        new_doc = FileDocument(filename=file.filename, file_data=file_bytes, file_hash=file_hash)
+        db.session.add(new_doc)
+        db.session.flush()
 
     # Парсинг
     result = parse_pdf(file_bytes=file_bytes, filename=file.filename)
@@ -78,24 +102,27 @@ def upload_file():
 
     new_count = 0
     for t_data in parsed_tasks:
-        executor = Executor.query.filter_by(name=t_data['executor']).first()
+        executor_name = t_data['executor']
+        executor = Executor.query.filter_by(name=executor_name).first()
         if not executor:
-            executor = Executor(name=t_data['executor'])
+            executor = Executor(name=executor_name)
             db.session.add(executor)
             db.session.flush()
 
+        item_num = t_data.get('item_number', t_data['title'])
         exists = Task.query.filter_by(
-            file_hash=t_data['file_hash'],
-            item_number=t_data['title']
+            file_hash=file_hash,
+            item_number=item_num,
+            executor_id=executor.id
         ).first()
 
         if not exists:
             new_task = Task(
-                item_number=t_data['title'],
+                item_number=item_num,
                 title=t_data['title'],
                 text=t_data.get('text', ''),
                 deadline=t_data['deadline'],
-                file_hash=t_data['file_hash'],
+                file_hash=file_hash,
                 executor_id=executor.id,
                 document_id=new_doc.id
             )
@@ -172,7 +199,7 @@ def dashboard():
         else:
             orphan_tasks.append(task)
 
-    # Проставляем визуальные свойства
+    # Проставляем визуальные свойства (setattr безопасен — используется только для рендеринга шаблона, не сохраняется в БД)
     for doc_id, doc_data in documents.items():
         doc_data['grouped_tasks'] = {}
         for task in doc_data['tasks']:
@@ -181,9 +208,8 @@ def dashboard():
                 if doc_data['title_counts'].get(task.title, 0) > 10:
                     is_mass = True
             
-            # Добавляем свойство display_executor динамически к самому объекту для использования в шаблоне
-            setattr(task, 'is_mass_task', is_mass)
-            setattr(task, 'display_executor', "Органам местного самоуправления Республики Саха (Якутия)" if is_mass else (task.executor.name if task.executor else "Не назначен"))
+            task.__dict__['is_mass_task'] = is_mass
+            task.__dict__['display_executor'] = "Органам местного самоуправления Республики Саха (Якутия)" if is_mass else (task.executor.name if task.executor else "Не назначен")
 
     doc_list = list(documents.values())
 
@@ -197,9 +223,9 @@ def dashboard():
     # Статистика за год
     current_year = now.year
     year_tasks = [t for t in all_tasks if t.created_at and t.created_at.year == current_year]
-    year_docs = FileDocument.query.filter(
-        db.extract('year', FileDocument.uploaded_at) == current_year
-    ).count()
+    # Кроссплатформенный подсчёт документов за год (без db.extract для совместимости с SQLite)
+    all_docs = FileDocument.query.all()
+    year_docs = sum(1 for d in all_docs if d.uploaded_at and d.uploaded_at.year == current_year)
 
     stats = {
         'total': total,
@@ -246,7 +272,7 @@ def add_task():
             db.session.add(executor)
             db.session.flush()
 
-        fake_hash = hashlib.md5(f"manual-{title}-{datetime.utcnow().isoformat()}".encode()).hexdigest()
+        fake_hash = hashlib.sha256(f"manual-{title}-{datetime.utcnow().isoformat()}".encode()).hexdigest()
         task = Task(
             item_number="Ручной ввод",
             title=title,
@@ -578,6 +604,321 @@ def api_stats():
         "overdue": overdue,
         "in_progress": total - completed - overdue
     })
+
+
+# ─── API: Расширенная аналитика ──────────────────────────────────────────────
+@app.route('/api/analytics')
+def api_analytics():
+    """Расширенная аналитика с фильтрацией по периоду"""
+    from sqlalchemy import func, extract
+    from datetime import datetime, timedelta
+
+    period = request.args.get('period', 'month')
+    period_value = request.args.get('period_value', '')
+
+    now = datetime.utcnow()
+    start_date = None
+    end_date = now
+
+    # Определяем период
+    if period == 'month' and period_value:
+        try:
+            year, month = period_value.split('-')
+            start_date = datetime(int(year), int(month), 1)
+            if month == '12':
+                end_date = datetime(int(year) + 1, 1, 1)
+            else:
+                end_date = datetime(int(year), int(month) + 1, 1)
+        except (ValueError, TypeError):
+            start_date = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    elif period == 'quarter' and period_value:
+        try:
+            year, q = period_value.replace('Q', '-').split('-')
+            q = int(q)
+            start_date = datetime(int(year), (q - 1) * 3 + 1, 1)
+            if q == 4:
+                end_date = datetime(int(year) + 1, 1, 1)
+            else:
+                end_date = datetime(int(year), q * 3 + 1, 1)
+        except (ValueError, TypeError):
+            cur_q = (now.month - 1) // 3 + 1
+            start_date = datetime(now.year, (cur_q - 1) * 3 + 1, 1)
+    elif period == 'year' and period_value:
+        try:
+            start_date = datetime(int(period_value), 1, 1)
+            end_date = datetime(int(period_value) + 1, 1, 1)
+        except (ValueError, TypeError):
+            start_date = datetime(now.year, 1, 1)
+            end_date = datetime(now.year + 1, 1, 1)
+    else:
+        # По умолчанию — текущий месяц
+        start_date = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    # Все задачи
+    all_tasks = Task.query.all()
+    _refresh_statuses(all_tasks, now)
+
+    # Фильтруем по периоду (по created_at)
+    period_tasks = [t for t in all_tasks if t.created_at and start_date <= t.created_at < end_date]
+
+    # Статистика за период
+    total = len(period_tasks)
+    completed = sum(1 for t in period_tasks if t.status == 'Выполнено')
+    overdue = sum(1 for t in period_tasks if t.status == 'Просрочено')
+    in_progress = total - completed - overdue
+    pct = int((completed / total * 100) if total > 0 else 0)
+
+    # Динамика по месяцам (последние 6 месяцев)
+    monthly_data = []
+    for i in range(5, -1, -1):
+        d = datetime(now.year, now.month - i, 1) if now.month > i else datetime(now.year - 1, now.month + 12 - i, 1)
+        if d.month == 12:
+            next_d = datetime(d.year + 1, 1, 1)
+        else:
+            next_d = datetime(d.year, d.month + 1, 1)
+
+        month_tasks = [t for t in all_tasks if t.created_at and d <= t.created_at < next_d]
+        month_completed = sum(1 for t in month_tasks if t.status == 'Выполнено')
+        month_names = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек']
+        monthly_data.append({
+            'label': month_names[d.month - 1] + ' ' + str(d.year),
+            'created': len(month_tasks),
+            'completed': month_completed
+        })
+
+    # Топ исполнителей (реальные данные из БД)
+    executors_data = []
+    try:
+        from services.districts import DISTRICTS
+        district_names = set(DISTRICTS.keys())
+    except ImportError:
+        district_names = set()
+
+    all_executors = Executor.query.all()
+    for ex in all_executors:
+        if district_names and ex.name not in district_names:
+            continue
+        ex_tasks = [t for t in all_tasks if t.executor_id == ex.id]
+        ex_total = len(ex_tasks)
+        if ex_total == 0:
+            continue
+        ex_completed = sum(1 for t in ex_tasks if t.status == 'Выполнено')
+        ex_overdue = sum(1 for t in ex_tasks if t.status == 'Просрочено')
+        ex_pct = int((ex_completed / ex_total * 100))
+        executors_data.append({
+            'name': ex.name,
+            'total': ex_total,
+            'completed': ex_completed,
+            'overdue': ex_overdue,
+            'percentage': ex_pct
+        })
+
+    # Сортировка по проценту выполнения
+    executors_data.sort(key=lambda x: -x['percentage'])
+    top_executors = executors_data[:10]
+
+    # Статистика по КЧС (светофор)
+    kchz_data = []
+    try:
+        import openpyxl
+        xlsx_path = os.path.join(BASE_DIR, '..', 'светофоры.xlsx')
+        xlsx_path = os.path.abspath(xlsx_path)
+        if not os.path.exists(xlsx_path):
+            xlsx_path = os.path.join(os.getcwd(), 'светофоры.xlsx')
+        if not os.path.exists(xlsx_path):
+            xlsx_path = os.path.join(BASE_DIR, 'светофоры.xlsx')
+
+        if os.path.exists(xlsx_path):
+            wb = openpyxl.load_workbook(xlsx_path, data_only=True)
+            ws = wb.active
+            for row in range(6, ws.max_row + 1):
+                num = ws.cell(row=row, column=1).value
+                name = ws.cell(row=row, column=2).value
+                total_val = ws.cell(row=row, column=3).value
+                completed_val = ws.cell(row=row, column=4).value
+                percentage_val = ws.cell(row=row, column=5).value
+                if not isinstance(num, (int, float)) or not name:
+                    continue
+                kchz_data.append({
+                    'num': int(num),
+                    'name': str(name).strip(),
+                    'total': int(total_val) if total_val else 0,
+                    'completed': int(completed_val) if completed_val else 0,
+                    'percentage': round(float(percentage_val) * 100, 1) if percentage_val else 0,
+                })
+            wb.close()
+    except Exception as e:
+        logging.error(f"Ошибка чтения светофоры.xlsx для аналитики: {e}")
+
+    # Сопоставление КЧС с задачами из БД
+    for k in kchz_data:
+        db_tasks = [t for t in all_tasks if t.executor and k['name'].lower() in t.executor.name.lower()]
+        k['db_total'] = len(db_tasks)
+        k['db_completed'] = sum(1 for t in db_tasks if t.status == 'Выполнено')
+        k['db_overdue'] = sum(1 for t in db_tasks if t.status == 'Просрочено')
+        k['db_percentage'] = int((k['db_completed'] / k['db_total'] * 100)) if k['db_total'] > 0 else 0
+
+    # Общая статистика КЧС
+    kchz_total = len(kchz_data)
+    kchz_green = sum(1 for k in kchz_data if k.get('percentage', 0) >= 90)
+    kchz_yellow = sum(1 for k in kchz_data if 70 <= k.get('percentage', 0) < 90)
+    kchz_red = sum(1 for k in kchz_data if k.get('percentage', 0) < 70)
+
+    return jsonify({
+        'period': {
+            'start': start_date.strftime('%d.%m.%Y'),
+            'end': end_date.strftime('%d.%m.%Y'),
+            'type': period
+        },
+        'summary': {
+            'total': total,
+            'completed': completed,
+            'overdue': overdue,
+            'in_progress': in_progress,
+            'percentage': pct
+        },
+        'monthly': monthly_data,
+        'top_executors': top_executors,
+        'kchz': {
+            'districts': kchz_data,
+            'stats': {
+                'total': kchz_total,
+                'green': kchz_green,
+                'yellow': kchz_yellow,
+                'red': kchz_red
+            }
+        }
+    })
+
+
+# ─── API: Светофор КЧС (данные из Excel) ──────────────────────────────────────
+@app.route('/api/kchz-traffic-light')
+def api_kchz_traffic_light():
+    """Чтение данных из файла светофоры.xlsx и возврат в формате JSON"""
+    try:
+        import openpyxl
+        # Файл может быть в корне проекта (рядом с папкой app/) или в рабочей директории
+        xlsx_path = os.path.join(BASE_DIR, '..', 'светофоры.xlsx')
+        xlsx_path = os.path.abspath(xlsx_path)
+        
+        # Если не нашли — пробуем в текущей рабочей директории (Docker)
+        if not os.path.exists(xlsx_path):
+            xlsx_path = os.path.join(os.getcwd(), 'светофоры.xlsx')
+        
+        # Если всё ещё не нашли — пробуем рядом с main.py
+        if not os.path.exists(xlsx_path):
+            xlsx_path = os.path.join(BASE_DIR, 'светофоры.xlsx')
+        
+        if not os.path.exists(xlsx_path):
+            return jsonify({"error": "Файл светофоры.xlsx не найден"}), 404
+        
+        wb = openpyxl.load_workbook(xlsx_path, data_only=True)
+        ws = wb.active
+        
+        districts = []
+        # Данные начинаются с строки 6 (индекс 5), столбцы: A=№, B=название, C=всего, D=выполнено, E=процент
+        for row in range(6, ws.max_row + 1):
+            num = ws.cell(row=row, column=1).value
+            name = ws.cell(row=row, column=2).value
+            total = ws.cell(row=row, column=3).value
+            completed = ws.cell(row=row, column=4).value
+            percentage = ws.cell(row=row, column=5).value
+            
+            # Пропускаем пустые строки и заголовки
+            if not isinstance(num, (int, float)) or not name:
+                continue
+            
+            # Определяем статус светофора
+            if percentage is None or percentage == 0:
+                color = 'red'
+            elif percentage >= 0.9:
+                color = 'green'
+            elif percentage >= 0.7:
+                color = 'yellow'
+            else:
+                color = 'red'
+            
+            districts.append({
+                'num': int(num),
+                'name': str(name).strip(),
+                'total': int(total) if total else 0,
+                'completed': int(completed) if completed else 0,
+                'percentage': round(float(percentage) * 100, 1) if percentage else 0,
+                'color': color,
+            })
+        
+        wb.close()
+        
+        # Сортировка: зелёные → жёлтые → красные
+        color_order = {'green': 0, 'yellow': 1, 'red': 2}
+        districts.sort(key=lambda x: (color_order.get(x['color'], 2), -x['percentage']))
+        
+        # Статистика
+        total_districts = len(districts)
+        green_count = sum(1 for d in districts if d['color'] == 'green')
+        yellow_count = sum(1 for d in districts if d['color'] == 'yellow')
+        red_count = sum(1 for d in districts if d['color'] == 'red')
+        
+        return jsonify({
+            'districts': districts,
+            'stats': {
+                'total': total_districts,
+                'green': green_count,
+                'yellow': yellow_count,
+                'red': red_count,
+            }
+        })
+        
+    except Exception as e:
+        logging.error(f"Ошибка чтения светофоры.xlsx: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+# ─── Загрузка светофоры.xlsx ─────────────────────────────────────────────────
+@app.route('/api/kchz/upload', methods=['POST'])
+def upload_kchz_file():
+    """Загрузка файла светофоры.xlsx"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({"error": "Файл не найден"}), 400
+        file = request.files['file']
+        if not file or file.filename == '':
+            return jsonify({"error": "Файл не выбран"}), 400
+        if not file.filename.endswith('.xlsx'):
+            return jsonify({"error": "Только .xlsx файлы"}), 400
+
+        # Сохраняем в несколько возможных локаций
+        xlsx_data = file.read()
+        targets = [
+            os.path.join(BASE_DIR, '..', 'светофоры.xlsx'),
+            os.path.join(os.getcwd(), 'светофоры.xlsx'),
+            os.path.join(BASE_DIR, 'светофоры.xlsx'),
+        ]
+        saved = False
+        for target in targets:
+            try:
+                target = os.path.abspath(target)
+                with open(target, 'wb') as f:
+                    f.write(xlsx_data)
+                saved = True
+                logging.info(f"светофоры.xlsx сохранён в {target}")
+            except Exception as e:
+                logging.warning(f"Не удалось сохранить в {target}: {e}")
+
+        if not saved:
+            return jsonify({"error": "Не удалось сохранить файл"}), 500
+
+        return jsonify({"ok": True, "message": "Файл светофоры.xlsx обновлён"})
+    except Exception as e:
+        logging.error(f"Ошибка загрузки светофоры.xlsx: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+# ─── Страница «Светофор КЧС» ─────────────────────────────────────────────────
+@app.route('/kchz-traffic-light')
+def kchz_traffic_light():
+    """Страница визуализации светофора КЧС"""
+    return render_template('kchz_traffic_light.html')
 
 
 if __name__ == '__main__':

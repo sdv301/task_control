@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Светофор КЧС — Контроль исполнения решений</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0f172a;
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in-up { animation: fadeSlideUp 0.4s ease forwards; }
+        .fade-in-up-delay-1 { animation: fadeSlideUp 0.4s 0.1s ease forwards; opacity: 0; }
+        .fade-in-up-delay-2 { animation: fadeSlideUp 0.4s 0.2s ease forwards; opacity: 0; }
+
+        @keyframes pulse-glow-green {
+            0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }
+        }
+
+        @keyframes pulse-glow-yellow {
+            0%, 100% { box-shadow: 0 0 8px rgba(234, 179, 8, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(234, 179, 8, 0.6); }
+        }
+
+        @keyframes pulse-glow-red {
+            0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.6); }
+        }
+
+        .glow-green { animation: pulse-glow-green 2s ease-in-out infinite; }
+        .glow-yellow { animation: pulse-glow-yellow 2s ease-in-out infinite; }
+        .glow-red { animation: pulse-glow-red 2s ease-in-out infinite; }
+
+        .traffic-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .traffic-dot.green { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+        .traffic-dot.yellow { background: #eab308; box-shadow: 0 0 8px rgba(234, 179, 8, 0.5); }
+        .traffic-dot.red { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+
+        .district-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .district-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .progress-bar {
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Sort buttons */
+        .sort-btn.active {
+            background: rgba(99, 102, 241, 0.3);
+            border-color: rgba(99, 102, 241, 0.5);
+            color: #c7d2fe;
+        }
+    </style>
+</head>
+
+<body class="p-4 md:p-6">
+    <div class="max-w-7xl mx-auto">
+
+        <!-- Заголовок -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 fade-in-up">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                    🚦 Светофор КЧС
+                </h1>
+                <p class="text-gray-400 mt-1">Контроль исполнения решений КЧС Республики Саха (Якутия)</p>
+                <p class="text-gray-500 text-sm mt-1" id="reportDate"></p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <a href="/dashboard"
+                    class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5" />
+                    </svg>
+                    Дашборд
+                </a>
+                <a href="/leaderboard"
+                    class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Рейтинг
+                </a>
+                <button onclick="loadData()"
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Обновить
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="flex flex-col items-center justify-center py-20">
+            <div class="spinner mb-4"></div>
+            <p class="text-gray-400">Загрузка данных...</p>
+        </div>
+
+        <!-- Error -->
+        <div id="error" class="hidden bg-red-900/30 border border-red-800/50 rounded-xl p-6 mb-6 fade-in-up">
+            <p class="text-red-400 font-medium" id="errorMessage"></p>
+        </div>
+
+        <!-- Content -->
+        <div id="content" class="hidden">
+
+            <!-- Метрики светофора -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 fade-in-up-delay-1">
+                <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+                    <p class="text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Всего районов</p>
+                    <h3 class="text-2xl font-bold text-white" id="statTotal">—</h3>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-4 border border-emerald-900/30">
+                    <p class="text-xs font-medium text-emerald-400 mb-1 uppercase tracking-wider">🟢 В срок (≥90%)</p>
+                    <h3 class="text-2xl font-bold text-emerald-400" id="statGreen">—</h3>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-4 border border-yellow-900/30">
+                    <p class="text-xs font-medium text-yellow-400 mb-1 uppercase tracking-wider">🟡 Частично (70-89%)</p>
+                    <h3 class="text-2xl font-bold text-yellow-400" id="statYellow">—</h3>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-4 border border-red-900/30">
+                    <p class="text-xs font-medium text-red-400 mb-1 uppercase tracking-wider">🔴 Не выполнили (<70%)</p>
+                    <h3 class="text-2xl font-bold text-red-400" id="statRed">—</h3>
+                </div>
+            </div>
+
+            <!-- Диаграмма светофора + фильтры -->
+            <div class="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50 mb-6 fade-in-up-delay-2">
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 items-center">
+                    <!-- Диаграмма -->
+                    <div class="flex items-center gap-4">
+                        <div class="relative w-24 h-24 flex-shrink-0">
+                            <canvas id="trafficChart"></canvas>
+                        </div>
+                        <div class="flex flex-col gap-1 text-xs">
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span><span class="text-gray-400">В срок</span><span class="text-gray-300 font-medium ml-1" id="legendGreen">0</span></div>
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-yellow-500 inline-block"></span><span class="text-gray-400">Частично</span><span class="text-gray-300 font-medium ml-1" id="legendYellow">0</span></div>
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 inline-block"></span><span class="text-gray-400">Не выполн.</span><span class="text-gray-300 font-medium ml-1" id="legendRed">0</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Фильтры и сортировка -->
+                    <div class="lg:col-span-4">
+                        <div class="flex flex-wrap gap-1.5">
+                            <button onclick="filterDistricts('all')" class="sort-btn active px-3 py-1.5 rounded-md text-xs font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all" data-filter="all">Все</button>
+                            <button onclick="filterDistricts('green')" class="sort-btn px-3 py-1.5 rounded-md text-xs font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-emerald-600/30 hover:text-emerald-300 transition-all" data-filter="green">🟢</button>
+                            <button onclick="filterDistricts('yellow')" class="sort-btn px-3 py-1.5 rounded-md text-xs font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-yellow-600/30 hover:text-yellow-300 transition-all" data-filter="yellow">🟡</button>
+                            <button onclick="filterDistricts('red')" class="sort-btn px-3 py-1.5 rounded-md text-xs font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-red-600/30 hover:text-red-300 transition-all" data-filter="red">🔴</button>
+                            <span class="text-gray-600 mx-1">|</span>
+                            <button onclick="sortDistricts('status')" class="sort-btn active px-3 py-1.5 rounded-md text-xs font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all" data-sort="status">По статусу</button>
+                            <button onclick="sortDistricts('percentage-asc')" class="sort-btn px-3 py-1.5 rounded-md text-xs font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all" data-sort="percentage-asc">% ↑</button>
+                            <button onclick="sortDistricts('percentage-desc')" class="sort-btn px-3 py-1.5 rounded-md text-xs font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all" data-sort="percentage-desc">% ↓</button>
+                            <button onclick="sortDistricts('name')" class="sort-btn px-3 py-1.5 rounded-md text-xs font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all" data-sort="name">А-Я</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Список районов -->
+            <div id="districtsList" class="flex flex-col gap-3">
+                <!-- Заполняется JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allDistricts = [];
+        let currentFilter = 'all';
+        let currentSort = 'status';
+        let trafficChart = null;
+
+        async function loadData() {
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('content');
+            const error = document.getElementById('error');
+
+            loading.classList.remove('hidden');
+            content.classList.add('hidden');
+            error.classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/kchz-traffic-light');
+                if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.error || 'Ошибка загрузки данных');
+                }
+
+                const data = await res.json();
+                allDistricts = data.districts;
+
+                // Обновляем статистику
+                document.getElementById('statTotal').textContent = data.stats.total;
+                document.getElementById('statGreen').textContent = data.stats.green;
+                document.getElementById('statYellow').textContent = data.stats.yellow;
+                document.getElementById('statRed').textContent = data.stats.red;
+
+                document.getElementById('legendGreen').textContent = data.stats.green;
+                document.getElementById('legendYellow').textContent = data.stats.yellow;
+                document.getElementById('legendRed').textContent = data.stats.red;
+
+                // Рисуем диаграмму
+                renderTrafficChart(data.stats);
+
+                // Рендерим список
+                renderDistricts();
+
+                loading.classList.add('hidden');
+                content.classList.remove('hidden');
+
+            } catch (e) {
+                loading.classList.add('hidden');
+                error.classList.remove('hidden');
+                document.getElementById('errorMessage').textContent = e.message;
+            }
+        }
+
+        function renderTrafficChart(stats) {
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            
+            if (trafficChart) {
+                trafficChart.destroy();
+            }
+
+            const isEmpty = (stats.green + stats.yellow + stats.red === 0);
+
+            trafficChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['В срок', 'Частично', 'Не выполнили'],
+                    datasets: [{
+                        data: isEmpty ? [1] : [stats.green, stats.yellow, stats.red],
+                        backgroundColor: isEmpty ? ['#1e293b'] : ['#10b981', '#eab308', '#ef4444'],
+                        borderWidth: 0,
+                        hoverOffset: isEmpty ? 0 : 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    cutout: '72%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: !isEmpty,
+                            backgroundColor: '#1e293b',
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#94a3b8',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            padding: 12,
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderDistricts() {
+            const list = document.getElementById('districtsList');
+            let filtered = [...allDistricts];
+
+            // Фильтр
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(d => d.color === currentFilter);
+            }
+
+            // Сортировка
+            const colorOrder = { green: 0, yellow: 1, red: 2 };
+            switch (currentSort) {
+                case 'status':
+                    filtered.sort((a, b) => colorOrder[a.color] - colorOrder[b.color] || b.percentage - a.percentage);
+                    break;
+                case 'percentage-asc':
+                    filtered.sort((a, b) => a.percentage - b.percentage);
+                    break;
+                case 'percentage-desc':
+                    filtered.sort((a, b) => b.percentage - a.percentage);
+                    break;
+                case 'name':
+                    filtered.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+                    break;
+            }
+
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="bg-gray-800/50 rounded-lg border border-gray-700/50 p-10 text-center">
+                        <p class="text-gray-500">Нет районов для отображения</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = filtered.map((d, i) => {
+                const borderColor = d.color === 'green' ? 'border-emerald-800/50' : 
+                                   d.color === 'yellow' ? 'border-yellow-800/50' : 'border-red-800/50';
+                const glowClass = d.color === 'green' ? 'glow-green' : 
+                                 d.color === 'yellow' ? 'glow-yellow' : 'glow-red';
+                const barColor = d.color === 'green' ? 'bg-emerald-500' : 
+                                d.color === 'yellow' ? 'bg-yellow-500' : 'bg-red-500';
+                const textColor = d.color === 'green' ? 'text-emerald-400' : 
+                                 d.color === 'yellow' ? 'text-yellow-400' : 'text-red-400';
+                const notCompleted = d.total - d.completed;
+
+                return `
+                    <div class="district-card bg-gray-800/50 rounded-lg border ${borderColor} p-3 md:p-4 fade-in-up" style="animation-delay: ${i * 0.03}s">
+                        <div class="flex items-center gap-4">
+                            <!-- Светофорный индикатор -->
+                            <div class="traffic-dot ${d.color} ${glowClass}"></div>
+
+                            <!-- Номер и название -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-gray-500 font-mono">#${d.num}</span>
+                                    <p class="font-semibold text-gray-200 truncate">${d.name}</p>
+                                </div>
+                                <div class="flex items-center gap-4 mt-2 text-xs">
+                                    <span class="text-gray-400">Всего: <span class="text-white font-medium">${d.total}</span></span>
+                                    <span class="text-emerald-400">Выполнено: <span class="font-medium">${d.completed}</span></span>
+                                    ${notCompleted > 0 ? `<span class="text-red-400">Не выполнено: <span class="font-medium">${notCompleted}</span></span>` : ''}
+                                </div>
+                            </div>
+
+                            <!-- Процент и прогресс-бар -->
+                            <div class="text-right flex-shrink-0" style="min-width: 120px;">
+                                <p class="text-2xl font-bold ${textColor}">${d.percentage}%</p>
+                                <div class="w-full bg-gray-700 rounded-full h-2 mt-1">
+                                    <div class="progress-bar h-2 rounded-full ${barColor}" style="width: ${d.percentage}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterDistricts(color) {
+            currentFilter = color;
+            
+            // Обновляем стиль кнопок фильтра
+            document.querySelectorAll('[data-filter]').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.filter === color) {
+                    btn.classList.add('active');
+                }
+            });
+
+            renderDistricts();
+        }
+
+        function sortDistricts(sortType) {
+            currentSort = sortType;
+
+            // Обновляем стиль кнопок сортировки
+            document.querySelectorAll('[data-sort]').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.sort === sortType) {
+                    btn.classList.add('active');
+                }
+            });
+
+            renderDistricts();
+        }
+
+        // Загрузка при старте
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+
+</html>

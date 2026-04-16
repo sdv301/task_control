@@ -26,7 +26,7 @@ class Task(db.Model):
 
     document = db.relationship('FileDocument', backref='tasks')
 
-    __table_args__ = (db.UniqueConstraint('file_hash', 'item_number', name='_file_item_uc'),)
+    __table_args__ = (db.UniqueConstraint('file_hash', 'item_number', 'executor_id', name='_file_item_exec_uc'),)
 
 class Report(db.Model):
     __tablename__ = 'reports'

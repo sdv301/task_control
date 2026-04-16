@@ -1,13 +1,21 @@
 import os
+import sys
 import time
 import logging
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from parser.pdf_engine import parse_pdf
-from models import db, Task, Executor
-from main import app # Для работы с контекстом БД
 
-INPUT_DIR = "/Desktop/Input_Tasks"
+# Добавляем путь к app в sys.path для корректных импортов
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'pdf_parser'))
+
+from pdf_engine import parse_pdf
+from models import db, Task, Executor
+from main import app
+
+# Кроссплатформенный путь к папке мониторинга
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+INPUT_DIR = os.environ.get("WATCHER_INPUT_DIR", os.path.join(BASE_DIR, "Desktop", "Input_Tasks"))
 
 class PDFHandler(FileSystemEventHandler):
     def on_created(self, event):
@@ -44,7 +52,7 @@ class PDFHandler(FileSystemEventHandler):
                     )
                     db.session.add(new_task)
                 db.session.commit()
-                logging.info(f"Успешно обработаны задачи из файла")
+                logging.info(f"Успешно обработаны задачи из файла: {file_path}")
 
 def start_watcher():
     logging.info(f"Запуск мониторинга папки {INPUT_DIR}")
@@ -63,4 +71,5 @@ def start_watcher():
     observer.join()
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     start_watcher()

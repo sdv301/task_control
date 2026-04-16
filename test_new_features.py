@@ -81,23 +81,23 @@ with app.app_context():
     # Green: all completed
     db.session.add(Task(title='G1', item_number='1',
         deadline=datetime.utcnow()+timedelta(days=10),
-        status='Vypolneno', file_hash=hashlib.md5(b'g1').hexdigest(),
+        status='Выполнено', file_hash=hashlib.md5(b'g1').hexdigest(),
         executor_id=ex1.id))
 
     # Yellow: one done, one in progress
     db.session.add(Task(title='Y1', item_number='2',
         deadline=datetime.utcnow()+timedelta(days=10),
-        status='Vypolneno', file_hash=hashlib.md5(b'y1').hexdigest(),
+        status='Выполнено', file_hash=hashlib.md5(b'y1').hexdigest(),
         executor_id=ex2.id))
     db.session.add(Task(title='Y2', item_number='3',
         deadline=datetime.utcnow()+timedelta(days=10),
-        status='V rabote', file_hash=hashlib.md5(b'y2').hexdigest(),
+        status='В работе', file_hash=hashlib.md5(b'y2').hexdigest(),
         executor_id=ex2.id))
 
     # Red: all overdue
     db.session.add(Task(title='R1', item_number='4',
         deadline=datetime.utcnow()-timedelta(days=5),
-        status='Prosrocheno', file_hash=hashlib.md5(b'r1').hexdigest(),
+        status='Просрочено', file_hash=hashlib.md5(b'r1').hexdigest(),
         executor_id=ex3.id))
     db.session.commit()
 
