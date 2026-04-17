@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Светофор КЧС — Контроль исполнения решений</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/task/static/js/tailwind.min.js"></script>
+    <script src="/task/static/js/chart.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        /* Local fonts only */
 
         * {
             font-family: 'Inter', sans-serif;
@@ -108,7 +108,35 @@
                 <p class="text-gray-500 text-sm mt-1" id="reportDate"></p>
             </div>
             <div class="flex flex-wrap gap-2">
-                <a href="/dashboard"
+                <div class="relative">
+                    <input type="file" id="kchzExcel" accept=".xlsx" class="hidden" onchange="uploadKchzExcel()">
+                    <button onclick="document.getElementById('kchzExcel').click()" id="uploadKchzBtn"
+                        class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        Загрузить
+                    </button>
+                </div>
+                <a href="/task/download-excel-traffic" download
+                    class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm"
+                    title="Скачать текущий файл">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Скачать
+                </a>
+                <button onclick="deleteKchzExcel()" id="deleteKchzBtn"
+                    class="bg-red-600 hover:bg-red-500 text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm"
+                    title="Удалить текущий файл">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+                <a href="/task/dashboard"
                     class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -116,7 +144,7 @@
                     </svg>
                     Дашборд
                 </a>
-                <a href="/leaderboard"
+                <a href="/task/leaderboard"
                     class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -214,6 +242,61 @@
         let currentSort = 'status';
         let trafficChart = null;
 
+        async function uploadKchzExcel() {
+            const input = document.getElementById('kchzExcel');
+            const file = input.files[0];
+            if (!file) return;
+
+            const btn = document.getElementById('uploadKchzBtn');
+            const ogContent = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner mr-2" style="border-width:2px; height:1rem; width:1rem;"></div> Загрузка...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch('/task/upload-excel-traffic', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Ошибка загрузки');
+                
+                alert('Файл успешно загружен. Данные обновлены.');
+                loadData();
+            } catch (e) {
+                alert('Ошибка: ' + e.message);
+            } finally {
+                btn.innerHTML = ogContent;
+                btn.disabled = false;
+                input.value = '';
+            }
+        }
+
+        async function deleteKchzExcel() {
+            if (!confirm('Вы уверены, что хотите удалить загруженный файл? Все данные светофора исчезнут до новой загрузки.')) return;
+            
+            const btn = document.getElementById('deleteKchzBtn');
+            const ogContent = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner mr-2" style="border-width:2px; height:1rem; width:1rem;"></div> Удаление...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/task/delete-excel-traffic', { method: 'DELETE' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Ошибка удаления');
+                
+                alert('Файл успешно удален.');
+                loadData();
+            } catch (e) {
+                alert('Ошибка: ' + e.message);
+            } finally {
+                btn.innerHTML = ogContent;
+                btn.disabled = false;
+            }
+        }
+
         async function loadData() {
             const loading = document.getElementById('loading');
             const content = document.getElementById('content');
@@ -224,7 +307,7 @@
             error.classList.add('hidden');
 
             try {
-                const res = await fetch('/api/kchz-traffic-light');
+                const res = await fetch('/task/api/kchz-traffic-light');
                 if (!res.ok) {
                     const data = await res.json();
                     throw new Error(data.error || 'Ошибка загрузки данных');

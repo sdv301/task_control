@@ -13,7 +13,7 @@ class Executor(db.Model):
 class Task(db.Model):
     __tablename__ = 'tasks'
     id = db.Column(db.Integer, primary_key=True)
-    item_number = db.Column(db.String(50))
+    item_number = db.Column(db.String(500))
     title = db.Column(db.String(255), nullable=False)
     text = db.Column(db.Text)
     deadline = db.Column(db.DateTime, nullable=False)

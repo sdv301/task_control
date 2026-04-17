@@ -5,10 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Control — Светофор исполнителей</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@formkit/auto-animate@1.0.0/index.global.min.js"></script>
+    <script src="/task/static/js/tailwind.min.js"></script>
+    <script src="/task/static/js/chart.min.js"></script>
+    <script src="/task/static/js/auto-animate.min.js"></script>
     <script>
+        // Silence Tailwind production warning
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
+            originalWarn.apply(console, args);
+        };
+
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -22,7 +29,7 @@
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        /* Local fonts only */
 
         * {
             font-family: 'Inter', sans-serif;
@@ -139,7 +146,7 @@
                 </div>
             </header>
             <div class="flex flex-wrap gap-2">
-                <a href="/dashboard"
+                <a href="/task/dashboard"
                     class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -147,7 +154,7 @@
                     </svg>
                     Дашборд
                 </a>
-                <a href="/kchz-traffic-light"
+                <a href="/task/kchz-traffic-light"
                     class="bg-red-600 hover:bg-red-500 text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm shadow-lg shadow-red-500/20">
                     🚦 Светофор КЧС
                 </a>
@@ -553,7 +560,7 @@
             icon.classList.add('spinner');
 
             try {
-                var res = await fetch('/yandex/sync', { method: 'POST' });
+                var res = await fetch('/task/yandex/sync', { method: 'POST' });
                 var data = await res.json();
 
                 if (data.error) {
@@ -589,7 +596,7 @@
             btn.textContent = 'Проверяем...';
 
             try {
-                var res = await fetch('/yandex/test', { method: 'POST' });
+                var res = await fetch('/task/yandex/test', { method: 'POST' });
                 var data = await res.json();
                 if (data.ok) {
                     status.innerHTML = '<span class="text-emerald-400">✓ Подключено!</span> Пользователь: <span class="text-white font-medium">' + data.user + '</span>';
@@ -610,7 +617,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             var ctx = document.getElementById('trafficChart').getContext('2d');
             Chart.defaults.color = '#64748b';
-            Chart.defaults.font.family = 'Inter, sans-serif';
+            Chart.defaults.font.family = 'sans-serif';
 
             var greenVal = parseInt('{{ traffic_stats.green }}') || 0;
             var yellowVal = parseInt('{{ traffic_stats.yellow }}') || 0;
@@ -658,7 +665,7 @@
 
         async function pollLeaderboard() {
             try {
-                var res = await fetch('/leaderboard');
+                var res = await fetch('/task/leaderboard');
                 if (!res.ok) return;
                 var text = await res.text();
                 var doc = new DOMParser().parseFromString(text, 'text/html');

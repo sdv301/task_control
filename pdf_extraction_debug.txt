@@ -1,0 +1,2 @@
+pdfplumber NOT available
+PyPDF2 error: No module named 'PyPDF2'
