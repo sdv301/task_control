@@ -23,7 +23,6 @@ services:
       - ./data:/data
       - ./Desktop/Input_Tasks:/Desktop/Input_Tasks
       - ./Desktop/Reports:/Desktop/Reports
-      - ./светофоры.xlsx:/app/светофоры.xlsx
     environment:
       - FLASK_APP=main.py
       - FLASK_ENV=development
