@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админка — Уведомления</title>
+    <script src="/task/static/js/tailwind.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+        <div class="flex items-center justify-between">
+            <h1 class="text-2xl font-bold">Админка: Уведомления и интеграции</h1>
+            <a href="/task/dashboard" class="text-sm px-3 py-2 rounded bg-slate-700 hover:bg-slate-600">Назад</a>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 space-y-3">
+            <h2 class="font-semibold">Переключатели</h2>
+            <label class="flex items-center gap-2"><input id="enable_email" type="checkbox" {% if settings.enable_email %}checked{% endif %}> Email уведомления</label>
+            <label class="flex items-center gap-2"><input id="enable_telegram" type="checkbox" {% if settings.enable_telegram %}checked{% endif %}> Telegram (заглушка)</label>
+            <label class="flex items-center gap-2"><input id="enable_deadline_colors" type="checkbox" {% if settings.enable_deadline_colors %}checked{% endif %}> Цвета сроков в интерфейсе</label>
+            <label class="flex items-center gap-2"><input id="notify_days_7" type="checkbox" {% if settings.notify_days_7 %}checked{% endif %}> Напоминать за 7 дней</label>
+            <label class="flex items-center gap-2"><input id="notify_days_3" type="checkbox" {% if settings.notify_days_3 %}checked{% endif %}> Напоминать за 3 дня</label>
+            <div class="flex gap-2 pt-2">
+                <button onclick="saveSettings()" class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-sm">Сохранить</button>
+                <button onclick="runCheck()" class="px-4 py-2 rounded bg-amber-600 hover:bg-amber-500 text-sm">Запустить проверку сейчас</button>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 space-y-3">
+            <h2 class="font-semibold">Email получатели</h2>
+            <div id="smtpStatus" class="text-xs text-slate-400 bg-slate-900 border border-slate-700 rounded px-3 py-2">
+                Проверка SMTP…
+            </div>
+            <div class="flex gap-2 flex-wrap">
+                <input id="test_email" class="flex-1 min-w-[200px] bg-slate-900 border border-slate-600 rounded px-3 py-2 text-sm" placeholder="email для теста">
+                <button type="button" onclick="sendTestEmail()" id="testEmailBtn"
+                    class="px-4 py-2 rounded bg-sky-600 hover:bg-sky-500 text-sm whitespace-nowrap">
+                    Отправить тестовое письмо
+                </button>
+            </div>
+            <p id="testEmailResult" class="text-xs hidden"></p>
+            <div class="flex gap-2">
+                <input id="new_email" class="flex-1 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-sm" placeholder="name@example.com">
+                <button onclick="addEmail()" class="px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-sm">Добавить</button>
+            </div>
+            <div id="recipients" class="space-y-2">
+                {% for r in recipients %}
+                <div class="flex items-center justify-between text-sm bg-slate-900 border border-slate-700 rounded px-3 py-2">
+                    <span>{{ r.email }}</span>
+                    <button onclick="removeEmail({{ r.id }})" class="text-red-400 hover:text-red-300">Удалить</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-slate-800 border border-amber-700/40 rounded-xl p-5 space-y-4">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+                <div>
+                    <h2 class="font-semibold text-amber-300">Привязка отчётов Яндекс.Диска</h2>
+                    <p class="text-sm text-slate-400 mt-1">
+                        Автопривязка по номеру пункта и сходству названия. Ручная — только если OCR ошибся.
+                    </p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="runAutoLinkAll()" class="px-4 py-2 rounded bg-amber-600 hover:bg-amber-500 text-sm">Автопривязка всех</button>
+                    <button onclick="loadReviewQueue()" class="px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 text-sm">Обновить очередь</button>
+                </div>
+            </div>
+            <div id="reviewQueue" class="space-y-3 text-sm">
+                <p class="text-slate-500">Нажмите «Обновить очередь» — покажем отчёты без полной привязки.</p>
+            </div>
+        </div>
+
+        <div class="bg-red-950/40 border border-red-800/60 rounded-xl p-5 space-y-4">
+            <div>
+                <h2 class="font-semibold text-red-300">Опасная зона</h2>
+                <p class="text-sm text-red-200/70 mt-1">
+                    Полная очистка базы КЧС: поручения, протоколы, исполнители и отчёты с Яндекс.Диска.
+                    Настройки уведомлений сохранятся.
+                </p>
+            </div>
+            <button type="button" onclick="openClearModal()"
+                class="px-4 py-2 rounded bg-red-700 hover:bg-red-600 text-sm font-medium text-white">
+                Очистить базу КЧС…
+            </button>
+        </div>
+    </div>
+
+    <div id="clearModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+        <div class="w-full max-w-md bg-slate-900 border border-red-800/60 rounded-xl shadow-2xl p-6 space-y-4">
+            <h3 class="text-lg font-semibold text-red-300">Очистить базу КЧС?</h3>
+            <p id="clearStepText" class="text-sm text-slate-300 leading-relaxed">
+                Будут удалены все поручения, загруженные протоколы, исполнители и отчёты с диска.
+                Это действие необратимо.
+            </p>
+            <div id="clearStep1">
+                <button type="button" onclick="goClearStep2()"
+                    class="w-full px-4 py-2 rounded bg-red-700 hover:bg-red-600 text-sm font-medium text-white">
+                    Да, продолжить
+                </button>
+            </div>
+            <div id="clearStep2" class="hidden space-y-3">
+                <p class="text-xs text-amber-300">
+                    Для подтверждения введите фразу: <span class="font-mono font-semibold">ОЧИСТИТЬ БАЗУ</span>
+                </p>
+                <input id="clearConfirmInput" type="text"
+                    class="w-full bg-slate-950 border border-red-700/50 rounded px-3 py-2 text-sm uppercase tracking-wide"
+                    placeholder="ОЧИСТИТЬ БАЗУ" autocomplete="off">
+                <div class="flex gap-2">
+                    <button type="button" onclick="closeClearModal()"
+                        class="flex-1 px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 text-sm">Отмена</button>
+                    <button type="button" onclick="confirmClearKchs()" id="clearConfirmBtn"
+                        class="flex-1 px-4 py-2 rounded bg-red-700 hover:bg-red-600 text-sm font-medium text-white">
+                        Удалить всё
+                    </button>
+                </div>
+            </div>
+            <button type="button" id="clearCancelBtn" onclick="closeClearModal()"
+                class="w-full px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 text-sm">Отмена</button>
+        </div>
+    </div>
+
+    <script>
+        async function loadSmtpStatus() {
+            const box = document.getElementById('smtpStatus');
+            try {
+                const res = await fetch('/task/api/admin/smtp-status');
+                const s = await res.json();
+                if (!s.configured) {
+                    box.innerHTML = '<span class="text-amber-400">SMTP не настроен.</span> '
+                        + 'Задайте в .env / docker-compose: <span class="font-mono text-slate-300">SMTP_SERVER</span>, '
+                        + '<span class="font-mono text-slate-300">SMTP_FROM</span>, при необходимости '
+                        + '<span class="font-mono text-slate-300">SMTP_USER</span> / <span class="font-mono text-slate-300">SMTP_PASSWORD</span>';
+                    return;
+                }
+                const auth = s.has_password ? 'с авторизацией' : 'без пароля';
+                const mode = s.use_ssl ? 'SSL' : (s.use_tls ? 'STARTTLS' : 'без шифрования');
+                box.innerHTML = '<span class="text-emerald-400">SMTP настроен.</span> '
+                    + (s.server || '—') + ':' + (s.port || '—')
+                    + ' · от ' + (s.from || '—')
+                    + ' · ' + mode + ' · ' + auth;
+            } catch (e) {
+                box.textContent = 'Не удалось проверить SMTP';
+            }
+        }
+
+        async function sendTestEmail() {
+            const input = document.getElementById('test_email');
+            const btn = document.getElementById('testEmailBtn');
+            const result = document.getElementById('testEmailResult');
+            const email = (input.value || '').trim();
+            if (!email) {
+                alert('Введите email для теста');
+                input.focus();
+                return;
+            }
+            btn.disabled = true;
+            btn.textContent = 'Отправка…';
+            result.classList.remove('hidden', 'text-emerald-400', 'text-red-400');
+            result.textContent = 'Отправка…';
+            try {
+                const res = await fetch('/task/api/admin/test-email', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email})
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    result.className = 'text-xs text-emerald-400';
+                    result.textContent = data.message || 'Письмо отправлено';
+                } else {
+                    result.className = 'text-xs text-red-400';
+                    result.textContent = data.error || 'Не удалось отправить';
+                }
+            } catch (e) {
+                result.className = 'text-xs text-red-400';
+                result.textContent = 'Ошибка сети';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Отправить тестовое письмо';
+            }
+        }
+
+        loadSmtpStatus();
+
+        async function saveSettings() {
+            const payload = {
+                enable_email: document.getElementById('enable_email').checked,
+                enable_telegram: document.getElementById('enable_telegram').checked,
+                enable_deadline_colors: document.getElementById('enable_deadline_colors').checked,
+                notify_days_7: document.getElementById('notify_days_7').checked,
+                notify_days_3: document.getElementById('notify_days_3').checked
+            };
+            await fetch('/task/api/admin/settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            alert('Сохранено');
+        }
+
+        async function runCheck() {
+            const res = await fetch('/task/api/admin/run-notifications', {method: 'POST'});
+            const data = await res.json();
+            if (data.ok) alert('Проверка выполнена');
+            else alert('Ошибка: ' + (data.error || 'unknown'));
+        }
+
+        async function addEmail() {
+            const email = document.getElementById('new_email').value.trim();
+            if (!email) return;
+            const res = await fetch('/task/api/admin/recipients', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email})
+            });
+            if (res.ok) location.reload();
+            else alert('Не удалось добавить email');
+        }
+
+        async function removeEmail(id) {
+            const res = await fetch('/task/api/admin/recipients', {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id})
+            });
+            if (res.ok) location.reload();
+        }
+
+        function openClearModal() {
+            document.getElementById('clearModal').classList.remove('hidden');
+            document.getElementById('clearStep1').classList.remove('hidden');
+            document.getElementById('clearStep2').classList.add('hidden');
+            document.getElementById('clearCancelBtn').classList.remove('hidden');
+            document.getElementById('clearConfirmInput').value = '';
+        }
+
+        function closeClearModal() {
+            document.getElementById('clearModal').classList.add('hidden');
+        }
+
+        function goClearStep2() {
+            document.getElementById('clearStep1').classList.add('hidden');
+            document.getElementById('clearStep2').classList.remove('hidden');
+            document.getElementById('clearCancelBtn').classList.add('hidden');
+            document.getElementById('clearConfirmInput').focus();
+        }
+
+        async function loadReviewQueue() {
+            const box = document.getElementById('reviewQueue');
+            box.innerHTML = '<p class="text-slate-500">Загрузка...</p>';
+            try {
+                const res = await fetch('/task/api/admin/yandex/review-queue');
+                const rows = await res.json();
+                if (!rows.length) {
+                    box.innerHTML = '<p class="text-emerald-400">Все отчёты привязаны полностью.</p>';
+                    return;
+                }
+                box.innerHTML = rows.map(r => {
+                    const suggest = (r.suggest || []).map(s =>
+                        `<label class="flex items-start gap-2 text-xs bg-slate-900 border border-slate-700 rounded px-2 py-1.5">
+                            <input type="checkbox" class="suggest-cb mt-0.5" data-report="${r.id}" value="${s.task_id}" checked>
+                            <span>п.${s.item_number || '?'} — ${s.title || ''} <span class="text-amber-400">(${Math.round((s.confidence || 0) * 100)}%)</span></span>
+                        </label>`
+                    ).join('');
+                    const missing = (r.missing_tasks || []).map(m =>
+                        `<label class="flex items-start gap-2 text-xs bg-slate-900 border border-slate-700 rounded px-2 py-1.5">
+                            <input type="checkbox" class="manual-cb mt-0.5" data-report="${r.id}" value="${m.task_id}">
+                            <span class="text-orange-300">п.${m.item_number || '?'} — ${m.title || ''}</span>
+                        </label>`
+                    ).join('');
+                    return `<div class="bg-slate-900 border border-slate-700 rounded-lg p-4 space-y-2">
+                        <div class="flex justify-between gap-2 flex-wrap">
+                            <div>
+                                <p class="font-medium text-slate-100">${r.filename}</p>
+                                <p class="text-xs text-slate-400">${r.executor || '—'} · КЧС ${r.kchs_number || '?'} · закрыто ${r.items_matched || 0} · v${r.file_version || 1}</p>
+                            </div>
+                            <button onclick="confirmReport(${r.id})" class="px-3 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-xs">Автопривязка</button>
+                        </div>
+                        ${suggest ? `<div class="space-y-1"><p class="text-[10px] uppercase text-amber-400">Предложения</p>${suggest}</div>` : ''}
+                        ${missing ? `<div class="space-y-1"><p class="text-[10px] uppercase text-orange-400">Не сопоставлено (ручной выбор)</p>${missing}</div>` : ''}
+                        <button onclick="linkSelected(${r.id})" class="px-3 py-1 rounded bg-indigo-700 hover:bg-indigo-600 text-xs">Привязать выбранное</button>
+                    </div>`;
+                }).join('');
+            } catch (e) {
+                box.innerHTML = '<p class="text-red-400">Не удалось загрузить очередь</p>';
+            }
+        }
+
+        async function runAutoLinkAll() {
+            const res = await fetch('/task/api/admin/yandex/auto-link', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({include_suggestions: true})
+            });
+            const data = await res.json();
+            if (data.ok) {
+                alert('Обработано: ' + (data.processed || 0) + ', привязано: ' + (data.linked || 0));
+                loadReviewQueue();
+            } else {
+                alert('Ошибка: ' + (data.error || 'unknown'));
+            }
+        }
+
+        async function confirmReport(reportId) {
+            const res = await fetch('/task/api/admin/yandex/auto-link', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({report_id: reportId, include_suggestions: true})
+            });
+            const data = await res.json();
+            if (data.ok) {
+                alert('Привязано пунктов: ' + (data.linked || 0));
+                loadReviewQueue();
+            } else {
+                alert('Ошибка: ' + (data.error || 'unknown'));
+            }
+        }
+
+        async function linkSelected(reportId) {
+            const ids = Array.from(document.querySelectorAll(
+                `.suggest-cb[data-report="${reportId}"]:checked, .manual-cb[data-report="${reportId}"]:checked`
+            )).map(el => parseInt(el.value, 10)).filter(Boolean);
+            if (!ids.length) {
+                alert('Выберите хотя бы одно поручение');
+                return;
+            }
+            const res = await fetch('/task/api/admin/yandex/link', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({report_id: reportId, task_ids: ids})
+            });
+            const data = await res.json();
+            if (data.ok) {
+                alert('Привязано: ' + (data.linked || 0));
+                loadReviewQueue();
+            } else {
+                alert('Ошибка: ' + (data.error || 'unknown'));
+            }
+        }
+
+        async function confirmClearKchs() {
+            const phrase = document.getElementById('clearConfirmInput').value.trim();
+            const btn = document.getElementById('clearConfirmBtn');
+            btn.disabled = true;
+            btn.textContent = 'Удаление...';
+            try {
+                const res = await fetch('/task/api/admin/clear-kchs', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({confirm_phrase: phrase})
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Не удалось очистить базу');
+                    return;
+                }
+                closeClearModal();
+                alert('База КЧС очищена. Поручений: ' + (data.before && data.before.tasks || 0) + ' → 0');
+                window.location.href = '/task/dashboard';
+            } catch (e) {
+                alert('Ошибка сети при очистке базы');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Удалить всё';
+            }
+        }
+    </script>
+</body>
+</html>

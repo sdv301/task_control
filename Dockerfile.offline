@@ -1,5 +1,9 @@
-# По умолчанию — offline (см. Dockerfile.offline).
-# Полная сборка с apt: Dockerfile.online
+# Пересборка без apt (deb.debian.org недоступен).
+# Нужен уже собранный образ с Tesseract/poppler: my_portal-task-app:latest
+#
+#   docker compose -f docker-compose.yml -f docker-compose.build-task.yml build task-app
+#
+# Первая сборка с нуля (VPN): docker build -f Dockerfile.online -t my_portal-task-app:latest .
 
 FROM my_portal-task-app:latest
 

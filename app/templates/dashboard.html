@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Control — Панель управления</title>
+    <link rel="stylesheet" href="/task/static/css/light-theme.css">
     <script src="/task/static/js/tailwind.min.js"></script>
     <script src="/task/static/js/chart.min.js"></script>
+    <script src="/task/static/js/theme-toggle.js"></script>
     <script>
         // Silence Tailwind production warning
         const originalWarn = console.warn;
@@ -179,14 +181,12 @@
 
         <!-- Заголовок -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 fade-in-up">
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-                <div>
-                    <h1 class="text-4xl font-extrabold text-white tracking-tight italic">SMART<span
-                            class="text-accentIndigo">CONTROL</span></h1>
-                    <p class="text-gray-400 mt-1">Система мониторинга исполнительской дисциплины</p>
-                </div>
-            </header>
-            <div class="flex flex-wrap gap-2">
+            <div>
+                <h1 class="text-4xl font-extrabold text-white tracking-tight italic">SMART<span
+                        class="text-accentIndigo">CONTROL</span></h1>
+                <p class="text-gray-400 mt-1">Система мониторинга исполнительской дисциплины</p>
+            </div>
+            <div class="flex flex-wrap gap-2 items-center md:justify-end">
                 <a href="/task"
                     class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center gap-2 text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,41 +210,45 @@
                     </svg>
                     <span id="excelBtnText">Скачать Excel</span>
                 </button>
-                <a href="/task/kchz-traffic-light"
-                    class="bg-red-600 hover:bg-red-500 text-white font-medium py-2 px-4 rounded-lg shadow-lg shadow-red-500/20 transition-all flex items-center gap-2 text-sm">
-                    🚦
-                    <span>Светофор КЧС</span>
-                </a>
                 <a href="/task/leaderboard"
                     class="bg-amber-600 hover:bg-amber-500 text-white font-medium py-2 px-4 rounded-lg shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2 text-sm">
                     🏆
                     <span>Рейтинг</span>
                 </a>
+                <a href="/task/admin/settings" title="Админка"
+                    class="p-2 bg-violet-600 hover:bg-violet-500 text-white rounded-lg shadow-lg shadow-violet-500/20 transition-all flex items-center justify-center text-base leading-none">
+                    ⚙️
+                </a>
+                <a href="/task/kchz-traffic-light"
+                    class="bg-red-600 hover:bg-red-500 text-white font-medium py-2 px-4 rounded-lg shadow-lg shadow-red-500/20 transition-all flex items-center gap-2 text-sm md:ml-2">
+                    🚦
+                    <span>Светофор КЧС</span>
+                </a>
             </div>
         </div>
 
         <!-- Карточки метрик -->
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 fade-in-up-delay-1">
+        <div class="flex flex-wrap gap-4 mb-8 fade-in-up-delay-1">
             <!-- Всего задач -->
-            <div class="bg-cardBg rounded-xl p-5 border border-gray-700 shadow-md">
+            <div class="flex-1 min-w-[150px] bg-cardBg rounded-xl p-5 border border-gray-700 shadow-md">
                 <p class="text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Всего задач</p>
                 <h3 class="text-3xl font-bold text-white">{{ stats.total }}</h3>
                 <div class="mt-2 w-6 h-1 bg-blue-500 rounded-full"></div>
             </div>
             <!-- Просрочено -->
-            <div class="bg-cardBg rounded-xl p-5 border border-red-900/40 shadow-md shadow-red-900/5">
+            <div class="flex-1 min-w-[150px] bg-cardBg rounded-xl p-5 border border-red-900/40 shadow-md shadow-red-900/5">
                 <p class="text-xs font-medium text-red-400 mb-1 uppercase tracking-wider">Просрочено</p>
                 <h3 class="text-3xl font-bold text-red-400">{{ stats.overdue }}</h3>
                 <div class="mt-2 w-6 h-1 bg-red-500 rounded-full"></div>
             </div>
             <!-- В работе -->
-            <div class="bg-cardBg rounded-xl p-5 border border-blue-900/40 shadow-md">
+            <div class="flex-1 min-w-[150px] bg-cardBg rounded-xl p-5 border border-blue-900/40 shadow-md">
                 <p class="text-xs font-medium text-blue-400 mb-1 uppercase tracking-wider">В работе</p>
                 <h3 class="text-3xl font-bold text-blue-400">{{ stats.in_progress }}</h3>
                 <div class="mt-2 w-6 h-1 bg-blue-500 rounded-full"></div>
             </div>
             <!-- Выполнено % -->
-            <div class="bg-cardBg rounded-xl p-5 border border-emerald-900/40 shadow-md shadow-emerald-900/5">
+            <div class="flex-1 min-w-[150px] bg-cardBg rounded-xl p-5 border border-emerald-900/40 shadow-md shadow-emerald-900/5">
                 <p class="text-xs font-medium text-emerald-400 mb-1 uppercase tracking-wider">Выполнено</p>
                 <h3 class="text-3xl font-bold text-emerald-400">{{ stats.percentage }}%</h3>
                 <div class="mt-2 w-full bg-gray-700 rounded-full h-1.5">
@@ -253,7 +257,7 @@
                 </div>
             </div>
             <!-- За год -->
-            <div class="bg-cardBg rounded-xl p-5 border border-purple-900/40 shadow-md shadow-purple-900/5">
+            <div class="flex-1 min-w-[150px] bg-cardBg rounded-xl p-5 border border-purple-900/40 shadow-md shadow-purple-900/5">
                 <p class="text-xs font-medium text-purple-400 mb-1 uppercase tracking-wider">За {{ stats.current_year }}
                 </p>
                 <h3 class="text-2xl font-bold text-purple-400">{{ stats.year_docs }} <span
@@ -263,14 +267,22 @@
         </div>
 
         <!-- Вкладки -->
-        <div class="flex gap-2 mb-6 fade-in-up-delay-2">
+        <div class="flex gap-2 mb-6 fade-in-up-delay-2 flex-wrap">
             <button onclick="switchTab('documents')" id="tab-documents"
                 class="tab-btn active px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-indigo-600 text-white transition-all">
                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Документы
+                В работе{% if documents %} ({{ documents|length }}){% endif %}
+            </button>
+            <button onclick="switchTab('completed')" id="tab-completed"
+                class="tab-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Завершённые{% if completed_documents %} ({{ completed_documents|length }}){% endif %}
             </button>
             <button onclick="switchTab('analytics')" id="tab-analytics"
                 class="tab-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all">
@@ -284,38 +296,10 @@
 
         <!-- Вкладка: Документы -->
         <div id="content-documents">
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-
-                <!-- График (боковая панель) -->
-                <div
-                    class="lg:col-span-1 bg-cardBg rounded-xl p-5 border border-gray-700 flex flex-col h-fit lg:sticky lg:top-6">
-                    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Статусы</h3>
-                    <div class="flex items-center justify-center">
-                        <div class="relative w-full max-w-[160px] aspect-square">
-                            <canvas id="statusChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="mt-3 flex flex-col gap-1.5">
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="flex items-center gap-1.5"><span
-                                    class="w-2 h-2 rounded-full bg-blue-500 inline-block"></span> В работе</span>
-                            <span class="text-gray-400 font-medium">{{ stats.in_progress }}</span>
-                        </div>
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="flex items-center gap-1.5"><span
-                                    class="w-2 h-2 rounded-full bg-red-500 inline-block"></span> Просрочено</span>
-                            <span class="text-gray-400 font-medium">{{ stats.overdue }}</span>
-                        </div>
-                        <div class="flex items-center justify-between text-xs">
-                            <span class="flex items-center gap-1.5"><span
-                                    class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Выполнено</span>
-                            <span class="text-gray-400 font-medium">{{ stats.completed }}</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="flex flex-col gap-6">
 
                 <!-- Документы и задачи -->
-                <div class="lg:col-span-4 flex flex-col gap-4">
+                <div class="flex flex-col gap-4 w-full">
 
                     <!-- Поиск -->
                     <div class="bg-cardBg rounded-xl p-4 border border-gray-700">
@@ -342,9 +326,9 @@
                     <!-- Список документов -->
                     {% for doc in documents %}
                     <div
-                        class="bg-cardBg rounded-xl border shadow-md overflow-hidden relative {% if doc.overdue > 0 %}border-red-800/50{% else %}border-gray-700{% endif %}">
-                        <button onclick="toggleDoc('doc-{{ doc.id }}')"
-                            class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-800/40 transition-colors group">
+                        class="bg-cardBg rounded-xl border shadow-md overflow-hidden relative mb-4 {% if doc.overdue > 0 %}border-red-800/50{% else %}border-gray-700{% endif %}">
+                        <div onclick="toggleDoc('doc-{{ doc.id }}')"
+                            class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-800/40 transition-colors group cursor-pointer">
                             <div class="flex items-center gap-3 min-w-0">
                                 <div
                                     class="w-10 h-10 rounded-lg bg-indigo-900/50 flex items-center justify-center flex-shrink-0">
@@ -368,44 +352,49 @@
                                     </p>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-2 flex-shrink-0">
+                            <div class="flex items-center gap-2 flex-shrink-0" onclick="event.stopPropagation()">
                                 <!-- Action Buttons -->
                                 <a href="/task/api/document/{{ doc.id }}/download" download
                                     title="Скачать исходный файл"
-                                    class="p-1.5 text-gray-400 hover:text-emerald-400 hover:bg-gray-700/50 rounded transition-colors"
-                                    onclick="event.stopPropagation()">
+                                    class="p-1.5 text-gray-400 hover:text-emerald-400 hover:bg-gray-700/50 rounded transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                     </svg>
                                 </a>
-                                <button onclick="deleteDocument({{ doc.id }}, event)"
+                                <button type="button"
+                                    onclick='deleteDocument({{ doc.id }}, {{ doc.filename | tojson }})'
                                     title="Удалить документ и поручения"
-                                    class="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700/50 rounded transition-colors mr-2">
+                                    class="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700/50 rounded transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 </button>
 
-                                {% if doc.overdue > 0 %}
-                                <span
-                                    class="text-xs bg-red-500/10 text-red-400 border border-red-500/25 px-2 py-0.5 rounded-full">{{
-                                    doc.overdue }} просроч.</span>
-                                {% endif %}
-                                {% if doc.completed > 0 %}
-                                <span
-                                    class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-full">{{
-                                    doc.completed }} выполн.</span>
-                                {% endif %}
-                                <svg id="chevron-doc-{{ doc.id }}"
-                                    class="doc-chevron w-5 h-5 text-gray-500 group-hover:text-gray-300" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
+                                {% set progress = (doc.completed / doc.total * 100) if doc.total > 0 else 0 %}
+                                <div class="relative w-10 h-10 flex items-center justify-center mx-2" title="Прогресс выполнения">
+                                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                        <path class="text-gray-700" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="text-emerald-500 transition-all duration-1000" stroke-dasharray="{{ progress }}, 100" stroke-width="3" stroke="currentColor" fill="none" stroke-linecap="round" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    </svg>
+                                    <span class="absolute text-[10px] font-bold text-gray-300">{{ progress | int }}%</span>
+                                </div>
+
+                                <span class="text-xs {% if doc.overdue > 0 %}bg-red-500/10 text-red-400 border border-red-500/25{% else %}bg-gray-700/50 text-gray-400 border border-gray-600{% endif %} px-2 py-0.5 rounded-full whitespace-nowrap">{{ doc.overdue }} просроч.</span>
+                                
+                                <span class="text-xs {% if doc.completed > 0 %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/25{% else %}bg-gray-700/50 text-gray-400 border border-gray-600{% endif %} px-2 py-0.5 rounded-full whitespace-nowrap">{{ doc.completed }} выполн.</span>
+
+                                <div class="w-8 h-8 flex items-center justify-center flex-shrink-0 ml-2">
+                                    <svg id="chevron-doc-{{ doc.id }}"
+                                        class="doc-chevron w-5 h-5 text-gray-500 group-hover:text-gray-300" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
                             </div>
-                        </button>
+                        </div>
 
                         <div id="doc-{{ doc.id }}" class="doc-content border-t border-gray-700/50">
                             <div class="overflow-x-auto table-scroll">
@@ -428,7 +417,7 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-700/50 text-sm">
-                                        {% for group in doc.tasks|groupby('display_executor') %}
+                                        {% for group in doc.tasks_view|groupby('group_executor') %}
                                         <tr class="bg-gray-800/80 border-t border-b border-gray-700">
                                             <td colspan="5" class="px-4 py-2.5 text-sm font-semibold text-indigo-300">
                                                 <div class="flex items-center gap-2">
@@ -445,23 +434,47 @@
                                             </td>
                                         </tr>
                                         {% for task in group.list %}
-                                        {% set is_overdue = task.status == 'Просрочено' %}
+                                        {% if task.mass_view %}
+                                        {% set is_completed = task.mass_all_done %}
+                                        {% set is_overdue = task.display_status == 'Просрочено' %}
+                                        {% set row_status = task.display_status %}
+                                        {% else %}
                                         {% set is_completed = task.status == 'Выполнено' %}
-                                        {% set is_tomorrow = task.deadline.date() == tomorrow %}
+                                        {% set is_overdue = task.status == 'Просрочено' %}
+                                        {% set row_status = task.status %}
+                                        {% endif %}
+                                        {% set is_due7 = task.deadline_flag == 'due7' %}
+                                        {% set is_due3 = task.deadline_flag == 'due3' %}
                                         <tr
-                                            class="{% if is_overdue %}bg-red-900/10 hover:bg-red-900/20{% elif is_completed %}bg-emerald-900/10 hover:bg-emerald-900/20{% elif is_tomorrow %}bg-yellow-900/10 hover:bg-yellow-900/20{% else %}hover:bg-gray-800/40{% endif %} transition-colors border-l-2 {% if is_overdue %}border-red-500{% elif is_completed %}border-emerald-500{% elif is_tomorrow %}border-yellow-500{% else %}border-transparent{% endif %}">
+                                            class="{% if is_overdue %}bg-red-900/10 hover:bg-red-900/20{% elif is_completed %}bg-emerald-900/10 hover:bg-emerald-900/20{% elif is_due3 %}bg-orange-900/20 hover:bg-orange-900/30{% elif is_due7 %}bg-yellow-900/10 hover:bg-yellow-900/20{% else %}hover:bg-gray-800/40{% endif %} transition-colors border-l-2 {% if is_overdue %}border-red-500{% elif is_completed %}border-emerald-500{% elif is_due3 %}border-orange-500{% elif is_due7 %}border-yellow-500{% else %}border-transparent{% endif %}">
                                             <td class="px-4 py-3.5 text-gray-500 font-mono text-xs align-top">#{{
                                                 task.id }}</td>
                                             <td class="px-4 py-3.5 align-top">
                                                 <div class="cursor-pointer"
                                                     onclick="toggleDetail('task-detail-{{ task.id }}')">
                                                     <p
-                                                        class="font-medium text-gray-200 leading-tight hover:text-indigo-400 transition-colors">
-                                                        {% if task.is_mass_task %}
-                                                        {{ task.executor.name if task.executor else 'Не назначен' }}
+                                                        class="font-medium text-gray-200 leading-tight hover:text-indigo-400 transition-colors break-words">
+                                                        {% if task.mass_view %}
+                                                        {{ task.mass_title or task.title }}
                                                         <span
                                                             class="text-[10px] uppercase text-indigo-400 font-medium ml-2 border border-indigo-500/20 bg-indigo-500/10 px-1.5 py-0.5 rounded">{{
-                                                            task.title }}</span>
+                                                            task.item_number or 'массовое' }}</span>
+                                                        <span
+                                                            class="text-[10px] uppercase font-medium ml-1 border px-1.5 py-0.5 rounded {% if task.mass_all_done %}text-emerald-300 border-emerald-500/20 bg-emerald-500/10{% elif task.mass_count_done %}text-amber-300 border-amber-500/20 bg-amber-500/10{% else %}text-emerald-300 border-emerald-500/20 bg-emerald-500/10{% endif %}">
+                                                            {% if task.mass_all_done %}
+                                                            все {{ task.mass_count_total }} районов
+                                                            {% else %}
+                                                            районов: {{ task.mass_count }}{% if task.mass_count_done %} (сдано {{ task.mass_count_done }}){% endif %}
+                                                            {% endif %}
+                                                        </span>
+                                                        {% if debug_mode and '[MASS_TRIGGER:' in (task.text or '') %}
+                                                        <span
+                                                            class="text-[10px] uppercase text-amber-300 font-medium ml-1 border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 rounded">
+                                                            trigger: {{ 'regex' if '[MASS_TRIGGER:regex]' in task.text
+                                                            else 'exact' if '[MASS_TRIGGER:exact]' in task.text else
+                                                            'inherited' }}
+                                                        </span>
+                                                        {% endif %}
                                                         {% else %}
                                                         {{ task.title }}
                                                         {% endif %}
@@ -488,13 +501,20 @@
                                             </td>
                                             <td
                                                 class="px-3 py-3.5 text-gray-400 text-xs font-mono align-top whitespace-nowrap">
-                                                {{ task.deadline.strftime('%d.%m.%Y') }}
-                                            </td>
+                                                {% if task.deadline and task.deadline.year < 2099 %} {{
+                                                    task.deadline.strftime('%d.%m.%Y') }} {% else %} — {% endif %} </td>
                                             <td class="px-3 py-3.5 align-top whitespace-nowrap">
                                                 <span
                                                     class="status-badge inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border {% if is_overdue %}bg-red-500/10 text-red-400 border-red-500/25{% elif is_completed %}bg-emerald-500/10 text-emerald-400 border-emerald-500/25{% else %}bg-blue-500/10 text-blue-400 border-blue-500/25{% endif %}">
-                                                    {{ task.status }}
+                                                    {{ row_status }}
                                                 </span>
+                                                {% if task.mass_view and task.mass_count_done and not task.mass_all_done %}
+                                                <div class="text-[10px] text-amber-400 mt-1">Частично: {{ task.mass_count_done }}/{{ task.mass_count_total }}</div>
+                                                {% elif is_due3 %}
+                                                <div class="text-[10px] text-orange-400 mt-1">Срок ≤ 3 дней</div>
+                                                {% elif is_due7 %}
+                                                <div class="text-[10px] text-yellow-400 mt-1">Срок ≤ 7 дней</div>
+                                                {% endif %}
                                             </td>
                                             <td class="px-3 py-3.5 align-top">
                                                 <div class="flex flex-col gap-1.5">
@@ -520,13 +540,17 @@
                                                         {% endif %}
                                                     </span>
                                                     <!-- Переключатель исполнения -->
-                                                    {% if not is_completed %}
+                                                    {% if task.mass_view %}
+                                                    {% if not task.mass_all_done %}
+                                                    <span class="text-[10px] text-gray-500">Закрывается по отчётам с диска</span>
+                                                    {% endif %}
+                                                    {% elif not is_completed %}
                                                     <button onclick="markDone({{ task.id }})"
                                                         class="text-[11px] text-gray-500 hover:text-emerald-400 transition-colors text-left"
                                                         id="done-btn-{{ task.id }}">
                                                         &#x2192; Выполнить
                                                     </button>
-                                                    {% else %}
+                                                    {% elif not task.mass_view %}
                                                     <button onclick="markUndone({{ task.id }})"
                                                         class="text-[11px] text-gray-500 hover:text-blue-400 transition-colors text-left"
                                                         id="done-btn-{{ task.id }}">
@@ -543,7 +567,8 @@
 
                                 <!-- Кнопка удаления документа (внизу) -->
                                 <div class="px-4 py-3 bg-gray-800/30 border-t border-gray-700/50 flex justify-end">
-                                    <button onclick="deleteDocument({{ doc.id }}, '{{ doc.filename }}')"
+                                    <button type="button"
+                                        onclick='deleteDocument({{ doc.id }}, {{ doc.filename | tojson }})'
                                         class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors border border-red-500/20"
                                         title="Удалить этот документ и все его поручения">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -601,8 +626,10 @@
                                         {% for task in orphan_tasks %}
                                         {% set is_overdue = task.status == 'Просрочено' %}
                                         {% set is_completed = task.status == 'Выполнено' %}
+                                        {% set is_due7 = task.deadline_flag == 'due7' %}
+                                        {% set is_due3 = task.deadline_flag == 'due3' %}
                                         <tr
-                                            class="{% if is_overdue %}bg-red-900/10 hover:bg-red-900/20{% elif is_completed %}bg-emerald-900/10 hover:bg-emerald-900/20{% else %}hover:bg-gray-800/40{% endif %} transition-colors">
+                                            class="{% if is_overdue %}bg-red-900/10 hover:bg-red-900/20{% elif is_completed %}bg-emerald-900/10 hover:bg-emerald-900/20{% elif is_due3 %}bg-orange-900/20 hover:bg-orange-900/30{% elif is_due7 %}bg-yellow-900/10 hover:bg-yellow-900/20{% else %}hover:bg-gray-800/40{% endif %} transition-colors">
                                             <td class="px-4 py-3.5 text-gray-500 font-mono text-xs align-top">#{{
                                                 task.id }}
                                             </td>
@@ -641,11 +668,17 @@
                                             </td>
                                             <td
                                                 class="px-4 py-3.5 text-gray-400 text-xs font-mono align-top whitespace-nowrap">
-                                                {{ task.deadline.strftime('%d.%m.%Y') }}</td>
+                                                {% if task.deadline and task.deadline.year < 2099 %} {{
+                                                    task.deadline.strftime('%d.%m.%Y') }} {% else %} — {% endif %} </td>
                                             <td class="px-4 py-3.5 align-top whitespace-nowrap">
                                                 <span
                                                     class="status-badge inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border {% if is_overdue %}bg-red-500/10 text-red-400 border-red-500/25{% elif is_completed %}bg-emerald-500/10 text-emerald-400 border-emerald-500/25{% else %}bg-blue-500/10 text-blue-400 border-blue-500/25{% endif %}">{{
                                                     task.status }}</span>
+                                                {% if is_due3 %}
+                                                <div class="text-[10px] text-orange-400 mt-1">Срок ≤ 3 дней</div>
+                                                {% elif is_due7 %}
+                                                <div class="text-[10px] text-yellow-400 mt-1">Срок ≤ 7 дней</div>
+                                                {% endif %}
                                             </td>
                                             <td class="px-4 py-3.5 align-top whitespace-nowrap">
                                                 <div class="flex flex-col gap-1.5">
@@ -701,6 +734,9 @@
                             <a href="/task/dashboard"
                                 class="text-indigo-400 hover:text-indigo-300 text-xs underline">Сбросить
                                 поиск</a>
+                            {% elif completed_documents %}
+                            <p class="text-sm">Все протоколы выполнены — смотрите вкладку «Завершённые» ({{ completed_documents|length }}).</p>
+                            <button type="button" onclick="switchTab('completed')" class="text-emerald-400 hover:text-emerald-300 text-xs underline">Открыть завершённые</button>
                             {% else %}
                             <p class="text-sm">Нет поручений.</p>
                             <a href="/" class="text-indigo-400 hover:text-indigo-300 text-xs underline">Загрузите PDF
@@ -714,6 +750,47 @@
                 </div>
             </div>
         </div><!-- /content-documents -->
+
+        <!-- Вкладка: Завершённые документы -->
+        <div id="content-completed" class="hidden">
+            <div class="flex flex-col gap-3">
+                <p class="text-sm text-gray-400 mb-2">Протоколы, по которым все пункты выполнены. Не дублируются во вкладке «В работе».</p>
+                {% for doc in completed_documents %}
+                <div class="bg-cardBg rounded-xl border border-emerald-800/40 shadow-md overflow-hidden opacity-90">
+                    <div onclick="toggleDoc('done-{{ doc.id }}')"
+                        class="w-full flex items-center justify-between p-4 text-left hover:bg-gray-800/40 transition-colors cursor-pointer">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-9 h-9 rounded-lg bg-emerald-900/40 flex items-center justify-center flex-shrink-0 text-emerald-400">✓</div>
+                            <div class="min-w-0">
+                                <p class="font-medium text-gray-200 truncate">{{ doc.filename }}</p>
+                                <p class="text-xs text-gray-500 mt-0.5">
+                                    {% if doc.doc_number or doc.doc_date %}
+                                    <span class="text-emerald-500/80">{{ doc.doc_number or '' }}{% if doc.doc_number and doc.doc_date %} от {% endif %}{{ doc.doc_date or '' }}</span> ·
+                                    {% endif %}
+                                    {{ doc.completed }}/{{ doc.total }} пунктов · {{ doc.uploaded_at.strftime('%d.%m.%Y') if doc.uploaded_at else '' }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0" onclick="event.stopPropagation()">
+                            <a href="/task/api/document/{{ doc.id }}/download" download class="text-xs text-gray-400 hover:text-emerald-400 px-2 py-1">Скачать</a>
+                            <button type="button" onclick='deleteDocument({{ doc.id }}, {{ doc.filename | tojson }})' class="text-xs text-gray-500 hover:text-red-400 px-2 py-1">Удалить</button>
+                        </div>
+                    </div>
+                    <div id="done-{{ doc.id }}" class="hidden border-t border-gray-700/50 px-4 py-3">
+                        <ul class="text-xs text-gray-400 space-y-1 max-h-40 overflow-y-auto">
+                            {% for task in doc.tasks_view %}
+                            <li class="flex justify-between gap-2"><span class="truncate">{{ task.title or task.item_number }}</span><span class="text-emerald-500 shrink-0">{{ task.display_status or task.status }}</span></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% else %}
+                <div class="bg-cardBg rounded-xl border border-gray-700 p-10 text-center text-gray-500 text-sm">
+                    Нет полностью завершённых протоколов.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
 
         <!-- Вкладка: Аналитика -->
         <div id="content-analytics" class="hidden">
@@ -781,7 +858,7 @@
             <div class="bg-cardBg rounded-xl p-5 border border-gray-700 mt-6">
                 <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">🚦 КЧС — Светофор</h3>
                 <!-- Метрики КЧС -->
-                <div class="grid grid-cols-4 gap-3 mb-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                     <div class="bg-gray-800/50 rounded-lg p-3 text-center">
                         <p class="text-xs text-gray-400">Всего</p>
                         <p class="text-xl font-bold text-white" id="kchzTotal">—</p>
@@ -819,6 +896,48 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- Избранное: персональная аналитика -->
+            <div class="bg-cardBg rounded-xl p-5 border border-gray-700 mt-6">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider">⭐ Избранное (персональная
+                        аналитика)</h3>
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <select id="favoriteExecutor" onchange="updateFavoriteAnalytics()"
+                            class="bg-gray-800 border border-gray-600 rounded-md px-3 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-indigo-500"></select>
+                        <select id="favoritePeriod" onchange="updateFavoriteAnalytics()"
+                            class="bg-gray-800 border border-gray-600 rounded-md px-3 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
+                            <option value="1m">1 месяц</option>
+                            <option value="3m">3 месяца</option>
+                            <option value="6m">6 месяцев</option>
+                            <option value="1y">1 год</option>
+                        </select>
+                        <button onclick="exportFavoriteAnalytics()"
+                            class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-md transition-all">
+                            Скачать Excel
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                        <p class="text-xs text-gray-400">Всего</p>
+                        <p class="text-xl font-bold text-white" id="favTotal">—</p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                        <p class="text-xs text-emerald-400">В срок</p>
+                        <p class="text-xl font-bold text-emerald-400" id="favInTime">—</p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                        <p class="text-xs text-red-400">Опозданий</p>
+                        <p class="text-xl font-bold text-red-400" id="favLate">—</p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                        <p class="text-xs text-yellow-400">Светофор</p>
+                        <p class="text-xl font-bold text-yellow-400" id="favTraffic">—</p>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-3" id="favRange"></p>
             </div>
         </div>
     </div>
@@ -911,13 +1030,17 @@
         function deleteDocument(docId, filename) {
             if (!confirm('Удалить документ "' + filename + '" и все его поручения?')) return;
             fetch('/task/document/' + docId + '/delete', { method: 'POST' })
-                .then(function (r) { return r.json(); })
-                .then(function (data) {
-                    if (data.ok) {
+                .then(function (r) {
+                    return r.json().then(function (data) {
+                        return { ok: r.ok, status: r.status, data: data };
+                    });
+                })
+                .then(function (result) {
+                    if (result.ok && result.data.ok) {
                         showToast('success', 'Документ удалён');
                         setTimeout(function () { location.reload(); }, 600);
                     } else {
-                        showToast('error', data.error || 'Ошибка удаления');
+                        showToast('error', result.data.error || 'Ошибка удаления');
                     }
                 })
                 .catch(function () { showToast('error', 'Ошибка сети'); });
@@ -925,44 +1048,8 @@
 
         /* ── Chart.js ───────────────────────────────────────────────────── */
         document.addEventListener('DOMContentLoaded', function () {
-            var ctx = document.getElementById('statusChart').getContext('2d');
             Chart.defaults.color = '#64748b';
             Chart.defaults.font.family = 'Inter, sans-serif';
-            var inProg = parseInt('{{ stats.in_progress }}') || 0;
-            var ovrd = parseInt('{{ stats.overdue }}') || 0;
-            var compl = parseInt('{{ stats.completed }}') || 0;
-            var totalTasks = inProg + ovrd + compl;
-            var isEmpty = (totalTasks === 0);
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['В работе', 'Просрочено', 'Выполнено'],
-                    datasets: [{
-                        data: isEmpty ? [1] : [inProg, ovrd, compl],
-                        backgroundColor: isEmpty ? ['#1e293b'] : ['#3b82f6', '#ef4444', '#10b981'],
-                        borderWidth: 0,
-                        hoverOffset: isEmpty ? 0 : 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    cutout: '72%',
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            enabled: !isEmpty,
-                            backgroundColor: '#1e293b',
-                            titleColor: '#f1f5f9',
-                            bodyColor: '#94a3b8',
-                            borderColor: '#334155',
-                            borderWidth: 1,
-                            padding: 12,
-                            boxPadding: 6
-                        }
-                    }
-                }
-            });
         });
 
         /* ── Экспорт Excel ────────────────────────────────────── */
@@ -1016,20 +1103,30 @@
         /* ── Переключение вкладок ─────────────────────────────── */
         function switchTab(tab) {
             var docContent = document.getElementById('content-documents');
+            var completedContent = document.getElementById('content-completed');
             var analyticsContent = document.getElementById('content-analytics');
             var tabDocs = document.getElementById('tab-documents');
+            var tabCompleted = document.getElementById('tab-completed');
             var tabAnalytics = document.getElementById('tab-analytics');
+            var activeCls = 'tab-btn active px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-indigo-600 text-white transition-all';
+            var idleCls = 'tab-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all';
+
+            docContent.classList.add('hidden');
+            completedContent.classList.add('hidden');
+            analyticsContent.classList.add('hidden');
+            tabDocs.className = idleCls;
+            tabCompleted.className = idleCls;
+            tabAnalytics.className = idleCls;
 
             if (tab === 'documents') {
                 docContent.classList.remove('hidden');
-                analyticsContent.classList.add('hidden');
-                tabDocs.className = 'tab-btn active px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-indigo-600 text-white transition-all';
-                tabAnalytics.className = 'tab-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all';
+                tabDocs.className = activeCls;
+            } else if (tab === 'completed') {
+                completedContent.classList.remove('hidden');
+                tabCompleted.className = activeCls;
             } else {
-                docContent.classList.add('hidden');
                 analyticsContent.classList.remove('hidden');
-                tabDocs.className = 'tab-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all';
-                tabAnalytics.className = 'tab-btn active px-4 py-2 rounded-lg text-sm font-medium border border-gray-600 bg-indigo-600 text-white transition-all';
+                tabAnalytics.className = activeCls;
                 initAnalytics();
             }
         }
@@ -1088,13 +1185,14 @@
         function initAnalytics() {
             populatePeriodSelector();
             updateAnalytics();
+            updateFavoriteAnalytics();
         }
 
         function updateAnalytics() {
             var pv = document.getElementById('periodValue').value;
             var url = '/task/api/analytics?period=' + currentPeriod + '&period_value=' + encodeURIComponent(pv);
             fetch(url)
-                .then(function (r) { return r.json(); })
+                .then(function (r) { if(!r.ok) throw new Error('API Error'); return r.json(); })
                 .then(function (data) {
                     var s = data.summary || {};
                     document.getElementById('analyticsCreated').textContent = s.total || 0;
@@ -1106,6 +1204,9 @@
                     renderTasksOverTimeChart(data.monthly || []);
                     renderTopExecutors(data.top_executors || []);
                     renderKchzAnalytics(data.kchz || {});
+                })
+                .catch(function(e) {
+                    console.error('Analytics Error:', e);
                 });
         }
 
@@ -1226,24 +1327,51 @@
             }).join('');
         }
 
-        function deleteDocument(docId, event) {
-            event.stopPropagation(); // Не раскрывать аккордеон
-            if (!confirm('Вы уверены, что хотите безвозвратно удалить этот документ и все связанные с ним поручения?')) return;
+        async function updateFavoriteAnalytics() {
+            try {
+                const personSelect = document.getElementById('favoriteExecutor');
+                const periodSelect = document.getElementById('favoritePeriod');
+                const selectedPerson = personSelect.value || '';
+                const selectedPeriod = periodSelect.value || '1m';
+                const url = '/task/api/analytics/favorites?executor=' + encodeURIComponent(selectedPerson) + '&period=' + encodeURIComponent(selectedPeriod);
 
-            fetch(`/task/api/document/${docId}`, {
-                method: 'DELETE'
-            })
-                .then(res => {
-                    if (res.ok) {
-                        window.location.reload();
-                    } else {
-                        res.json().then(data => alert('Ошибка удаления: ' + (data.error || 'Неизвестная ошибка')));
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('API Error');
+                const data = await res.json();
+                const favorites = data.favorites || [];
+                const metrics = data.metrics || null;
+
+                if (personSelect.options.length === 0 && favorites.length) {
+                    personSelect.innerHTML = favorites.map(name => '<option value="' + name + '">' + name + '</option>').join('');
+                    const lepchikovMatch = favorites.find(name => (name || '').toLowerCase().includes('лепчиков'));
+                    if (lepchikovMatch) {
+                        personSelect.value = lepchikovMatch;
                     }
-                })
-                .catch(err => {
-                    alert('Ошибка сети при удалении');
-                });
+                    if (!selectedPerson) {
+                        return updateFavoriteAnalytics();
+                    }
+                }
+
+                document.getElementById('favTotal').textContent = metrics ? metrics.total : '0';
+                document.getElementById('favInTime').textContent = metrics ? metrics.in_time : '0';
+                document.getElementById('favLate').textContent = metrics ? metrics.late : '0';
+                document.getElementById('favTraffic').textContent = metrics ? (metrics.traffic_color + ' / ' + metrics.performance_pct + '%') : '—';
+                document.getElementById('favRange').textContent = metrics ? ('Период: ' + metrics.from + ' - ' + metrics.to) : '';
+            } catch (e) {
+                console.error('Favorite Analytics Error:', e);
+            }
         }
+
+        function exportFavoriteAnalytics() {
+            const person = document.getElementById('favoriteExecutor').value || '';
+            const period = document.getElementById('favoritePeriod').value || '1m';
+            if (!person) {
+                showToast('error', 'Выберите исполнителя');
+                return;
+            }
+            window.location.href = '/task/api/analytics/favorites/export?executor=' + encodeURIComponent(person) + '&period=' + encodeURIComponent(period);
+        }
+
     </script>
 </body>
 

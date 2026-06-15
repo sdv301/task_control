@@ -5,9 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Control — Светофор исполнителей</title>
+    <link rel="stylesheet" href="/task/static/css/light-theme.css">
     <script src="/task/static/js/tailwind.min.js"></script>
     <script src="/task/static/js/chart.min.js"></script>
-    <script src="/task/static/js/auto-animate.min.js"></script>
+    <script src="/task/static/js/theme-toggle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@formkit/auto-animate@1.0.0/index.global.min.js"></script>
     <script>
         // Silence Tailwind production warning
         const originalWarn = console.warn;
@@ -130,6 +132,36 @@
         .yd-panel.open {
             max-height: 600px;
         }
+
+        .glass-panel {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.96) 0%, rgba(15, 23, 42, 0.88) 100%);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(14px);
+        }
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1 0%, #10b981 35%, #eab308 65%, #ef4444 100%);
+            border-radius: 12px 12px 0 0;
+            opacity: 0.85;
+        }
+        .chart-ring {
+            background: radial-gradient(circle at center, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 9999px;
+            padding: 8px;
+        }
+        .filter-btn.active {
+            background: rgba(99, 102, 241, 0.18);
+            color: #a5b4fc;
+            border-color: rgba(99, 102, 241, 0.35);
+            box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.12);
+        }
     </style>
 </head>
 
@@ -188,10 +220,22 @@
                         </svg>
                         Синхронизация с Яндекс.Диском
                     </h3>
-                    <div class="flex gap-2">
+                    <div class="flex flex-wrap gap-2 items-center">
                         <button onclick="testYandexConnection()" id="ydTestBtn"
                             class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
                             Проверить подключение
+                        </button>
+                        <a href="#ydDistrictLinks"
+                            class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
+                            Папки районов
+                        </a>
+                        <button type="button" onclick="loadDistrictStatus()"
+                            class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
+                            Проверить папки
+                        </button>
+                        <button type="button" onclick="loadYandexReports()"
+                            class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
+                            Присланные отчёты
                         </button>
                         <button onclick="syncYandexDisk()" id="ydSyncBtn"
                             class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2">
@@ -203,11 +247,60 @@
                         </button>
                     </div>
                 </div>
-                <div id="ydStatus" class="text-sm text-gray-400">
+                <div id="ydDistrictStatus" class="hidden mt-4 bg-gray-800/40 rounded-lg border border-gray-700/50 overflow-hidden">
+                    <div class="px-4 py-2 border-b border-gray-700/50 text-xs text-gray-400 uppercase tracking-wider flex justify-between">
+                        <span>Состояние папок районов</span>
+                        <span id="ydDistrictSummary" class="text-gray-500 normal-case"></span>
+                    </div>
+                    <div id="ydDistrictStatusBody" class="max-h-56 overflow-y-auto text-sm"></div>
+                </div>
+                <div id="ydReportsList" class="hidden mt-4 bg-gray-800/40 rounded-lg border border-gray-700/50 overflow-hidden">
+                    <div class="px-4 py-2 border-b border-gray-700/50 text-xs text-gray-400 uppercase tracking-wider flex justify-between items-center gap-2 flex-wrap">
+                        <span>Отчёты, найденные на Яндекс.Диске</span>
+                        <div class="flex gap-2 items-center normal-case">
+                            <label class="flex items-center gap-1 text-[10px] text-gray-500 cursor-pointer">
+                                <input type="checkbox" id="ydShowArchived" onchange="loadYandexReports()"> старые версии
+                            </label>
+                            <button type="button" onclick="loadCompleteness()" class="text-[10px] uppercase text-amber-400 hover:text-amber-300">Полнота сдачи</button>
+                        </div>
+                    </div>
+                    <div id="ydReportsBody" class="max-h-64 overflow-y-auto text-sm"></div>
+                </div>
+                <div id="ydCompleteness" class="hidden mt-4 bg-gray-800/40 rounded-lg border border-gray-700/50 overflow-hidden">
+                    <div class="px-4 py-2 border-b border-gray-700/50 text-xs text-gray-400 uppercase tracking-wider">
+                        Полнота сдачи по районам
+                    </div>
+                    <div id="ydCompletenessBody" class="max-h-48 overflow-y-auto text-sm"></div>
+                </div>
+                <div id="ydPreviewModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+                    <div class="w-full max-w-2xl bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-h-[85vh] overflow-hidden flex flex-col">
+                        <div class="px-4 py-3 border-b border-gray-700 flex justify-between items-center">
+                            <h4 class="text-sm font-semibold text-amber-400">Разбор отчёта</h4>
+                            <button type="button" onclick="closeReportPreview()" class="text-gray-400 hover:text-white text-xl leading-none">&times;</button>
+                        </div>
+                        <div id="ydPreviewBody" class="p-4 overflow-y-auto text-sm space-y-3"></div>
+                    </div>
+                </div>
+                <div id="ydDistrictLinks" class="mt-4 bg-gray-800/40 rounded-lg border border-gray-700/50 overflow-hidden">
+                    <div class="px-4 py-2 border-b border-gray-700/50 text-xs text-gray-400 uppercase tracking-wider">
+                        Публичные папки районов на Яндекс.Диске
+                    </div>
+                    <div class="max-h-48 overflow-y-auto divide-y divide-gray-700/40">
+                        {% for name, url in district_links.items() %}
+                        <a href="{{ url }}" target="_blank" rel="noopener"
+                            class="flex items-center justify-between px-4 py-2 text-sm text-gray-300 hover:bg-gray-700/40 hover:text-amber-300 transition-colors">
+                            <span>{{ name }}</span>
+                            <span class="text-xs text-gray-500">Открыть ↗</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Зелёный цвет — только если отчёты найдены на Яндекс.Диске и закрыли пункты. Ручная отметка «Выполнено» без файла не учитывается.</p>
+                <div id="ydStatus" class="text-sm text-gray-400 mt-2">
                     Нажмите «Синхронизировать» для загрузки отчётов с Яндекс.Диска
                 </div>
                 <div id="ydResults" class="hidden mt-4">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                         <div class="bg-gray-800/60 rounded-lg p-3 text-center">
                             <p class="text-xs text-gray-500">Просканировано</p>
                             <p class="text-lg font-bold text-white" id="ydScanned">0</p>
@@ -215,6 +308,14 @@
                         <div class="bg-gray-800/60 rounded-lg p-3 text-center">
                             <p class="text-xs text-gray-500">Новых</p>
                             <p class="text-lg font-bold text-emerald-400" id="ydNew">0</p>
+                        </div>
+                        <div class="bg-gray-800/60 rounded-lg p-3 text-center">
+                            <p class="text-xs text-gray-500">Привязано</p>
+                            <p class="text-lg font-bold text-indigo-400" id="ydLinked">0</p>
+                        </div>
+                        <div class="bg-gray-800/60 rounded-lg p-3 text-center">
+                            <p class="text-xs text-gray-500">Без задачи</p>
+                            <p class="text-lg font-bold text-orange-400" id="ydUnmatched">0</p>
                         </div>
                         <div class="bg-gray-800/60 rounded-lg p-3 text-center">
                             <p class="text-xs text-gray-500">Пропущено</p>
@@ -240,8 +341,9 @@
             </div>
             <!-- Зелёные -->
             <div class="bg-cardBg rounded-xl p-5 border border-emerald-900/40 shadow-md shadow-emerald-900/5">
-                <p class="text-xs font-medium text-emerald-400 mb-1 uppercase tracking-wider">🟢 Всё выполнили</p>
+                <p class="text-xs font-medium text-emerald-400 mb-1 uppercase tracking-wider">🟢 Отчёты на диске</p>
                 <h3 class="text-3xl font-bold text-emerald-400">{{ traffic_stats.green }}</h3>
+                <p class="text-xs text-gray-500 mt-1">≥90% пунктов с файлами</p>
                 <div class="mt-2 w-6 h-1 bg-emerald-500 rounded-full"></div>
             </div>
             <!-- Жёлтые -->
@@ -258,66 +360,71 @@
             </div>
         </div>
 
-        <!-- Основной контент -->
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 fade-in-up-delay-2">
+        <!-- Основной контент: светофор сверху, список карточек исполнителей ниже -->
+        <div class="flex flex-col gap-6 fade-in-up-delay-2">
 
-            <!-- Светофорная диаграмма (боковая панель) -->
-            <div
-                class="lg:col-span-1 bg-cardBg rounded-xl p-6 border border-gray-700 shadow-md flex flex-col h-fit lg:sticky lg:top-6">
-                <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-5">Светофор</h3>
-                <div class="flex items-center justify-center">
-                    <div class="relative w-full max-w-[180px] aspect-square">
-                        <canvas id="trafficChart"></canvas>
+            <div class="glass-panel rounded-2xl shadow-lg overflow-hidden relative p-6 md:p-8">
+                <div class="flex flex-col lg:flex-row lg:items-stretch gap-8">
+                    <div class="lg:flex-1 lg:border-r lg:border-gray-700/60 lg:pr-8 pb-6 lg:pb-0 border-b lg:border-b-0 border-gray-700/60">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+                            <p class="text-xs text-gray-400 uppercase tracking-widest font-semibold">Фильтр районов</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="filterLeaders('all')"
+                                class="filter-btn active text-xs px-4 py-2.5 rounded-xl border border-transparent hover:bg-gray-700/40 transition-all"
+                                data-filter="all">
+                                Все
+                            </button>
+                            <button onclick="filterLeaders('green')"
+                                class="filter-btn text-xs px-4 py-2.5 rounded-xl text-gray-400 border border-gray-700/50 hover:bg-emerald-600/15 hover:text-emerald-300 hover:border-emerald-500/30 transition-all"
+                                data-filter="green">
+                                🟢 На диске
+                            </button>
+                            <button onclick="filterLeaders('yellow')"
+                                class="filter-btn text-xs px-4 py-2.5 rounded-xl text-gray-400 border border-gray-700/50 hover:bg-yellow-600/15 hover:text-yellow-300 hover:border-yellow-500/30 transition-all"
+                                data-filter="yellow">
+                                🟡 Частично
+                            </button>
+                            <button onclick="filterLeaders('red')"
+                                class="filter-btn text-xs px-4 py-2.5 rounded-xl text-gray-400 border border-gray-700/50 hover:bg-red-600/15 hover:text-red-300 hover:border-red-500/30 transition-all"
+                                data-filter="red">
+                                🔴 Не сдано
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-gray-500 mt-4 leading-relaxed max-w-md">
+                            Статус считается только по файлам на Яндекс.Диске. Ручные отметки «Выполнено» не влияют на цвет.
+                        </p>
                     </div>
-                </div>
-                <div class="mt-4 flex flex-col gap-2">
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="flex items-center gap-2"><span
-                                class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Все выполнили</span>
-                        <span class="text-gray-400 font-medium">{{ traffic_stats.green }}</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="flex items-center gap-2"><span
-                                class="w-2.5 h-2.5 rounded-full bg-yellow-500 inline-block"></span> Частично</span>
-                        <span class="text-gray-400 font-medium">{{ traffic_stats.yellow }}</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="flex items-center gap-2"><span
-                                class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span> Не выполнили</span>
-                        <span class="text-gray-400 font-medium">{{ traffic_stats.red }}</span>
-                    </div>
-                </div>
 
-                <!-- Фильтры -->
-                <div class="mt-6 border-t border-gray-700 pt-4">
-                    <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Фильтр</p>
-                    <div class="flex flex-col gap-1.5">
-                        <button onclick="filterLeaders('all')"
-                            class="filter-btn text-xs text-left px-3 py-2 rounded-lg bg-indigo-600/20 text-indigo-300 border border-indigo-500/20 hover:bg-indigo-600/30 transition-all"
-                            data-filter="all">
-                            Все
-                        </button>
-                        <button onclick="filterLeaders('green')"
-                            class="filter-btn text-xs text-left px-3 py-2 rounded-lg text-gray-400 hover:bg-emerald-600/20 hover:text-emerald-300 transition-all"
-                            data-filter="green">
-                            🟢 Выполнили
-                        </button>
-                        <button onclick="filterLeaders('yellow')"
-                            class="filter-btn text-xs text-left px-3 py-2 rounded-lg text-gray-400 hover:bg-yellow-600/20 hover:text-yellow-300 transition-all"
-                            data-filter="yellow">
-                            🟡 Частично
-                        </button>
-                        <button onclick="filterLeaders('red')"
-                            class="filter-btn text-xs text-left px-3 py-2 rounded-lg text-gray-400 hover:bg-red-600/20 hover:text-red-300 transition-all"
-                            data-filter="red">
-                            🔴 Не выполнили
-                        </button>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-8 flex-shrink-0 lg:min-w-[320px]">
+                        <div class="flex flex-col items-center sm:items-start">
+                            <p class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-4">Сводка</p>
+                            <div class="chart-ring">
+                                <div class="relative w-[148px] h-[148px]">
+                                    <canvas id="trafficChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-3 min-w-[180px] flex-1">
+                            <div class="flex items-center justify-between text-sm py-2 px-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
+                                <span class="flex items-center gap-2 text-gray-300"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Отчёты на диске</span>
+                                <span class="text-emerald-400 font-semibold tabular-nums">{{ traffic_stats.green }}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm py-2 px-3 rounded-lg bg-yellow-500/5 border border-yellow-500/10">
+                                <span class="flex items-center gap-2 text-gray-300"><span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span> Частично</span>
+                                <span class="text-yellow-400 font-semibold tabular-nums">{{ traffic_stats.yellow }}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm py-2 px-3 rounded-lg bg-red-500/5 border border-red-500/10">
+                                <span class="flex items-center gap-2 text-gray-300"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Не сдано</span>
+                                <span class="text-red-400 font-semibold tabular-nums">{{ traffic_stats.red }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Список исполнителей -->
-            <div id="leadersList" class="lg:col-span-4 flex flex-col gap-3">
+            <div id="leadersList" class="flex flex-col gap-3">
 
                 {% if leaders %}
                 {% for leader in leaders %}
@@ -341,10 +448,13 @@
                             <!-- Имя и статистика -->
                             <div class="min-w-0 flex-1">
                                 <p class="font-semibold text-gray-200 truncate">{{ leader.name }}</p>
-                                <div class="flex items-center gap-3 mt-1">
+                                <div class="flex items-center gap-3 mt-1 flex-wrap">
                                     <span class="text-xs text-gray-500">{{ leader.total }} задач</span>
                                     {% if leader.completed > 0 %}
-                                    <span class="text-xs text-emerald-400">✓ {{ leader.completed }}</span>
+                                    <span class="text-xs text-emerald-400" title="Подтверждено отчётами с диска">✓ {{ leader.completed }} с диска</span>
+                                    {% endif %}
+                                    {% if leader.manual_without_disk > 0 %}
+                                    <span class="text-xs text-orange-400" title="Отмечено вручную, но нет файла на диске">⚠ {{ leader.manual_without_disk }} без отчёта</span>
                                     {% endif %}
                                     {% if leader.overdue > 0 %}
                                     <span class="text-xs text-red-400">✗ {{ leader.overdue }}</span>
@@ -353,7 +463,14 @@
                                     <span class="text-xs text-blue-400">⟳ {{ leader.in_progress }}</span>
                                     {% endif %}
                                     {% if leader.reports_count > 0 %}
-                                    <span class="text-xs text-amber-400">📄 {{ leader.reports_count }} отчёт(ов)</span>
+                                    <span class="text-xs text-amber-400">📄 {{ leader.reports_count }} файл(ов)</span>
+                                    {% else %}
+                                    <span class="text-xs text-red-400">📭 нет файлов на диске</span>
+                                    {% endif %}
+                                    {% if leader.district_url %}
+                                    <a href="{{ leader.district_url }}" target="_blank" rel="noopener"
+                                        onclick="event.stopPropagation()"
+                                        class="text-xs text-indigo-400 hover:text-indigo-300">Папка ↗</a>
                                     {% endif %}
                                 </div>
                             </div>
@@ -366,7 +483,7 @@
                                     {% if leader.color == 'green' %}text-emerald-400{% elif leader.color == 'yellow' %}text-yellow-400{% elif leader.color == 'red' %}text-red-400{% else %}text-gray-500{% endif %}">
                                     {{ leader.percentage }}%
                                 </p>
-                                <p class="text-xs text-gray-500">выполнение</p>
+                                <p class="text-xs text-gray-500">по отчётам с диска</p>
                             </div>
 
                             <!-- Прогресс-бар -->
@@ -426,6 +543,12 @@
                                             {% if task.text %}
                                             <p class="text-xs text-gray-500 mt-0.5 truncate max-w-sm">{{ task.text[:60] }}{% if task.text|length > 60 %}...{% endif %}</p>
                                             {% endif %}
+                                            {% if task.document %}
+                                            <p class="text-[10px] text-indigo-400 mt-1 flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                                {{ task.document.filename }}
+                                            </p>
+                                            {% endif %}
                                         </td>
                                         <td class="px-4 py-3 text-gray-400 text-xs font-mono whitespace-nowrap">
                                             {{ task.deadline.strftime('%d.%m.%Y') }}
@@ -437,12 +560,27 @@
                                             </span>
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap">
-                                            {% if task.report_submitted %}
-                                            <span class="text-xs text-emerald-400 flex items-center gap-1">
+                                            {% if task.verified_by_disk %}
+                                            <span class="text-xs flex flex-col gap-0.5
+                                                {% if task.timing_status == 'done_in_time' %}text-emerald-400{% elif task.timing_status == 'done_late' %}text-orange-400{% else %}text-emerald-400{% endif %}">
+                                                <span class="flex items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    {% if task.timing_status == 'done_in_time' %}На диске, в срок
+                                                    {% elif task.timing_status == 'done_late' %}На диске, с опозданием
+                                                    {% else %}На диске{% endif %}
+                                                </span>
+                                                {% if task.report_date %}
+                                                <span class="text-[10px] text-gray-500">{{ task.report_date.strftime('%d.%m.%Y') }}</span>
+                                                {% endif %}
+                                            </span>
+                                            {% elif task.status == 'Выполнено' %}
+                                            <span class="text-xs text-orange-400 flex items-center gap-1" title="Отмечено вручную, файла на диске нет">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01" />
                                                 </svg>
-                                                Внесён
+                                                Нет файла на диске
                                             </span>
                                             {% else %}
                                             <span class="text-xs text-red-400 flex items-center gap-1">
@@ -534,19 +672,188 @@
             // Обновить стиль кнопок фильтра
             var filterBtns = document.querySelectorAll('.filter-btn');
             filterBtns.forEach(function(btn) {
-                btn.classList.remove('bg-indigo-600/20', 'text-indigo-300', 'border', 'border-indigo-500/20');
+                btn.classList.remove('active', 'bg-indigo-600/20', 'text-indigo-300', 'border-indigo-500/20');
                 btn.classList.add('text-gray-400');
                 if (btn.getAttribute('data-filter') === color) {
-                    btn.classList.add('bg-indigo-600/20', 'text-indigo-300', 'border', 'border-indigo-500/20');
+                    btn.classList.add('active');
                     btn.classList.remove('text-gray-400');
                 }
             });
         }
 
+        /* ── Проверка папок районов ─────────────────────────── */
+        async function loadDistrictStatus() {
+            var box = document.getElementById('ydDistrictStatus');
+            var body = document.getElementById('ydDistrictStatusBody');
+            var summary = document.getElementById('ydDistrictSummary');
+            box.classList.remove('hidden');
+            body.innerHTML = '<p class="px-4 py-3 text-gray-500">Сканирование папок...</p>';
+            try {
+                var res = await fetch('/task/api/yandex/districts-status');
+                var rows = await res.json();
+                if (!rows.length) {
+                    body.innerHTML = '<p class="px-4 py-3 text-gray-500">Нет данных по папкам</p>';
+                    return;
+                }
+                var withFiles = rows.filter(function (r) { return r.file_count > 0; }).length;
+                var empty = rows.filter(function (r) { return r.status === 'empty'; }).length;
+                summary.textContent = 'с файлами: ' + withFiles + ' · пустых: ' + empty;
+
+                body.innerHTML = rows.map(function (r) {
+                    var badge, badgeClass, filesText;
+                    if (r.status === 'ok') {
+                        badge = r.file_count + ' файл(ов)';
+                        badgeClass = 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10';
+                        filesText = (r.files || []).join(', ');
+                    } else if (r.status === 'empty') {
+                        badge = 'пусто';
+                        badgeClass = 'text-red-400 border-red-500/20 bg-red-500/10';
+                        filesText = 'Загрузите PDF-отчёт в корень папки (не в подпапку, если не видно)';
+                    } else {
+                        badge = 'ошибка';
+                        badgeClass = 'text-orange-400 border-orange-500/20 bg-orange-500/10';
+                        filesText = r.error || '';
+                    }
+                    return '<div class="px-4 py-2 border-b border-gray-700/30 last:border-0 flex items-start justify-between gap-3">' +
+                        '<div class="min-w-0 flex-1">' +
+                        '<div class="flex items-center gap-2 flex-wrap">' +
+                        '<a href="' + r.url + '" target="_blank" rel="noopener" class="text-gray-200 hover:text-amber-300 truncate">' + r.name + ' ↗</a>' +
+                        '<span class="text-[10px] uppercase px-1.5 py-0.5 rounded border ' + badgeClass + '">' + badge + '</span></div>' +
+                        (filesText ? '<p class="text-xs text-gray-500 mt-1 truncate" title="' + filesText + '">' + filesText + '</p>' : '') +
+                        '</div></div>';
+                }).join('');
+            } catch (e) {
+                body.innerHTML = '<p class="px-4 py-3 text-red-400">Не удалось проверить папки</p>';
+            }
+        }
+
+        /* ── Список отчётов с диска ───────────────────────────── */
+        async function loadYandexReports() {
+            var box = document.getElementById('ydReportsList');
+            var body = document.getElementById('ydReportsBody');
+            box.classList.remove('hidden');
+            body.innerHTML = '<p class="px-4 py-3 text-gray-500">Загрузка...</p>';
+            try {
+                var showArchived = document.getElementById('ydShowArchived') && document.getElementById('ydShowArchived').checked;
+                var url = '/task/api/yandex/reports' + (showArchived ? '?include_archived=1' : '');
+                var res = await fetch(url);
+                var rows = await res.json();
+                if (!rows.length) {
+                    body.innerHTML = '<p class="px-4 py-3 text-gray-500">В базе пока нет отчётов. Нажмите «Синхронизировать» после загрузки файлов в папки районов.</p>';
+                    return;
+                }
+                var active = rows.filter(function (r) { return !r.is_complete && !r.is_superseded; });
+                var done = rows.filter(function (r) { return r.is_complete && !r.is_superseded; });
+                var archived = rows.filter(function (r) { return r.is_superseded; });
+                function renderRow(r, dimmed) {
+                    var items = (r.parsed_items || []).join(', ') || '—';
+                    var matched = r.items_matched || 0;
+                    var statusClass = r.status === 'linked'
+                        ? 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10'
+                        : (r.status === 'unmatched'
+                            ? 'text-orange-400 border-orange-500/20 bg-orange-500/10'
+                            : 'text-gray-400 border-gray-500/20 bg-gray-500/10');
+                    var compl = r.completeness_status === 'full'
+                        ? 'полный'
+                        : (r.completeness_status === 'partial' ? 'частичный' : 'нет');
+                    var conf = r.avg_confidence != null ? ' · уверенность ' + Math.round(r.avg_confidence * 100) + '%' : '';
+                    var ver = (r.file_version || 1) > 1 ? ' · v' + r.file_version : '';
+                    var dimClass = dimmed ? ' opacity-60' : '';
+                    var badge = r.is_superseded ? '<span class="text-[10px] text-gray-500 ml-1">архив v' + (r.file_version || 1) + '</span>'
+                        : (r.is_complete ? '<span class="text-[10px] text-emerald-500/80 ml-1">✓ полностью</span>' : '');
+                    return '<div class="px-4 py-2.5 border-b border-gray-700/30 last:border-0' + dimClass + '">' +
+                        '<div class="flex justify-between gap-2 items-start">' +
+                        '<span class="text-gray-200 font-medium truncate">' + (r.filename || '') + badge + '</span>' +
+                        '<span class="text-[10px] uppercase px-1.5 py-0.5 rounded border shrink-0 ' + statusClass + '">' + (r.status_label || '') + '</span></div>' +
+                        '<div class="text-xs text-gray-500 mt-1">' + (r.executor || r.sender || '—') +
+                        ' · КЧС ' + (r.kchs_number || '?') + ' · пункты: ' + items +
+                        ' · закрыто: <span class="' + (matched > 0 ? 'text-emerald-400' : 'text-orange-400') + '">' + matched + '</span>' +
+                        ' · ' + compl + conf + ver +
+                        (r.missing_count > 0 ? ' · <span class="text-orange-400">не хватает ' + r.missing_count + '</span>' : '') + '</div>' +
+                        '<div class="flex gap-2 mt-1.5">' +
+                        '<button type="button" onclick="openReportPreview(' + r.id + ')" class="text-[10px] px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-300">Разбор</button>' +
+                        '</div>' +
+                        '<div class="text-[10px] text-gray-600 mt-0.5">' + (r.received_at || '') +
+                        (r.yandex_path ? ' · ' + r.yandex_path : '') + '</div></div>';
+                }
+                var html = '';
+                if (active.length) {
+                    html += '<div class="px-4 py-1 text-[10px] uppercase text-gray-500 bg-gray-900/40">Требуют внимания</div>';
+                    html += active.map(function (r) { return renderRow(r, false); }).join('');
+                }
+                if (done.length) {
+                    html += '<div class="px-4 py-1 text-[10px] uppercase text-emerald-600/70 bg-gray-900/40">Выполнены полностью</div>';
+                    html += done.map(function (r) { return renderRow(r, true); }).join('');
+                }
+                if (archived.length) {
+                    html += '<div class="px-4 py-1 text-[10px] uppercase text-gray-600 bg-gray-900/40">Старые версии файлов</div>';
+                    html += archived.map(function (r) { return renderRow(r, true); }).join('');
+                }
+                body.innerHTML = html || '<p class="px-4 py-3 text-gray-500">Нет отчётов для отображения</p>';
+            } catch (e) {
+                body.innerHTML = '<p class="px-4 py-3 text-red-400">Не удалось загрузить список отчётов</p>';
+            }
+        }
+
+        async function loadCompleteness() {
+            var box = document.getElementById('ydCompleteness');
+            var body = document.getElementById('ydCompletenessBody');
+            box.classList.remove('hidden');
+            body.innerHTML = '<p class="px-4 py-3 text-gray-500">Загрузка...</p>';
+            try {
+                var res = await fetch('/task/api/yandex/completeness');
+                var rows = await res.json();
+                body.innerHTML = rows.map(function (r) {
+                    var cls = r.status === 'full' ? 'text-emerald-400' : (r.status === 'partial' ? 'text-amber-400' : 'text-red-400');
+                    return '<div class="px-4 py-2 border-b border-gray-700/30 last:border-0 flex justify-between gap-2">' +
+                        '<span class="text-gray-200">' + r.name + '</span>' +
+                        '<span class="' + cls + ' text-xs">' + r.verified + '/' + r.total + ' (' + r.percentage + '%)</span></div>';
+                }).join('');
+            } catch (e) {
+                body.innerHTML = '<p class="px-4 py-3 text-red-400">Не удалось загрузить полноту</p>';
+            }
+        }
+
+        async function openReportPreview(reportId) {
+            var modal = document.getElementById('ydPreviewModal');
+            var body = document.getElementById('ydPreviewBody');
+            modal.classList.remove('hidden');
+            body.innerHTML = '<p class="text-gray-500">Загрузка...</p>';
+            try {
+                var res = await fetch('/task/api/yandex/reports/' + reportId + '/preview');
+                var d = await res.json();
+                var sections = (d.parsed_sections || []).map(function (s) {
+                    return '<li class="text-gray-400"><span class="text-amber-400">п.' + (s.item_number || '?') + '</span> ' + (s.title || '') + '</li>';
+                }).join('') || '<li class="text-gray-500">Секции не распознаны</li>';
+                var links = (d.links || []).map(function (l) {
+                    return '<li class="text-emerald-400">п.' + (l.item_number || '?') + ' — ' + (l.title || '') +
+                        ' <span class="text-gray-500">(' + (l.method || '') + ', ' + Math.round((l.confidence || 0) * 100) + '%)</span></li>';
+                }).join('') || '<li class="text-orange-400">Нет привязок</li>';
+                var missing = ((d.match_details || {}).missing_tasks || []).map(function (m) {
+                    return '<li class="text-orange-300">п.' + (m.item_number || '?') + ' — ' + (m.title || '') + '</li>';
+                }).join('');
+                body.innerHTML =
+                    '<p class="text-gray-200 font-medium">' + (d.filename || '') + ' · ' + (d.executor || '') + '</p>' +
+                    '<p class="text-xs text-gray-500">КЧС ' + (d.kchs_number || '?') + ' · версия ' + (d.file_version || 1) +
+                    ' · статус: ' + (d.completeness_status || 'none') + '</p>' +
+                    '<div><p class="text-xs text-gray-400 uppercase mb-1">Распознано в PDF</p><ul class="list-disc pl-5 space-y-0.5">' + sections + '</ul></div>' +
+                    '<div><p class="text-xs text-gray-400 uppercase mb-1">Привязано к поручениям</p><ul class="list-disc pl-5 space-y-0.5">' + links + '</ul></div>' +
+                    (missing ? '<div><p class="text-xs text-gray-400 uppercase mb-1">Не привязано</p><ul class="list-disc pl-5 space-y-0.5">' + missing + '</ul></div>' : '');
+            } catch (e) {
+                body.innerHTML = '<p class="text-red-400">Не удалось загрузить разбор</p>';
+            }
+        }
+
+        function closeReportPreview() {
+            document.getElementById('ydPreviewModal').classList.add('hidden');
+        }
+
         /* ── Яндекс.Диск панель ──────────────────────────────── */
         function toggleYDPanel() {
             var panel = document.getElementById('yd-panel');
+            var opening = !panel.classList.contains('open');
             panel.classList.toggle('open');
+            if (opening) loadDistrictStatus();
         }
 
         /* ── Синхронизация Яндекс.Диска ──────────────────────── */
@@ -558,6 +865,10 @@
             btn.disabled = true;
             text.textContent = 'Синхронизация...';
             icon.classList.add('spinner');
+            var status = document.getElementById('ydStatus');
+            if (status) {
+                status.innerHTML = '<span class="text-amber-400">Синхронизация может занять несколько минут...</span>';
+            }
 
             try {
                 var res = await fetch('/task/yandex/sync', { method: 'POST' });
@@ -569,23 +880,66 @@
                     document.getElementById('ydResults').classList.remove('hidden');
                     document.getElementById('ydScanned').textContent = data.total_scanned || 0;
                     document.getElementById('ydNew').textContent = data.new || 0;
+                    document.getElementById('ydLinked').textContent = data.linked || 0;
+                    document.getElementById('ydUnmatched').textContent = data.unmatched || 0;
                     document.getElementById('ydSkipped').textContent = data.skipped || 0;
                     document.getElementById('ydErrors').textContent = (data.errors || []).length;
 
-                    if (data.new > 0) {
-                        showToast('success', 'Загружено ' + data.new + ' новых отчётов');
+                    var status = document.getElementById('ydStatus');
+                    if (status) {
+                        status.innerHTML = 'Просканировано: <span class="text-white font-medium">' + (data.total_scanned || 0) +
+                            '</span>, новых: <span class="text-emerald-400 font-medium">' + (data.new || 0) +
+                            '</span>, привязано: <span class="text-indigo-400 font-medium">' + (data.linked || 0) + '</span>';
+                    }
+
+                    if (data.districts_status && data.districts_status.length) {
+                        renderDistrictStatus(data.districts_status);
+                    }
+
+                    if ((data.new || 0) > 0 || (data.linked || 0) > 0) {
+                        showToast('success', 'Отчётов: ' + (data.new || 0) + ' новых, закрыто пунктов: ' + (data.items_closed || 0));
                         setTimeout(function() { location.reload(); }, 1500);
+                    } else if ((data.total_scanned || 0) > 0) {
+                        var emptyDistricts = (data.districts_status || []).filter(function (d) { return d.status === 'empty'; }).length;
+                        showToast('info', 'На диске ' + data.total_scanned + ' файлов. Пустых папок: ' + emptyDistricts + '. Нажмите «Проверить папки».');
+                        loadDistrictStatus();
                     } else {
-                        showToast('info', 'Новых отчётов не найдено');
+                        showToast('warning', 'Файлы на Яндекс.Диске не найдены. Проверьте публичные ссылки районов.');
                     }
                 }
             } catch (e) {
-                showToast('error', 'Ошибка сети');
+                showToast('error', 'Ошибка сети или таймаут. Попробуйте ещё раз через минуту.');
             }
 
             btn.disabled = false;
             text.textContent = 'Синхронизировать';
             icon.classList.remove('spinner');
+        }
+
+        function renderDistrictStatus(rows) {
+            var box = document.getElementById('ydDistrictStatus');
+            var body = document.getElementById('ydDistrictStatusBody');
+            var summary = document.getElementById('ydDistrictSummary');
+            if (!box || !body) return;
+            box.classList.remove('hidden');
+            var withFiles = rows.filter(function (r) { return r.file_count > 0; }).length;
+            var empty = rows.filter(function (r) { return r.status === 'empty'; }).length;
+            if (summary) summary.textContent = 'с файлами: ' + withFiles + ' · пустых: ' + empty;
+            body.innerHTML = rows.map(function (r) {
+                var badgeClass = r.status === 'ok'
+                    ? 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10'
+                    : (r.status === 'empty'
+                        ? 'text-red-400 border-red-500/20 bg-red-500/10'
+                        : 'text-orange-400 border-orange-500/20 bg-orange-500/10');
+                var badge = r.status === 'ok' ? (r.file_count + ' файл(ов)') : (r.status === 'empty' ? 'пусто' : 'ошибка');
+                var filesText = (r.files || []).join(', ');
+                return '<div class="px-4 py-2 border-b border-gray-700/30 last:border-0">' +
+                    '<div class="flex items-center gap-2 flex-wrap">' +
+                    '<span class="text-gray-200">' + r.name + '</span>' +
+                    '<span class="text-[10px] uppercase px-1.5 py-0.5 rounded border ' + badgeClass + '">' + badge + '</span></div>' +
+                    (filesText ? '<p class="text-xs text-gray-500 mt-1">' + filesText + '</p>' : '') +
+                    '</div>';
+            }).join('');
         }
 
         /* ── Тест подключения ──────────────────────────────────── */

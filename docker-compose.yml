@@ -17,7 +17,7 @@ services:
   web:
     build: .
     ports:
-      - "10.50.57.107:5200:5000"
+      - "5200:5000"
     volumes:
       - ./app:/app
       - ./data:/data

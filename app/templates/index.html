@@ -5,15 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Загрузка поручения — Smart Control</title>
+    <link rel="stylesheet" href="/task/static/css/light-theme.css">
     <script src="/task/static/js/chart.min.js"></script>
     <script src="/task/static/js/tailwind.min.js"></script>
+    <script src="/task/static/js/theme-toggle.js"></script>
     <script>
-        // Silence Tailwind production warning
-        const originalWarn = console.warn;
-        console.warn = function(...args) {
-            if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
-            originalWarn.apply(console, args);
-        };
+        // Silence Tailwind production warning more aggressively
+        (function() {
+            const silentPatterns = ['cdn.tailwindcss.com', 'Tailwind CSS in production'];
+            const originalLog = console.log;
+            const originalWarn = console.warn;
+            const originalInfo = console.info;
+            
+            const filter = (fun, args) => {
+                const msg = args[0] && typeof args[0] === 'string' ? args[0] : '';
+                if (silentPatterns.some(p => msg.includes(p))) return;
+                fun.apply(console, args);
+            };
+
+            console.log = (...args) => filter(originalLog, args);
+            console.warn = (...args) => filter(originalWarn, args);
+            console.info = (...args) => filter(originalInfo, args);
+        })();
 
         tailwind.config = {
             darkMode: 'class',

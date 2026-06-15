@@ -1,0 +1,26 @@
+# Полная сборка с apt (нужен доступ к deb.debian.org). После успеха — тег latest.
+#   docker build -f Dockerfile.online -t my_portal-task-app:latest .
+
+FROM python:3.10-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tesseract-ocr \
+    tesseract-ocr-rus \
+    poppler-utils \
+    libpoppler-cpp-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app/ /app/
+COPY светофоры.xlsx /app/светофоры.xlsx
+RUN mkdir -p /data /app/logs
+
+RUN pip install --no-cache-dir supervisor
+COPY app/supervisord.conf /app/supervisord.conf
+
+CMD ["supervisord", "-c", "/app/supervisord.conf"]
