@@ -1,21 +1,18 @@
-# Пересборка без apt (deb.debian.org недоступен).
-# Нужен уже собранный образ с Tesseract/poppler: my_portal-task-app:latest
-#
-#   docker compose -f docker-compose.yml -f docker-compose.build-task.yml build task-app
-#
-# Первая сборка с нуля (VPN): docker build -f Dockerfile.online -t my_portal-task-app:latest .
-
-FROM my_portal-task-app:latest
+# Сборка без apt (deb.debian.org недоступен). OCR/Tesseract — только если образ собран с Dockerfile.online.
+FROM python:3.10-slim
 
 WORKDIR /app
 
 COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --default-timeout=300 -r requirements.txt supervisor \
+        -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn \
+    || pip install --no-cache-dir --default-timeout=300 -r requirements.txt supervisor \
+        -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \
+    || pip install --no-cache-dir --default-timeout=300 -r requirements.txt supervisor
 
 COPY app/ /app/
 RUN mkdir -p /data /app/logs
 
-RUN pip install --no-cache-dir supervisor
 COPY app/supervisord.conf /app/supervisord.conf
 
 CMD ["supervisord", "-c", "/app/supervisord.conf"]
