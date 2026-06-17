@@ -691,13 +691,21 @@ def _parse_received_at(file_info):
 
 
 def _apply_report_to_task(task, received_at):
+    from services.task_timing import format_late_label, safe_deadline
+
     task.report_submitted = True
     task.status = "Выполнено"
-    if received_at and task.deadline and task.deadline.year < 2099:
-        if received_at <= task.deadline:
-            logging.info(f"Задача #{task.id} выполнена в срок ({received_at.date()} <= {task.deadline.date()})")
+    deadline = safe_deadline(task)
+    if received_at and deadline:
+        if received_at <= deadline:
+            logging.info(f"Задача #{task.id} выполнена в срок ({received_at.date()} <= {deadline.date()})")
         else:
-            logging.info(f"Задача #{task.id} выполнена с опозданием ({received_at.date()} > {task.deadline.date()})")
+            late_days = (received_at.date() - deadline.date()).days
+            late_label = format_late_label(late_days) or f"на {late_days} дн."
+            logging.info(
+                f"Задача #{task.id} выполнена с опозданием {late_label} "
+                f"({received_at.date()} > {deadline.date()})"
+            )
 
 
 def _store_report_metadata(report, response_meta, matched_count):

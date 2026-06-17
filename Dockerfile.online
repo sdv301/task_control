@@ -1,6 +1,4 @@
-# Полная сборка с apt (нужен доступ к deb.debian.org). После успеха — тег latest.
-#   docker build -f Dockerfile.online -t my_portal-task-app:latest .
-
+# Alias for CI/scripts — см. Dockerfile (единый образ с OCR).
 FROM python:3.10-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \

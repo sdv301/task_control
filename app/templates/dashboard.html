@@ -514,6 +514,10 @@
                                                 <div class="text-[10px] text-orange-400 mt-1">Срок ≤ 3 дней</div>
                                                 {% elif is_due7 %}
                                                 <div class="text-[10px] text-yellow-400 mt-1">Срок ≤ 7 дней</div>
+                                                {% elif is_overdue and task.late_label %}
+                                                <div class="text-[10px] text-red-400 mt-1">Просрочено {{ task.late_label }}</div>
+                                                {% elif task.timing_status == 'done_late' and task.late_label %}
+                                                <div class="text-[10px] text-orange-400 mt-1">Сдано {{ task.late_label }}</div>
                                                 {% endif %}
                                             </td>
                                             <td class="px-3 py-3.5 align-top">
@@ -678,6 +682,10 @@
                                                 <div class="text-[10px] text-orange-400 mt-1">Срок ≤ 3 дней</div>
                                                 {% elif is_due7 %}
                                                 <div class="text-[10px] text-yellow-400 mt-1">Срок ≤ 7 дней</div>
+                                                {% elif is_overdue and task.late_label %}
+                                                <div class="text-[10px] text-red-400 mt-1">Просрочено {{ task.late_label }}</div>
+                                                {% elif task.timing_status == 'done_late' and task.late_label %}
+                                                <div class="text-[10px] text-orange-400 mt-1">Сдано {{ task.late_label }}</div>
                                                 {% endif %}
                                             </td>
                                             <td class="px-4 py-3.5 align-top whitespace-nowrap">

@@ -16,6 +16,7 @@ from sqlalchemy import delete, update
 
 main = Blueprint('main', __name__)
 KCHZ_EXCEL_FILENAME = "kchz_traffic_light.xlsx"
+NO_DEADLINE_YEAR = 2099
 
 
 def _excel_storage_path():
@@ -28,13 +29,13 @@ def _safe_deadline(task):
     # В parser используются "дальние" даты как маркер отсутствия срока.
     if not task.deadline:
         return None
-    if task.deadline.year >= 2099:
+    if task.deadline.year >= NO_DEADLINE_YEAR:
         return None
     return task.deadline
 
 
 def _deadline_flag(task, enabled=True):
-    if not enabled or not task.deadline or task.deadline.year >= 2099 or task.status == "Выполнено":
+    if not enabled or not task.deadline or task.deadline.year >= NO_DEADLINE_YEAR or task.status == "Выполнено":
         return "normal"
     days_left = (task.deadline.date() - datetime.now().date()).days
     if days_left < 0:
@@ -65,7 +66,8 @@ def _clean_mass_title(title, item_number):
 
 
 def _mass_group_key(task):
-    deadline_str = task.deadline.strftime('%Y-%m-%d') if task.deadline else ''
+    deadline = _safe_deadline(task)
+    deadline_str = deadline.strftime('%Y-%m-%d') if deadline else ''
     return (task.item_number or '', task.title or '', deadline_str)
 
 
@@ -90,6 +92,12 @@ def _mass_task_view_stats(group_tasks):
         display_status = 'В работе'
 
     rep = min(group_tasks, key=lambda x: x.id)
+    max_late_days = 0
+    for t in open_tasks:
+        _enrich_task_timing(t, now)
+        if t.late_days:
+            max_late_days = max(max_late_days, t.late_days)
+
     setattr(rep, 'group_executor', 'Органы местного самоуправления Республики Саха (Якутия)')
     setattr(rep, 'mass_view', True)
     setattr(rep, 'mass_count', remaining)
@@ -98,6 +106,9 @@ def _mass_task_view_stats(group_tasks):
     setattr(rep, 'mass_all_done', remaining == 0 and done > 0)
     setattr(rep, 'mass_title', _clean_mass_title(rep.title, rep.item_number))
     setattr(rep, 'display_status', display_status)
+    setattr(rep, 'late_days', max_late_days if max_late_days > 0 else None)
+    from services.task_timing import format_late_label
+    setattr(rep, 'late_label', format_late_label(max_late_days) if max_late_days > 0 else None)
     return rep
 
 
@@ -151,6 +162,20 @@ def _task_timing_status(task):
     return "done_no_date"
 
 
+def _enrich_task_timing(task, now=None):
+    from services.task_timing import compute_late_days, format_late_label
+
+    now = now or datetime.now()
+    report = _latest_report_for_task(task)
+    status = _task_timing_status(task)
+    late_days = compute_late_days(status, _safe_deadline(task), report.received_at if report else None, now)
+    setattr(task, 'timing_status', status)
+    setattr(task, 'report_date', report.received_at if report else None)
+    setattr(task, 'verified_by_disk', _task_verified_by_disk(task))
+    setattr(task, 'late_days', late_days)
+    setattr(task, 'late_label', format_late_label(late_days))
+
+
 def _build_leaderboard_data():
     executors = Executor.query.all()
     leaders = []
@@ -187,10 +212,7 @@ def _build_leaderboard_data():
         }
         for task in tasks:
             timing[_task_timing_status(task)] += 1
-            report = _latest_report_for_task(task)
-            setattr(task, 'timing_status', _task_timing_status(task))
-            setattr(task, 'report_date', report.received_at if report else None)
-            setattr(task, 'verified_by_disk', _task_verified_by_disk(task))
+            _enrich_task_timing(task, now)
 
         if percentage >= 90 and overdue == 0 and verified_completed > 0:
             color = "green"
@@ -364,6 +386,8 @@ def dashboard():
         doc.overdue = sum(1 for t in doc.tasks if t.status == 'Просрочено')
         for t in doc.tasks:
             t.deadline_flag = _deadline_flag(t, deadline_colors_enabled)
+            if not (t.executor and t.executor.name in district_names):
+                _enrich_task_timing(t)
 
         # В дашборде не показываем все районы поштучно:
         # для массовых районных поручений — одна строка, счётчик уменьшается по мере сдачи отчётов.
@@ -390,6 +414,7 @@ def dashboard():
 
     for t in orphan_tasks:
         t.deadline_flag = _deadline_flag(t, deadline_colors_enabled)
+        _enrich_task_timing(t)
 
     return render_template('dashboard.html',
                            tasks=tasks,
@@ -703,7 +728,7 @@ def export_excel():
                 task.item_number or '',
                 task.title or '',
                 task.executor.name if task.executor else '',
-                task.deadline.strftime('%d.%m.%Y') if task.deadline else '',
+                task.deadline.strftime('%d.%m.%Y') if _safe_deadline(task) else '—',
                 task.status or '',
                 'Да' if task.report_submitted else 'Нет'
             ]
@@ -1217,7 +1242,7 @@ def api_smtp_status():
 def api_test_email():
     from services.notifier import send_test_email
     data = request.get_json(silent=True) or {}
-    result, code = send_test_email(data.get("email"))
+    result, code = send_test_email(data.get("email"), data.get("template", "district_reminder"))
     return jsonify(result), code
 
 
@@ -1226,10 +1251,22 @@ def api_test_email():
 def api_run_notifications():
     try:
         from services.notifier import check_deadlines_and_notify
-        check_deadlines_and_notify(current_app._get_current_object())
-        return jsonify({"ok": True})
+        stats = check_deadlines_and_notify(current_app._get_current_object())
+        return jsonify({"ok": True, **stats})
     except Exception as e:
         current_app.logger.error(f"Notification run failed: {e}", exc_info=True)
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@main.route('/api/admin/send-digest', methods=['POST'])
+@require_admin('tasks')
+def api_send_digest():
+    try:
+        from services.notifier import send_overdue_digest
+        result, code = send_overdue_digest(current_app._get_current_object())
+        return jsonify(result), code
+    except Exception as e:
+        current_app.logger.error(f"Digest send failed: {e}", exc_info=True)
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
@@ -1310,13 +1347,17 @@ def favorite_analytics_export():
         ws[f"{col}{header_row}"].font = Font(bold=True)
 
     for i, task in enumerate(tasks, start=header_row + 1):
+        _enrich_task_timing(task)
         ws[f"A{i}"] = task.id
         ws[f"B{i}"] = task.item_number or ""
         ws[f"C{i}"] = task.title or ""
         deadline = _safe_deadline(task)
         ws[f"D{i}"] = deadline.strftime("%d.%m.%Y") if deadline else "Нет срока"
         ws[f"E{i}"] = task.status
-        ws[f"F{i}"] = _task_timing_status(task)
+        timing_label = task.timing_status or _task_timing_status(task)
+        if task.late_label:
+            timing_label = f"{timing_label} ({task.late_label})"
+        ws[f"F{i}"] = timing_label
 
     ws.column_dimensions["A"].width = 8
     ws.column_dimensions["B"].width = 16

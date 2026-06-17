@@ -1,7 +1,13 @@
-# По умолчанию — offline (см. Dockerfile.offline).
-# Полная сборка с apt: Dockerfile.online
+# task-app с OCR (Tesseract + poppler). Единственный Dockerfile для сборки.
+FROM python:3.10-slim
 
-FROM my_portal-task-app:latest
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tesseract-ocr \
+    tesseract-ocr-rus \
+    poppler-utils \
+    libpoppler-cpp-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

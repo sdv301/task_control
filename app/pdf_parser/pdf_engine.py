@@ -25,7 +25,16 @@ MONTHS = {
     'января': 1, 'февраля': 2, 'марта': 3, 'апреля': 4, 'мая': 5, 'июня': 6,
     'июля': 7, 'августа': 8, 'сентября': 9, 'октября': 10, 'ноября': 11, 'декабря': 12
 }
-NO_DEADLINE_SENTINEL = datetime(2099, 12, 31)
+NO_DEADLINE_YEAR = 2099
+NO_DEADLINE_SENTINEL = datetime(NO_DEADLINE_YEAR, 12, 31)
+MIN_DEADLINE_YEAR = 2020
+MAX_DEADLINE_YEAR = 2035
+
+RE_DEADLINE_BARE = re.compile(
+    r'(?:^|[\s:;\-–—])(?:до|с|по|не\s+позднее|не\s+позже)\s+'
+    r'(\d{1,2})\s+([а-яё]+)\s+(\d{4})\s*(?:г\.?|года)?',
+    re.IGNORECASE | re.MULTILINE,
+)
 
 # ─── Регулярные выражения ─────────────────────────────────────────────────────
 # Исполнитель в скобках: (Лепчиков Д.Н.) или (Иванов Иван Иванович) или (Босиков Р.3.)
@@ -46,9 +55,22 @@ RE_EXECUTOR_LABEL = re.compile(
     re.IGNORECASE
 )
 
-RE_ITEM_DECIMAL = r'\d{1,2}(?:\s*\.\s*\d+)+|\d{1,2}'
+RE_ITEM_NUMBER = r'\d{1,2}(?:\.\d{1,2})*'
 
-# Сроки: «до 20 марта 2026», «- 20 марта 2026 года», «: 20.03.2026», «не позднее …»
+# Пункты: «4.1. Текст», «4. Главам…», OCR «Пункт 4.1»
+RE_ITEM_HEADER = re.compile(
+    rf'(?:^|\n)\s*'
+    rf'(?:[Пп][уy]?нкт\s+)?'
+    rf'({RE_ITEM_NUMBER})\s*'
+    rf'(?:\.\s+|\s+(?=[А-ЯЁA-Z«]))',
+    re.MULTILINE,
+)
+RE_ITEM_NO_DOT = re.compile(
+    rf'(?:^|\n)\s*'
+    rf'(?:[Пп][уy]?нкт\s+)?'
+    rf'({RE_ITEM_NUMBER})\s+(?=[А-ЯЁA-Z«])',
+    re.MULTILINE,
+)
 RE_DEADLINE_WORDS = re.compile(
     r'[СсCc]рок[\s\-–—]*(?:исполнения)?[\s:\-–—]*'
     r'(?:до|с|по)?\s*(\d{1,2})\s+([а-яё]+)\s+(\d{4})\s*(?:г\.?|года)?',
@@ -72,18 +94,12 @@ RE_DEADLINE_ALWAYS = re.compile(
     r'[СсCc]рок[\s\-–—]*(?:исполнения)?[\s:\-–—]*постоянно',
     re.IGNORECASE,
 )
+RE_DEADLINE_MONTHLY = re.compile(
+    r'[СсCc]рок[\s\-–—]*(?:исполнения)?[\s:\-–—]*'
+    r'ежемесячно\s+в\s+течение\s+(\d{4})\s+года',
+    re.IGNORECASE,
+)
 
-# Пункты: «4.1 Текст», «Пункт 4. 1», «2. Пункт 4.1», OCR «Е Пункт 4.1»
-RE_ITEM_HEADER = re.compile(
-    rf'(?:^|\n)\s*(?:\d+[\.)]\s*)?(?:[^\n]{{0,8}}\s+)?'
-    rf'(?:[Пп][уy]?нкт\s+)?({RE_ITEM_DECIMAL})(?:\.\s+|\s+(?=[А-ЯЁA-Z]))',
-    re.MULTILINE,
-)
-RE_ITEM_NO_DOT = re.compile(
-    rf'(?:^|\n)\s*(?:\d+[\.)]\s*)?(?:[^\n]{{0,8}}\s+)?'
-    rf'(?:[Пп][уy]?нкт\s+)?({RE_ITEM_DECIMAL})\s+(?=[А-ЯЁA-Z])',
-    re.MULTILINE,
-)
 RE_ALL_DISTRICTS_TRIGGER = re.compile(
     r'(орган\w*\s+местн\w*\s+самоуправлен\w*|глав\w*\s+муниципаль\w*\s+образован\w*)'
     r'.{0,120}'
@@ -164,16 +180,76 @@ def _extract_text_ocr(file_bytes: bytes) -> str:
     logging.info("[PDF-PARSER] Запуск OCR (сканированный PDF)...")
     text = ""
     try:
-        images = convert_from_bytes(file_bytes, dpi=200)
+        images = convert_from_bytes(file_bytes, dpi=300)
         for i, img in enumerate(images):
+            if img.mode != 'L':
+                img = img.convert('L')
             page_text = pytesseract.image_to_string(
-                img, lang='rus+eng', config='--psm 6'
+                img, lang='rus+eng', config='--psm 6 --oem 3'
             )
             text += page_text + "\n"
             logging.info(f"[PDF-PARSER] OCR страница {i+1}/{len(images)}: {len(page_text)} символов")
     except Exception as e:
         logging.error(f"[PDF-PARSER] OCR ошибка: {e}")
     return text.strip()
+
+
+def _score_extracted_text(text: str) -> int:
+    """Чем выше — тем лучше для парсинга протоколов КЧС."""
+    if not text:
+        return 0
+    segments = RE_ITEM_HEADER.split(text)
+    if len(segments) < 3:
+        segments = RE_ITEM_NO_DOT.split(text)
+    items = max(0, (len(segments) - 1) // 2)
+    cyrillic = sum(1 for c in text if '\u0400' <= c <= '\u04FF')
+    latin = sum(1 for c in text if 'a' <= c.lower() <= 'z')
+    keywords = len(re.findall(
+        r'пункт|кчс|решени|орган\w*\s+местн|срок|район|улус|глав\w*\s+муниципальн',
+        text,
+        re.IGNORECASE,
+    ))
+    # OCR часто портит «САХА» → «AXA», pdfplumber для текстовых PDF точнее
+    ocr_noise = len(re.findall(r'\bAXA\b|ОРОСПУУ', text))
+    penalty = 0 if cyrillic >= latin else 800
+    penalty += ocr_noise * 400
+    if re.search(r'решени\w*\s*№', text, re.IGNORECASE):
+        penalty -= 300
+    return items * 2500 + keywords * 200 + cyrillic - penalty
+
+
+def _extract_text_best(file_bytes: bytes) -> str:
+    """Собирает текст всеми методами и выбирает лучший для разбора пунктов."""
+    candidates = []
+
+    if USE_PDFPLUMBER:
+        try:
+            plumber_text = _extract_text_pdfplumber(file_bytes)
+            if plumber_text:
+                candidates.append(('pdfplumber', plumber_text))
+                logging.info(f"[PDF-PARSER] pdfplumber: {len(plumber_text)} символов")
+        except Exception as e:
+            logging.warning(f"[PDF-PARSER] pdfplumber не сработал: {e}")
+
+    pypdf_text = _extract_text_pypdf2(file_bytes)
+    if pypdf_text:
+        candidates.append(('pypdf2', pypdf_text))
+        logging.info(f"[PDF-PARSER] PyPDF2: {len(pypdf_text)} символов")
+
+    if USE_OCR:
+        ocr_text = _extract_text_ocr(file_bytes)
+        if ocr_text:
+            candidates.append(('ocr', ocr_text))
+            logging.info(f"[PDF-PARSER] OCR: {len(ocr_text)} символов")
+
+    if not candidates:
+        return ""
+
+    best_name, best_text = max(candidates, key=lambda item: _score_extracted_text(item[1]))
+    logging.info(
+        f"[PDF-PARSER] Выбран источник {best_name}, score={_score_extracted_text(best_text)}"
+    )
+    return best_text
 
 
 def _normalize_item_number(raw):
@@ -187,14 +263,51 @@ def _normalize_item_number(raw):
     return parts[0] if len(parts) == 1 else '.'.join(parts)
 
 
+def _is_mass_district_text(text: str) -> bool:
+    if not text:
+        return False
+    lower = text.replace('\n', ' ').lower()
+    triggers = (
+        "рекомендовать органам местного самоуправления",
+        "органам местного самоуправления республики саха",
+        "главам муниципальных образований республики саха",
+        "главам муниципальных образований республики саха (якутия)",
+    )
+    if any(t in lower for t in triggers):
+        return True
+    return bool(RE_ALL_DISTRICTS_TRIGGER.search(lower))
+
+
+def _is_mass_section_header(item_num: str, content: str) -> bool:
+    return (
+        _is_mass_district_text(content)
+        and content.rstrip().endswith(':')
+        and '.' not in item_num
+    )
+
+
 def _deadline_from_words(day, m_name, year):
     month = MONTHS.get((m_name or '').lower().replace('ё', 'е'))
     if not month:
         return None
     try:
-        return datetime(int(year), month, int(day))
+        y = int(year)
+        if y < MIN_DEADLINE_YEAR or y > MAX_DEADLINE_YEAR:
+            return None
+        return datetime(y, month, int(day))
     except ValueError:
         return None
+
+
+def _is_missing_deadline(dt):
+    return not dt or dt.year >= NO_DEADLINE_YEAR
+
+
+def _resolve_deadline(parsed):
+    """Реальный срок или маркер «не указан» (не показывать пользователю как 2099 в UI)."""
+    if parsed and not _is_missing_deadline(parsed):
+        return parsed
+    return NO_DEADLINE_SENTINEL
 
 
 def _parse_deadline(content: str):
@@ -217,7 +330,9 @@ def _parse_deadline(content: str):
     if m:
         day, month, year = m.groups()
         try:
-            return datetime(int(year), int(month), int(day))
+            y = int(year)
+            if MIN_DEADLINE_YEAR <= y <= MAX_DEADLINE_YEAR:
+                return datetime(y, int(month), int(day))
         except ValueError:
             pass
 
@@ -225,7 +340,9 @@ def _parse_deadline(content: str):
     if m:
         year, month, day = m.groups()
         try:
-            return datetime(int(year), int(month), int(day))
+            y = int(year)
+            if MIN_DEADLINE_YEAR <= y <= MAX_DEADLINE_YEAR:
+                return datetime(y, int(month), int(day))
         except ValueError:
             pass
 
@@ -235,9 +352,24 @@ def _parse_deadline(content: str):
         if result:
             return result
 
+    m = RE_DEADLINE_BARE.search(content)
+    if m:
+        result = _deadline_from_words(*m.groups())
+        if result:
+            return result
+
     if RE_DEADLINE_ALWAYS.search(content):
         from datetime import timedelta
         return datetime.utcnow() + timedelta(days=365)
+
+    m = RE_DEADLINE_MONTHLY.search(content)
+    if m:
+        try:
+            year = int(m.group(1))
+            if MIN_DEADLINE_YEAR <= year <= MAX_DEADLINE_YEAR:
+                return datetime(year, 12, 31)
+        except ValueError:
+            pass
 
     return None
 
@@ -263,6 +395,10 @@ def _parse_executor(content: str, context_before: str = "") -> str:
     4. Ведомство через двоеточие
     """
     content_clean = content.replace('\n', ' ').lower()
+    if 'органам местного самоуправления' in content_clean:
+        return '__ALL_DISTRICTS__'
+    if RE_ALL_DISTRICTS_TRIGGER.search(content_clean):
+        return '__ALL_DISTRICTS__'
 
     # 1. По метке
     m = RE_EXECUTOR_LABEL.search(content)
@@ -363,25 +499,7 @@ def parse_pdf(file_path=None, file_bytes=None, filename=""):
         file_hash = hashlib.md5(file_bytes).hexdigest()
 
         # ── Каскад извлечения текста ──────────────────────────────────────
-        text = ""
-
-        if USE_PDFPLUMBER:
-            try:
-                text = _extract_text_pdfplumber(file_bytes)
-                if text:
-                    logging.info(f"[PDF-PARSER] pdfplumber: извлечено {len(text)} символов")
-            except Exception as e:
-                logging.warning(f"[PDF-PARSER] pdfplumber не сработал: {e}")
-
-        if not text:
-            text = _extract_text_pypdf2(file_bytes)
-            if text:
-                logging.info(f"[PDF-PARSER] PyPDF2: извлечено {len(text)} символов")
-
-        if not text and USE_OCR:
-            text = _extract_text_ocr(file_bytes)
-            if text:
-                logging.info(f"[PDF-PARSER] OCR: извлечено {len(text)} символов")
+        text = _extract_text_best(file_bytes)
 
         if not text:
             logging.error(f"[PDF-PARSER] Текст не извлечён из {source_name} ни одним методом")
@@ -405,7 +523,7 @@ def parse_pdf(file_path=None, file_bytes=None, filename=""):
                 "title": filename or "Поручение из PDF",
                 "text": "[Срок не указан]\n" + text[:2000].strip(),
                 "executor": _parse_executor(text),
-                "deadline": _parse_deadline(text) or NO_DEADLINE_SENTINEL,
+                "deadline": _resolve_deadline(_parse_deadline(text)),
                 "file_hash": file_hash,
             })
             return {"doc_number": doc_number, "doc_date": doc_date, "tasks": tasks}
@@ -414,7 +532,7 @@ def parse_pdf(file_path=None, file_bytes=None, filename=""):
         executor_hierarchy = {}
         deadline_hierarchy = {}
         
-        # Режим массового назначения всем районам
+        # Режим массового назначения всем районам (родительский пункт, напр. «4.»)
         mass_parent = None
 
         # Парсим каждый пункт
@@ -423,6 +541,7 @@ def parse_pdf(file_path=None, file_bytes=None, filename=""):
             if not item_num:
                 continue
             content = segments[i + 1].strip()
+            context_before = segments[i - 1].strip() if i >= 1 else ""
 
             # Фильтр ложных срабатываний: числа > 30 без точки — это не пункты
             if '.' not in item_num and item_num.isdigit() and int(item_num) > 30:
@@ -430,7 +549,7 @@ def parse_pdf(file_path=None, file_bytes=None, filename=""):
 
             # «2. Пункт 4.1» — номер списка, реальный пункт внутри content
             sub_m = re.match(
-                rf'^\s*(?:\d+[\.)]\s*)?[Пп][уy]?нкт\s+({RE_ITEM_DECIMAL})',
+                rf'^\s*(?:\d+[\.)]\s*)?[Пп][уy]?нкт\s+({RE_ITEM_NUMBER})',
                 content,
                 re.IGNORECASE,
             )
@@ -442,36 +561,30 @@ def parse_pdf(file_path=None, file_bytes=None, filename=""):
             if len(content) < 5:
                 continue
 
-            # Определяем уровень вложенности
             parts = item_num.split('.')
-            is_top_level = len(parts) == 1
 
-            # Сброс массового режима, если перешли к новому пункту первого уровня
-            if is_top_level:
-                mass_parent = None
-
-            # Проверка на активацию массового режима (все районы/улусы)
-            content_lower = content.replace('\n', ' ').lower()
-            mass_triggers = [
-                "рекомендовать органам местного самоуправления",
-                "органам местного самоуправления республики саха",
-                "главам муниципальных образований республики саха",
-            ]
-            mass_trigger_reason = None
-            if any(trigger in content_lower for trigger in mass_triggers):
-                mass_trigger_reason = "exact"
-            elif RE_ALL_DISTRICTS_TRIGGER.search(content_lower):
-                mass_trigger_reason = "regex"
-
-            if mass_trigger_reason:
+            # Заголовок «4. Главам муниципальных…:» — без задачи, только ветка для 4.1–4.3
+            if _is_mass_section_header(item_num, content):
                 mass_parent = item_num
-                logging.info(
-                    f"[PDF-PARSER] П.{item_num}: Активирован массовый режим "
-                    f"(родитель={mass_parent}, trigger={mass_trigger_reason})"
-                )
+                executor_hierarchy[item_num] = '__ALL_DISTRICTS__'
+                logging.info(f"[PDF-PARSER] П.{item_num}: заголовок ОМСУ, ждём подпункты")
+                continue
 
-            # 1. Пропуск заголовков-перечислений (например, "10. Рекомендовать...:")
-            is_header = content.endswith(':') and i + 2 < len(segments) and segments[i+2].strip().startswith(item_num + ".")
+            # Новый пункт верхнего уровня — сброс массовой ветки
+            if mass_parent and '.' not in item_num and item_num != mass_parent:
+                if not (mass_parent and item_num.startswith(mass_parent + '.')):
+                    mass_parent = None
+
+            if _is_mass_district_text(content) or _is_mass_district_text(context_before):
+                if '.' not in item_num:
+                    mass_parent = item_num
+
+            # 1. Пропуск заголовков-перечислений
+            is_header = (
+                content.endswith(':')
+                and i + 2 < len(segments)
+                and segments[i + 2].strip().startswith(item_num + ".")
+            )
             if is_header:
                 executor_hierarchy[item_num] = _parse_executor(content)
                 logging.info(f"[PDF-PARSER] П.{item_num}: пропущен как заголовок")
@@ -481,7 +594,6 @@ def parse_pdf(file_path=None, file_bytes=None, filename=""):
             current_executor = _parse_executor(content)
             is_fallback = current_executor.endswith('...') or current_executor == 'Ответственное лицо'
             
-            # Наследование исполнителя (если не нашли явно в текущем пункте)
             if is_fallback:
                 for depth in range(len(parts) - 1, 0, -1):
                     parent_num = '.'.join(parts[:depth])
@@ -492,12 +604,14 @@ def parse_pdf(file_path=None, file_bytes=None, filename=""):
                             is_fallback = False
                             break
 
-            # 3. Применение массового режима районов
-            co_executor = None
-            if mass_parent and (item_num == mass_parent or item_num.startswith(mass_parent + ".")):
-                # Для ветки, где явным текстом указаны ОМСУ/главы МО,
-                # всегда разворачиваем подпункты на все районы.
+            # 3. Подпункты ветки ОМСУ (4.1, 4.2, …) → все районы
+            if mass_parent and item_num.startswith(mass_parent + '.'):
                 current_executor = '__ALL_DISTRICTS__'
+            elif current_executor == '__ALL_DISTRICTS__' and not (
+                mass_parent and item_num.startswith(mass_parent + '.')
+            ):
+                if is_fallback:
+                    current_executor = 'Ответственное лицо'
 
             # 4. Определение срока
             current_deadline = _parse_deadline(content)
@@ -517,16 +631,11 @@ def parse_pdf(file_path=None, file_bytes=None, filename=""):
             # 5. Формирование задачи
             first_line = next((l.strip() for l in content.split('\n') if l.strip()), '')
             short_title = first_line if len(first_line) < 80 else first_line[:77] + '...'
-            
-            if co_executor and current_executor == '__ALL_DISTRICTS__':
-                short_title = f"(соисполнитель: {co_executor}) {short_title}"
 
             if current_executor == '__ALL_DISTRICTS__':
                 for district_name in DISTRICTS.keys():
-                    task_deadline = current_deadline or NO_DEADLINE_SENTINEL
-                    reason = mass_trigger_reason or "inherited"
-                    meta = f"[MASS_TRIGGER:{reason}]"
-                    task_text = f"{meta}\n" + (content if current_deadline else "[Срок не указан]\n" + content)
+                    task_deadline = _resolve_deadline(current_deadline)
+                    task_text = content if current_deadline else "[Срок не указан]\n" + content
                     tasks.append({
                         'item_number': item_num,
                         'title': f'Пункт {item_num}. {short_title}',
@@ -537,7 +646,7 @@ def parse_pdf(file_path=None, file_bytes=None, filename=""):
                     })
                 logging.info(f"[PDF-PARSER] П.{item_num}: развёрнут на {len(DISTRICTS)} районов")
             else:
-                task_deadline = current_deadline or NO_DEADLINE_SENTINEL
+                task_deadline = _resolve_deadline(current_deadline)
                 task_text = content if current_deadline else "[Срок не указан]\n" + content
                 tasks.append({
                     'item_number': item_num,

@@ -20,24 +20,48 @@
             <label class="flex items-center gap-2"><input id="enable_deadline_colors" type="checkbox" {% if settings.enable_deadline_colors %}checked{% endif %}> Цвета сроков в интерфейсе</label>
             <label class="flex items-center gap-2"><input id="notify_days_7" type="checkbox" {% if settings.notify_days_7 %}checked{% endif %}> Напоминать за 7 дней</label>
             <label class="flex items-center gap-2"><input id="notify_days_3" type="checkbox" {% if settings.notify_days_3 %}checked{% endif %}> Напоминать за 3 дня</label>
-            <div class="flex gap-2 pt-2">
+            <div class="flex gap-2 pt-2 flex-wrap">
                 <button onclick="saveSettings()" class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-sm">Сохранить</button>
                 <button onclick="runCheck()" class="px-4 py-2 rounded bg-amber-600 hover:bg-amber-500 text-sm">Запустить проверку сейчас</button>
+                <button onclick="sendDigest()" id="digestBtn" class="px-4 py-2 rounded bg-rose-600 hover:bg-rose-500 text-sm">Отправить сводку просроченных</button>
             </div>
+            <p id="notifyResult" class="text-xs hidden"></p>
         </div>
 
         <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 space-y-3">
             <h2 class="font-semibold">Email получатели</h2>
+            <details class="text-sm text-slate-400 bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2">
+                <summary class="cursor-pointer text-sky-300 font-medium">Как настроить SMTP (где взять почту)</summary>
+                <div class="mt-3 space-y-2 leading-relaxed">
+                    <p><strong class="text-slate-200">1. Корпоративная почта (лучший вариант).</strong>
+                        Попросите IT выделить технический ящик (<code class="text-slate-300">kchs-portal@ваш-домен</code>)
+                        и параметры исходящего SMTP для сервера <code class="text-slate-300">10.18.101.90</code>.</p>
+                    <p><strong class="text-slate-200">2. Яндекс 360 / Mail.ru для домена.</strong>
+                        Создайте ящик в админке, включите «пароль приложения» для SMTP.
+                        Яндекс: <code class="text-slate-300">smtp.yandex.ru:587</code>, TLS.</p>
+                    <p><strong class="text-slate-200">3. Внутренний relay.</strong>
+                        Если в сети есть Postfix/Exchange без пароля с IP сервера — достаточно
+                        <code class="text-slate-300">SMTP_SERVER</code> и <code class="text-slate-300">SMTP_FROM</code>.</p>
+                    <p class="text-xs">Подробная инструкция: <code class="text-slate-300">task-app/SMTP.md</code> в репозитории.
+                        После правок <code class="text-slate-300">.env</code> пересоздайте контейнер:
+                        <code class="text-slate-300">docker compose up -d --force-recreate task-app</code></p>
+                </div>
+            </details>
             <div id="smtpStatus" class="text-xs text-slate-400 bg-slate-900 border border-slate-700 rounded px-3 py-2">
                 Проверка SMTP…
             </div>
             <div class="flex gap-2 flex-wrap">
                 <input id="test_email" class="flex-1 min-w-[200px] bg-slate-900 border border-slate-600 rounded px-3 py-2 text-sm" placeholder="email для теста">
-                <button type="button" onclick="sendTestEmail()" id="testEmailBtn"
+                <button type="button" onclick="sendTestEmail('district_reminder')" id="testDistrictBtn"
                     class="px-4 py-2 rounded bg-sky-600 hover:bg-sky-500 text-sm whitespace-nowrap">
-                    Отправить тестовое письмо
+                    Тест — напоминание районам
+                </button>
+                <button type="button" onclick="sendTestEmail('smtp')" id="testEmailBtn"
+                    class="px-4 py-2 rounded bg-slate-600 hover:bg-slate-500 text-sm whitespace-nowrap">
+                    Тест SMTP
                 </button>
             </div>
+            <p class="text-xs text-slate-500">«Напоминание районам» — HTML-письмо со ссылкой на папку района на Яндекс.Диске (без ссылок на портал).</p>
             <p id="testEmailResult" class="text-xs hidden"></p>
             <div class="flex gap-2">
                 <input id="new_email" class="flex-1 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-sm" placeholder="name@example.com">
@@ -137,16 +161,18 @@
                 const mode = s.use_ssl ? 'SSL' : (s.use_tls ? 'STARTTLS' : 'без шифрования');
                 box.innerHTML = '<span class="text-emerald-400">SMTP настроен.</span> '
                     + (s.server || '—') + ':' + (s.port || '—')
-                    + ' · от ' + (s.from || '—')
+                    + ' · от ' + (s.from_name ? s.from_name + ' &lt;' + (s.from || '') + '&gt;' : (s.from || '—'))
+                    + (s.support_email ? ' · поддержка: ' + s.support_email : '')
                     + ' · ' + mode + ' · ' + auth;
             } catch (e) {
                 box.textContent = 'Не удалось проверить SMTP';
             }
         }
 
-        async function sendTestEmail() {
+        async function sendTestEmail(template) {
             const input = document.getElementById('test_email');
-            const btn = document.getElementById('testEmailBtn');
+            const btnSmtp = document.getElementById('testEmailBtn');
+            const btnDistrict = document.getElementById('testDistrictBtn');
             const result = document.getElementById('testEmailResult');
             const email = (input.value || '').trim();
             if (!email) {
@@ -154,15 +180,15 @@
                 input.focus();
                 return;
             }
-            btn.disabled = true;
-            btn.textContent = 'Отправка…';
+            btnSmtp.disabled = true;
+            btnDistrict.disabled = true;
             result.classList.remove('hidden', 'text-emerald-400', 'text-red-400');
             result.textContent = 'Отправка…';
             try {
                 const res = await fetch('/task/api/admin/test-email', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({email})
+                    body: JSON.stringify({email, template: template || 'district_reminder'})
                 });
                 const data = await res.json();
                 if (data.ok) {
@@ -176,8 +202,8 @@
                 result.className = 'text-xs text-red-400';
                 result.textContent = 'Ошибка сети';
             } finally {
-                btn.disabled = false;
-                btn.textContent = 'Отправить тестовое письмо';
+                btnSmtp.disabled = false;
+                btnDistrict.disabled = false;
             }
         }
 
@@ -200,10 +226,42 @@
         }
 
         async function runCheck() {
+            const box = document.getElementById('notifyResult');
+            box.classList.remove('hidden', 'text-emerald-400', 'text-red-400');
+            box.textContent = 'Проверка…';
             const res = await fetch('/task/api/admin/run-notifications', {method: 'POST'});
             const data = await res.json();
-            if (data.ok) alert('Проверка выполнена');
-            else alert('Ошибка: ' + (data.error || 'unknown'));
+            if (data.ok) {
+                box.className = 'text-xs text-emerald-400';
+                box.textContent = `Готово: уведомлений ${data.notified || 0}, просрочено ${data.overdue_marked || 0}`;
+            } else {
+                box.className = 'text-xs text-red-400';
+                box.textContent = 'Ошибка: ' + (data.error || 'unknown');
+            }
+        }
+
+        async function sendDigest() {
+            const btn = document.getElementById('digestBtn');
+            const box = document.getElementById('notifyResult');
+            btn.disabled = true;
+            box.classList.remove('hidden', 'text-emerald-400', 'text-red-400');
+            box.textContent = 'Отправка сводки…';
+            try {
+                const res = await fetch('/task/api/admin/send-digest', {method: 'POST'});
+                const data = await res.json();
+                if (data.ok) {
+                    box.className = 'text-xs text-emerald-400';
+                    box.textContent = data.message + (data.overdue_count != null ? ` (${data.overdue_count} просроч.)` : '');
+                } else {
+                    box.className = 'text-xs text-red-400';
+                    box.textContent = data.error || 'Не удалось отправить';
+                }
+            } catch (e) {
+                box.className = 'text-xs text-red-400';
+                box.textContent = 'Ошибка сети';
+            } finally {
+                btn.disabled = false;
+            }
         }
 
         async function addEmail() {
